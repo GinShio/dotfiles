@@ -2009,7 +2009,6 @@ Protesilaos 写了一篇 [[https://protesilaos.com/codelog/2021-01-26-git-diff-h
   xfuncname = "^(\\*+ +.*)$"
 #+end_example
 
-
 *** 功能增强
 [[xkcd:1319]]
 **** 标题结构
@@ -2468,7 +2467,8 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
 自定义 LaTeX 片段的外观很舒适，这样它们就更适合文本了 --- 比如这个
 $\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}$ 。
 #+begin_src emacs-lisp
-(setq! org-preview-latex-process-alist
+(setq! org-preview-latex-default-process 'dvisvgm
+       org-preview-latex-process-alist
        '((dvipng :programs
                  ("lualatex" "dvipng")
                  :description "dvi > png" :message "you need to install the programs: latex and dvipng." :image-input-type "dvi" :image-output-type "png" :image-size-adjust
@@ -2476,7 +2476,7 @@ $\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}$ 。
                  :latex-compiler
                  ("lualatex -output-format dvi -interaction nonstopmode -output-directory %o %f")
                  :image-converter
-                 ("dvipng -fg %F -bg %B -D %D -T tight -o %O %f"))
+                 ("dvipng -D %D -T tight -bg Transparent -o %O %f"))
          (dvisvgm :programs
                   ("latex" "dvisvgm")
                   :description "dvi > svg" :message "you need to install the programs: latex and dvisvgm." :use-xcolor t :image-input-type "xdv" :image-output-type "svg" :image-size-adjust
@@ -4163,6 +4163,24 @@ contextual information."
 当我想在某处粘贴导出的 Markdown 时，最好使用 unicode 字符 =---= 而不是
 =&#x2014;= 。为此，只需要在本地重新绑定提供的 alist。而
 ~org-md-plain-text-unicode-a~ 就是解决这个问题的。
+
+*** Hugo
+我用 hugo 的主要原因是就是可以用 Org Mode 来写作，之后交给 [[https://ox-hugo.scripter.co/][ox-hugo]] 就好。需要尽
+量减少 hugo 所带来的额外语法，这样可以让我们仅用 Org 编辑，发布不同的文件。
+
+# 在导出时，只要 Org 使用的相对路经，导出的 Markdown 就不会采用绝对路经，可以有效
+# 避免 Hugo 使用绝对路经导致资源不在根目录中。
+
+# #+begin_src emacs-lisp
+# (setq! org-hugo-external-file-extensions-allowed-for-copying nil)
+# #+end_src
+
+我使用的 Hugo 主题是 [[https://github.com/HEIGE-PCloud/DoIt][DoIt]]，​~authors~ 字段接受数组类型，而 =ox-hugo= 默认导出
+~author~ 字段为数组类型，对于该问题可以参考该 [[https://github.com/kaushalmodi/ox-hugo/issues/608#issuecomment-1086950058][issue]]
+#+begin_example
+,#+hugo_front_matter_key_replace: author>authors
+#+end_example
+
 ** LaTeX
 :properties:
 :CUSTOM_ID: LaTeX
@@ -4385,7 +4403,6 @@ Doom 默认的 Markdown 是 ~GFM~ (GitHub Flavored Markdown)，不过有了 =Ema
 # TOC         <!-- :TOC: -->
 #+end_example
 
-
 ** C++
 tcc 也是 C++
 #+begin_src emacs-lisp
@@ -4395,24 +4412,34 @@ tcc 也是 C++
 * 生成 Org 文件
 - agenda
 #+begin_src text :tangle (if (file-exists-p "~/org/agenda/todo.org") "no" "~/org/agenda/todo.org") :mkdirp yes
-,* Personal :personal:
+,* Personal
 :properties:
+:category: personal
 :end:
 
-,* Interview :interview:
+,* Interview
 :properties:
+:category: interview
 :end:
 
-,* Daily :daily:
+,* Contset
 :properties:
+:category: contest
 :end:
 
-,* Weekly :weekly:
+,* Daily
 :properties:
+:category: daily
 :end:
 
-,* Monthly :monthly:
+,* Weekly
 :properties:
+:category: weekly
+:end:
+
+,* Monthly
+:properties:
+:category: monthly
 :end:
 #+end_src
 
