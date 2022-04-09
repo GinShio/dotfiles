@@ -15,6 +15,8 @@
     - cmake
     - libvterm (~USE_SYSTEM_LIBVTERM=yes~)
     - libtool-bin
+  # + org-roam
+  #   - graphviz
   + ebook management
     - calibre
     - sqlite3
@@ -25,9 +27,9 @@
     - [[http://app.aspell.net/create][SCOWL Custom List / Dicionary Creator]]
   + screenshot
     - [[https://imagemagick.org/index.php][ImageMagick]]
-  + theme magic :: *Only* Unix-like system
+  + theme magic (*Only* Unix-like system)
     - [[https://github.com/dylanaraps/pywal][pywal]]
-  + selectric :: :: *Maybe Only* Unix-like system
+  + selectric (*Maybe Only* Unix-like system)
     - [[https://alsa-project.org/wiki/Main_Page][alsa]]
 
 *** LSP

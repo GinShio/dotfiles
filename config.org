@@ -104,8 +104,8 @@ source /etc/os-release
 配置有用且基础的个人信息
 #+begin_src emacs-lisp
 (setq user-full-name "GinShio"
-      user-mail-address "iris@ginshio.org"
-      user-gpg-key ""
+      user-mail-address "ginshio78@gmail.com"
+      user-gpg-key "9E2949D214995C7E"
       org-directory "~/org")
 #+end_src
 显然这可以被 GPG 或其他程序使用。
@@ -441,7 +441,7 @@ data                ; config/data formats
 (elixir +lsp)       ; erlang done right
 ;;elm               ; care for a cup of TEA?
 emacs-lisp          ; drown in parentheses
-;;(erlang +lsp)     ; an elegant language for a more civilized age
+(erlang +lsp)       ; an elegant language for a more civilized age
 ;;ess               ; emacs speaks statistics
 ;;factor
 ;;faust             ; dsp, but you get to keep your soul
@@ -479,7 +479,8 @@ markdown            ; writing docs for people to ignore
  +gnuplot           ; who doesn't like pretty pictures
  ;;+pomodoro        ; be fruitful with the tomato technique
  +present           ; using org-mode for presentations
- +roam2)            ; wander around notes
+ ;; +roam2          ; wander around notes
+ )
 ;;php               ; perl's insecure younger brother
 ;;plantuml          ; diagrams for confusing people more
 ;;purescript        ; javascript, but functional
@@ -1827,7 +1828,9 @@ OOTB 的 emoji 模块！麻烦的一点是设置的有些默认字符，可能�
          (alt (plist-get xkcd-info :alt))
          (title (plist-get xkcd-info :title))
          (file (xkcd-download img (string-to-number num))))
-    (cond ((org-export-derived-backend-p backend 'html)
+    (cond ((org-export-derived-backend-p backend 'hugo)
+           (format "{{< figure src=\"%s\" alt=\"%s\" >}}" img (subst-char-in-string ?\" ?“ alt)))
+          ((org-export-derived-backend-p backend 'html)
            (format "<img class='invertible' src='%s' title=\"%s\" alt='%s'>" img (subst-char-in-string ?\" ?“ alt) title))
           ((org-export-derived-backend-p backend 'latex)
            (format "\\begin{figure}[!htb]
@@ -2511,6 +2514,7 @@ $\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}$ 。
 \\addtolength{\\textheight}{-3cm}
 \\setlength{\\topmargin}{1.5cm}
 \\addtolength{\\topmargin}{-2.54cm}
+\\usepackage{amsmath,amsxtra,mathtools,upgreek,extarrows}
 \\usepackage{arev}
 "
        org-format-latex-options
@@ -3071,6 +3075,9 @@ Emacs 中最有用的快捷键，或文件名：我将我的配置保存在 =~/.
 (setq! org-html-mathjax-template
       "<script>
 MathJax = {
+  loader: {
+    load: ['[tex]/ams', '[tex]/upgreek', '[tex]/mathtools']
+  },
   chtml: {
     scale: %SCALE
   },
@@ -3079,6 +3086,7 @@ MathJax = {
     fontCache: \"global\"
   },
   tex: {
+    packages: {'[+]': ['ams', 'upgreek', 'mathtools']},
     tags: \"%AUTONUMBER\",
     multlineWidth: \"%MULTLINEWIDTH\",
     tagSide: \"%TAGSIDE\",
@@ -4209,7 +4217,7 @@ contextual information."
        TeX-show-compilation t
        LaTeX-clean-intermediate-suffixes (append TeX-clean-default-intermediate-suffixes
                                                  '("\\.acn" "\\.acr" "\\.alg" "\\.glg"
-                                                   "\\.ist" "\\.listing")))
+                                                   "\\.ist" "\\.listing" "\\.fdb_latexmk")))
 (add-to-list 'TeX-command-list '("LatexMk (XeLaTeX)" "latexmk -pdf -xelatex -8bit %S%(mode) %(file-line-error) %(extraopts) %t" TeX-run-latexmk nil
                                  (plain-tex-mode latex-mode doctex-mode)
                                  :help "Run LatexMk (XeLaTeX)"))
