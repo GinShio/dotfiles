@@ -3,8 +3,8 @@
 ** Dependens
 *** Fonts
   - normal :: [[https://adobe-fonts.github.io/source-code-pro/][Source Code Pro]]
-  - variable :: [[https://adobe-fonts.github.io/source-code-pro/][Source Code Pro]]
-  - unicode :: [[https://www.gnu.org/software/freefont/][FreeMono]]
+  - variable :: [[https://adobe-fonts.github.io/source-code-pro/][Source Code Variable]]
+  - unicode :: [[https://juliamono.netlify.app][JuliaMono]]
   - serif :: [[https://ctan.org/pkg/tex-gyre-cursor][TeX Gyre Cursor]]
 
 *** Tools

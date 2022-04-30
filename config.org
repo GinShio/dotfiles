@@ -106,6 +106,7 @@ source /etc/os-release
 (setq user-full-name "GinShio"
       user-mail-address "ginshio78@gmail.com"
       user-gpg-key "9E2949D214995C7E"
+      wakatime-api-key "cb5cccd0-e5a0-4922-abfd-748a42a96cae"
       org-directory "~/org")
 #+end_src
 显然这可以被 GPG 或其他程序使用。
@@ -209,9 +210,9 @@ source /etc/os-release
   - doom-version: *3.0.0-dev*
   - doom-modules-version: *21.12.0-dev*
 *** 模组
-:PROPERTIES:
+:properties:
 :header-args:emacs-lisp: :tangle no
-:END:
+:end:
 
 #+name: init.el
 #+attr_html: :collapsed t
@@ -539,8 +540,8 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Source Code Pro" :size 15)
       doom-big-font (font-spec :family "Source Code Pro" :size 30)
-      doom-variable-pitch-font (font-spec :family "Source Code Pro" :size 15)
-      doom-unicode-font (font-spec :family "FreeMono")
+      doom-variable-pitch-font (font-spec :family "Source Code Variable" :size 15)
+      doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "TeX Gyre Cursor")
       )
 #+end_src
@@ -1019,9 +1020,9 @@ fi
 
 * 包
 ** 加载结构
-:PROPERTIES:
+:properties:
 :header-args:emacs-lisp: :tangle no
-:END:
+:end:
 
 doom 通过 =packages.el= 来安装包，非常简单，只需要 ~package!~ 就可以安装。
 需要注意，不应该将该文件编译为字节码。
@@ -1860,7 +1861,17 @@ OOTB 的 emoji 模块！麻烦的一点是设置的有些默认字符，可能�
 当然这是需要 =aplay= 的，如果你没有，可以找一下有没有 =alsa= 相关内容。
 但是我的 WSL ？没声？没声！
 
-*** TODO wakatime
+*** wakatime
+Wakatime 可以帮助你记录在编程语言、编辑器、项目以及操作系统上所用的时间，并在
+GitHub / GitLab 同名仓库下展示。
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! wakatime-mode :recipe (:host github :repo "wakatime/wakatime-mode"))
+#+end_src
+
+#+begin_src emacs-lisp
+(global-wakatime-mode)
+#+end_src
 
 *** Elcord
 
@@ -2129,7 +2140,7 @@ Protesilaos 写了一篇 [[https://protesilaos.com/codelog/2021-01-26-git-diff-h
 https://www.zmonster.me/2018/02/28/org-mode-capture.html"
     (let* ((hl (let ((headlines (org-element-map (org-element-parse-buffer 'headline) 'headline
                                   (lambda (hl) (and (= (org-element-property :level hl) 1)
-                                                    (org-element-property :title hl))))))
+                                               (org-element-property :title hl))))))
                  (completing-read "Project Name: " headlines))))
       (goto-char (point-min))
       (if (re-search-forward
@@ -2161,6 +2172,22 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
            "* %^{book} :book:%\\1:\n%?" :empty-lines 1)
           ("cm" "Movie" entry (file+weektree ,org-capture-comment-file)
            "* %^{movie} :movie:%\\1:\n%?" :empty-lines 1)
+          ("g" "GTD")
+          ("gt" "Todo" entry (file+headline org-agenda-todo-file "Personal")
+           "* TODO [#%^{priority|A|B|C|D|E}] %^{task}\n  SCHEDULED: %^T DEADLINE: %^T\n:properties:\n:end:\n%?"
+           :empty-lines 1)
+          ("gi" "Interview" entry (file+headline ,org-agenda-todo-file "Interview")
+           "* WAIT [#%^{priority|B|A|C|D}] %^{company} - %^{position}\t:%\\2:\nSCHEDULED: %^T DEADLINE: %^T\n:properties:\n:url: %^{link}\n:end:\n%?"
+           :prepend t :empty-lines 1)
+          ("gd" "Daily" entry (file+headline ,org-agenda-todo-file "Daily")
+           "* TODO [#%^{priority|C|A|B|D|E}] %^{task}\n SCHEDULED:  %<<%Y-%m-%d %a %H:%M ++1d>>\n:properties:\n:end:\n%?"
+           :empty-lines 1)
+          ("gw" "Weekly" entry (file+headline ,org-agenda-todo-file "Weekly")
+           "* TODO [#%^{priority|B|A|C|D|E}] %^{task}\n SCHEDULED: %<<%Y-%m-%d %a %H:%M ++1w>>\n:properties:\n:end:\n%?"
+           :empty-lines 1)
+          ("gm" "Monthly" entry (file+headline ,org-agenda-todo-file "Monthly")
+           "* TODO [#%^{priority|C|A|B|D|E}] %^{task}\n SCHEDULED: %<<%Y-%m-%d %a %H:%M ++1m>>\n:properties:\n:end:\n%?"
+           :empty-lines 1)
           ("n" "Note")
           ("nc" "Computer" entry (file+headline ,org-capture-note-file "Computer")
            "* %^{heading} %^g\n%?\n" :empty-lines 1)
@@ -2168,22 +2195,6 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
            "* %^{heading} %^g\n%?\n" :empty-lines 1)
           ("ng" "Game" entry (file+headline ,org-capture-note-file "Game")
            "* %^{heading} %^g\n%?\n" :empty-lines 1)
-          ("g" "GTD")
-          ("gt" "Todo" entry (file+headline org-agenda-todo-file "Personal")
-           "* TODO [#%^{priority|A|B|C|D|E}] %^{task}\n  SCHEDULED: %^T DEADLINE: %^T\n  :properties:\n  :end:\n%?"
-           :empty-lines 1)
-          ("gi" "Interview" entry (file+headline ,org-agenda-todo-file "Interview")
-           "* WAIT [#%^{priority|B|A|C|D}] %^{company} - %^{position}\t:%\\2:\n  SCHEDULED: %^T DEADLINE: %^T\n  :properties:\n    :url: %^{link}\n    :end:\n%?"
-           :prepend t :empty-lines 1)
-          ("gd" "Daily" entry (file+headline ,org-agenda-todo-file "Daily")
-           "* TODO [#%^{priority|C|A|B|D|E}] %^{task}\n SCHEDULED:  %<<%Y-%m-%d %a %H:%M ++1d>>\n  :properties:\n    :end:\n%?"
-           :empty-lines 1)
-          ("gw" "Weekly" entry (file+headline ,org-agenda-todo-file "Weekly")
-           "* TODO [#%^{priority|B|A|C|D|E}] %^{task}\n SCHEDULED: %<<%Y-%m-%d %a %H:%M ++1w>>\n  :properties:\n    :end:\n%?"
-           :empty-lines 1)
-          ("gm" "Monthly" entry (file+headline ,org-agenda-todo-file "Monthly")
-           "* TODO [#%^{priority|C|A|B|D|E}] %^{task}\n SCHEDULED: %<<%Y-%m-%d %a %H:%M ++1m>>\n  :properties:\n    :end:\n%?"
-           :empty-lines 1)
           ;; ("p" "Project")
           ;; ("pa" "Urgance" entry (file+function ,org-agenda-project-file
           ;;                                      (lambda () (ginshio/find-project-tree "urgancy")))
@@ -2205,6 +2216,9 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
           ;;                                         (lambda () (ginshio/find-project-tree "eventually")))
           ;;  "*** TODO [#E] %^{task}\n SCHEDULED: %<<%Y-%m-%d %a %H:%M>> DEADLINE: %^T\n    :properties:\n    :end:\n%?"
           ;;  :empty-lines 1)
+          ("s" "Code Snippet" entry (file ,org-capture-snippet-file)
+           "* %^{heading} :code:%\\2:\n:properties:\n:language: %^{language}\n:end:\n\n#+begin_src %\\2\n%?\n#+end_src"
+           :empty-lines 1)
           )))
 #+end_src
 
@@ -2322,9 +2336,9 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
 如果想用其他密钥加密，可以设置 ~cryptkey~ 属性。
 #+begin_example
 ,* Totally secret :crypt:
-  :PROPERTIES:
-  :CRYPTKEY: 0x0123456789012345678901234567890123456789
-  :END:
+:properties:
+:cryptkey: 0x0123456789012345678901234567890123456789
+:end:
 #+end_example
 
 *** 视觉
@@ -2532,9 +2546,9 @@ $\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}$ 。
 #+end_src
 
 *** HTML 导出
-:PROPERTIES:
+:properties:
 :header-args:emacs-lisp: :noweb-ref ox-html-conf
-:END:
+:end:
 
 #+begin_src emacs-lisp :noweb no-export :noweb-ref none :tangle yes
 (after! ox-html
@@ -3099,9 +3113,9 @@ MathJax = {
 #+end_src
 
 *** LaTeX 导出
-:PROPERTIES:
+:properties:
 :header-args:emacs-lisp: :noweb-ref ox-latex-conf
-:END:
+:end:
 
 #+begin_src emacs-lisp :noweb no-export :noweb-ref none :tangle yes
 (after! ox-latex
@@ -4036,9 +4050,9 @@ This condition is applied when cover page option is set to auto.")
 #+end_src
 
 *** 幻灯片导出
-:PROPERTIES:
+:properties:
 :header-args:emacs-lisp: :noweb-ref ox-latex-conf
-:END:
+:end:
 
 如果能使用不同的主题就很好了
 #+begin_src emacs-lisp
