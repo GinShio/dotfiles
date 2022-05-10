@@ -1689,6 +1689,23 @@ Theme Magic 提供了一个数字界面，尝试从饱和度、色彩差异来�
 来自 =:ui emoji= 模块
 #+end_comment
 
+设置一个你喜欢的 emoji 字符集，当然你只能从三个字符集中做选择，但你可以选择不同
+版本
+  + [[https://www.joypixels.com/][emojione]]
+    * emojione-v2
+    * emojione-v2-22
+    * emojione-v2.2.6
+    * emojione-v2.2.6-22
+  + [[https://twemoji.twitter.com/][twemoji]]
+    * twemoji-v2
+    * twemoji-v2-22
+  + [[https://openmoji.org/][openmoji]]
+    * openmoji-v13-0
+
+#+begin_src emacs-lisp
+(setq emojify-emoji-set "twemoji-v2")
+#+end_src
+
 OOTB 的 emoji 模块！麻烦的一点是设置的有些默认字符，可能会显示为 emoji。
 直接从 emoji 表中删除它们 (除了有点暴力)
 #+begin_src emacs-lisp
