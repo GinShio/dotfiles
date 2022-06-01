@@ -31,6 +31,8 @@
     - [[https://github.com/dylanaraps/pywal][pywal]]
   + selectric (*Maybe Only* Unix-like system)
     - [[https://alsa-project.org/wiki/Main_Page][alsa]]
+  + wakatime (use wakatime config file ~$HOME/.wakatime.cfg~)
+    - [[https://github.com/wakatime/wakatime-cli][wakatime-cli]]
 
 *** LSP
   + CC :: [[https://github.com/MaskRay/ccls][ccls]] or [[https://clangd.llvm.org/][clangd]]

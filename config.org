@@ -106,7 +106,6 @@ source /etc/os-release
 (setq user-full-name "GinShio"
       user-mail-address "ginshio78@gmail.com"
       user-gpg-key "9E2949D214995C7E"
-      wakatime-api-key "cb5cccd0-e5a0-4922-abfd-748a42a96cae"
       org-directory "~/org")
 #+end_src
 显然这可以被 GPG 或其他程序使用。
@@ -134,7 +133,7 @@ source /etc/os-release
 
 (remove-hook 'text-mode-hook #'visual-line-mode)
 (add-hook 'text-mode-hook #'auto-fill-mode)
-(add-hook! 'window-setup-hook #'toggle-frame-fullscreen)
+(add-hook! 'window-setup-hook #'toggle-frame-maximized)
                                     ; 设置最大化启动
 ;;(display-time-mode t)             ; 开启时间状态栏
 (require 'battery)
@@ -331,7 +330,7 @@ ophints             ; highlight the region an operation acts on
 (popup              ; tame sudden yet inevitable temporary windows
  +all               ; catch all popups that start with an asterix
  +defaults)         ; default popup rules
-;;tabs              ; a tab bar for Emacs
+tabs                ; a tab bar for Emacs
 treemacs            ; a project drawer, like neotree but cooler
 ;;unicode           ; extended unicode support for various languages
 vc-gutter           ; vcs diff in the fringe
@@ -603,6 +602,7 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
 #+begin_src emacs-lisp :tangle yes :noweb no-export :comments no
 (defun ginshio/doom-init-ui-misc()
   (menu-bar-mode -1)               ;; disable menu-bar
+  (tab-bar-mode -1)                ;; disable tab-bar
   (setq-default cursor-type 'box)  ;; set box style cursor
   (blink-cursor-mode -1)           ;; cursor not blink
   <<doom-dashboard-layout>>
@@ -1391,8 +1391,7 @@ As good as terminal emulation gets in Emacs
 
 VTerm 的安装相对麻烦一些，需要编译一些依赖。当然对于 Unix 用户，用系统库更加方便！
 #+begin_src emacs-lisp
-(after! vterm
-  (setq vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=yes"))
+(setq! vterm-module-cmake-args "-DUSE_SYSTEM_LIBVTERM=yes")
 #+end_src
 
 *** YASnippet
@@ -1711,7 +1710,7 @@ OOTB 的 emoji 模块！麻烦的一点是设置的有些默认字符，可能�
 #+begin_src emacs-lisp
 (defvar emojify-disabled-emojis
   '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪"
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" ":end:"
     ;; Org Heading
     "✙" "♱" "♰" "☥" "✞" "✟" "✝" "†"
     "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷"
@@ -1733,46 +1732,118 @@ OOTB 的 emoji 模块！麻烦的一点是设置的有些默认字符，可能�
 #+end_src
 
 *** Tabs
-如果你想像现代编辑器一样拥有 tabs，或许你可以考虑一下
+#+begin_comment
+来自 =:ui tabs= 模块
+#+end_comment
+
+如果你想像现代编辑器一样拥有 tabs，或许你可以考虑一下。如果想要 tabs 底下显示
+=bar=​，需要开启 ~x-underline-at-descent-line~
 #+begin_src emacs-lisp
 (after! centaur-tabs
-  (centaur-tabs-group-by-projectile-project)
-  (centaur-tabs-mode t)
   (setq! centaur-tabs-style "bar"
          centaur-tabs-set-icons t
+         centaur-tabs-plain-icons nil
          centaur-tabs-set-modified-marker t
-         centaur-tabs-show-navigation-buttons t
-         centaur-tabs-gray-out-icons 'buffer))
+         centaur-tabs-show-navigation-buttons nil
+         centaur-tabs-gray-out-icons 'buffer
+         centaur-tabs-set-bar 'under
+         x-underline-at-descent-line t
+         centaur-tabs-label-fixed-length 9)
+  (defun centaur-tabs-hide-tab (x)
+    "Do no to show buffer X in tabs."
+    (let ((name (format "%s" x)))
+      (or
+       ;; Current window is not dedicated window.
+       (window-dedicated-p (selected-window))
+       ;; Buffer name not match below blacklist.
+       (string-prefix-p "*epc" name)
+       (string-prefix-p "*helm" name)
+       (string-prefix-p "*Helm" name)
+       (string-prefix-p "*Compile-Log*" name)
+       (string-prefix-p "*lsp" name)
+       (string-prefix-p "*company" name)
+       (string-prefix-p "*Flycheck" name)
+       (string-prefix-p "*tramp" name)
+       (string-prefix-p " *Mini" name)
+       (string-prefix-p "*help" name)
+       (string-prefix-p "*straight" name)
+       (string-prefix-p " *temp" name)
+       (string-prefix-p "*Help" name)
+       (string-prefix-p "*mybuf" name)
+       (string-prefix-p "► Doom" name)
+       ;; Is not magit buffer.
+       (and (string-prefix-p "magit" name)
+            (not (file-name-extension name)))
+       )))
+  (centaur-tabs-group-by-projectile-project)
+  (centaur-tabs-mode t))
 #+end_src
 
-如果想要 tabs 底下显示 =bar= ，需要开启 ~x-underline-at-descent-line~ ，但是它
-在 src_elisp{(after! ...)} 中不起作用。
+但是别忘了，需要在配置文件[[接口]]中开启 =tabs= 选项。还不能忘记添加快捷键
 #+begin_src emacs-lisp
-(setq! centaur-tabs-set-bar 'under
-       x-underline-at-descent-line t)
+(map! :map ctl-x-map
+      :prefix ("t" . "Tab and Treemacs")
+      "a"   #'centaur-tabs-select-beg-tab
+      "e"   #'centaur-tabs-select-end-tab
+      "f"   #'centaur-tabs-forward-tab
+      "F"   #'centaur-tabs-forward-group
+      "b"   #'centaur-tabs-backward-tab
+      "B"   #'centaur-tabs-backward-group
+      "g"   #'centaur-tabs-switch-group
+      "G"   #'centaur-tabs-toggle-groups
+      "l"   #'centaur-tabs-move-current-tab-to-left
+      "r"   #'centaur-tabs-move-current-tab-to-right
+      "k"   #'centaur-tabs-kill-other-buffers-in-current-group
+      "K"   #'centaur-tabs-kill-unmodified-buffers-in-current-group
+      "C-5" #'centaur-tabs-extract-window-to-new-frame
+      "C-o" #'centaur-tabs-open-in-external-application
+      "C-d" #'centaur-tabs-open-directory-in-external-application
+      )
 #+end_src
+
 
 *** Treemacs
 #+begin_comment
 来自 =:ui treemacs= 模块
 #+end_comment
 
-开启 =git-mode= 、 =follow-mode= 和 =indent-guide-mode= ，体验还是不错
+开启 =git-mode= 、 =follow-mode= 和 =indent-guide-mode=​，体验还是不错
 #+begin_src emacs-lisp
 (after! treemacs
-  (setq! treemacs-indent-guide-mode t
-         treemacs-show-hidden-files t
-         doom-themes-treemacs-theme "doom-colors"
-         treemacs-file-event-delay 1000
-         treemacs-file-follow-delay 0.1)
+  (setq! doom-themes-treemacs-theme               "doom-colors"
+         treemacs-deferred-git-apply-delay        0.5
+         treemacs-directory-name-transformer      #'identity
+         treemacs-display-in-side-window          t
+         treemacs-file-event-delay                1000
+         treemacs-file-follow-delay               0.1
+         treemacs-file-name-transformer           #'identity
+         treemacs-hide-dot-git-directory          t
+         treemacs-indent-guide-style              'block
+         treemacs-show-hidden-files               t)
+  (treemacs-indent-guide-mode t)
   (treemacs-follow-mode t)
-  ;; (treemacs-filewatch-mode t)
+  (treemacs-filewatch-mode t)
+  (treemacs-fringe-indicator-mode 'always)
   (treemacs-git-mode 'deferred)
-  (treemacs-hide-gitignored-files-mode t))
+  (treemacs-hide-gitignored-files-mode t)
+  )
 #+end_src
 
 可能是我的用法不对？ =filewatch-mode= 总是有问题，在外部修改 (不在 treemacs 中
 重命名、添加、删除等) 就会有问题，没法更新 tree。需要自己手动折叠一下。
+
+#+begin_src emacs-lisp
+(map! :map ctl-x-map
+      :prefix "t"
+      "0"   #'treemacs-select-window
+      "1"   #'treemacs-delete-other-windows
+      "d"   #'treemacs-select-directory
+      "C-e" #'treemacs-edit-workspaces
+      "C-f" #'treemacs-find-file
+      "C-t" #'treemacs-find-tag
+      )
+#+end_src
+
 
 *** hl todo
 ~hl-todo~ 允许你设置一些关键字，这些关键字将高亮并且便于查找。往往用于代码注释中
@@ -2180,11 +2251,16 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
   (setq! org-capture-dir (expand-file-name "capture" org-directory)
          org-capture-snippet-file (expand-file-name "snippets.org" org-capture-dir)
          org-capture-comment-file (expand-file-name "comments.org" org-capture-dir)
-         org-capture-note-file (expand-file-name "notes.org" org-capture-dir))
+         org-capture-note-file (expand-file-name "notes.org" org-capture-dir)
+         org-capture-blog-file (expand-file-name "blogs.org" org-capture-dir)
+         )
   ;; http://www.howardism.org/Technical/Emacs/journaling-org.html
   ;; https://www.zmonster.me/2018/02/28/org-mode-capture.html
   (setq org-capture-templates
-        `(("c" "Comment")
+        `(("B" "Blog TODO List" entry (file ,org-capture-blog-file)
+           "* TODO [#%^{priority|D|A|B|C|E}] %^{blog_title}\n:properties:\n:categories: %^{categories}\n:tags: %^{tags}\n:title: %\\1\n:file_name: %^{file_name}\n:end:\n%?"
+           :empty-lines 1)
+          ("c" "Comment")
           ("cb" "Book" entry (file+weektree ,org-capture-comment-file)
            "* %^{book} :book:%\\1:\n%?" :empty-lines 1)
           ("cm" "Movie" entry (file+weektree ,org-capture-comment-file)
@@ -2254,7 +2330,8 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
 由于这是 Emacs，我们可以为 org-mode 做一个很小的改动将其添加到快捷键上 🙂。
 #+begin_src emacs-lisp
 (map! :map org-mode-map
-      :desc "zero-width-space" "C-c SPC" (cmd! (insert "\u200B")))
+      :leader
+      :desc "zero-width-space" "SPC" (cmd! (insert "\u200B")))
 #+end_src
 
 不过在导出时，我并不想要它，加一个简单的过滤器将其过滤掉。
@@ -2342,7 +2419,7 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
   :config
   (org-crypt-use-before-save-magic) ;; encrypt when writing back to the hard disk
   (map! :map org-mode-map
-        :leader
+        :localleader
         :desc "org-encrypt" "C" nil
         :desc "encrypt current" "C e" #'org-encrypt-entry
         :desc "encrypt all" "C E" #'org-encrypt-entries
@@ -2421,12 +2498,7 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
             :begin_export  "⏩"
             :end_export    "⏪"
             :properties    "⚙"
-            :end           "∎"
-            :priority_a   ,(propertize "⚑" 'face 'all-the-icons-red)
-            :priority_b   ,(propertize "⬆" 'face 'all-the-icons-orange)
-            :priority_c   ,(propertize "■" 'face 'all-the-icons-yellow)
-            :priority_d   ,(propertize "⬇" 'face 'all-the-icons-green)
-            :priority_e   ,(propertize "❓" 'face 'all-the-icons-blue)))
+            :end           "∎"))
 (set-ligatures! 'org-mode
   :merge t
   :checkbox      "[ ]"
@@ -2461,13 +2533,9 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
   :begin_export  "#+begin_export"
   :end_export    "#+end_export"
   :results       "#+RESULTS:"
-  :property      ":PROPERTIES:"
-  :end           ":END:"
-  :priority_a    "[#A]"
-  :priority_b    "[#B]"
-  :priority_c    "[#C]"
-  :priority_d    "[#D]"
-  :priority_e    "[#E]")
+  :property      ":properties:"
+  :end           ":end:"
+  )
 (plist-put +ligatures-extra-symbols :name "⁍")
 #+end_src
 
