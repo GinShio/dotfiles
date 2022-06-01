@@ -7253,6 +7253,29 @@ TODO abstract backend implementations."
    todo todo-type priority (org-export-filter-text-acronym text 'latex info) tags info))
 (setq org-latex-format-headline-function #'org-latex-format-headline-acronymised)
 #+end_src
+**** 导出 Org code
+
+在我们所有的 Org 配置中，当使用 font-lock 的方法导出 Org 代码块时，可能会产生十
+分难看的结果。为了解决这个问题，可以在导出时调整 ~+org-babel-mode-alist~​。
+
+#+begin_src emacs-lisp
+(defun +org-mode--fontlock-only-mode ()
+  "Just apply org-mode's font-lock once."
+  (let (org-mode-hook
+        org-hide-leading-stars
+        org-hide-emphasis-markers)
+    (org-set-font-lock-defaults)
+    (font-lock-ensure))
+  (setq-local major-mode #'fundamental-mode))
+
+(defun +org-export-babel-mask-org-config (_backend)
+  "Use `+org-mode--fontlock-only-mode' instead of `org-mode'."
+  (setq-local org-src-lang-modes
+              (append org-src-lang-modes
+                      (list (cons "org" #'+org-mode--fontlock-only)))))
+
+(add-hook 'org-export-before-processing-hook #'+org-export-babel-mask-org-config)
+#+end_src
 *** HTML 导出
 :PROPERTIES:
 :header-args:emacs-lisp: :noweb-ref ox-html-conf
