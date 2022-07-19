@@ -205,9 +205,9 @@ source /etc/os-release
 
 ** Doom 配置
 拉取 doom-emacs 仓库的分支
-  - git commit: *aed2972d74*
+  - git commit: *33c5f372*
   - doom-version: *3.0.0-dev*
-  - doom-modules-version: *21.12.0-dev*
+  - doom-modules-version: *22.07.0-dev*
 *** 模组
 :properties:
 :header-args:emacs-lisp: :tangle no
@@ -290,9 +290,10 @@ literate
   中日文输入与键盘布局，我主要依赖系统输入法 fcitx 且不输入法语，因此不开此选项
   #+name: doom-input
   #+begin_src emacs-lisp
+;;bidi              ; (tfel ot) thgir etirw uoy gnipleh
 ;;chinese
 ;;japanese
-;;layout                     ; auie,ctsrnm is the superior home row
+;;layout            ; auie,ctsrnm is the superior home row
   #+end_src
 
 - 补全 ::
@@ -455,7 +456,7 @@ emacs-lisp          ; drown in parentheses
 ;;idris             ; a language you can depend on
 json                ; At least it ain't XML
 ;;(java +lsp)       ; the poster child for carpal tunnel syndrome
-(javascript +lsp)   ; all(hope(abandon(ye(who(enter(here))))))
+;;(javascript +lsp) ; all(hope(abandon(ye(who(enter(here))))))
 ;;julia             ; a better, faster MATLAB
 ;;kotlin            ; a better, slicker Java(Script)
 (latex              ; writing papers in Emacs has never been so fun
@@ -488,7 +489,7 @@ markdown            ; writing docs for people to ignore
  +pyenv
  +lsp
  +pyright)
-qt                  ; the 'cutest' gui framework ever
+;;qt                ; the 'cutest' gui framework ever
 ;;racket            ; a DSL for DSLs
 ;;raku              ; the artist formerly known as perl6
 ;;rest              ; Emacs as a REST client
@@ -502,7 +503,7 @@ sh                  ; she sells {ba,z,fi}sh shells on the C xor
 ;;solidity          ; do you need a blockchain? No.
 ;;swift             ; who asked for emoji variables?
 ;;terra             ; Earth and Moon in alignment for performance.
-web                 ; the tubes
+;;web               ; the tubes
 yaml                ; JSON, but readable
 ;;zig               ; C, but simpler
 #+end_src
@@ -524,7 +525,7 @@ yaml                ; JSON, but readable
 ;;calendar
 ;;emms
 everywhere          ; *leave* Emacs!? You must be joking
-irc                 ; how neckbeards socialize
+;;irc               ; how neckbeards socialize
 ;;(rss +org)        ; emacs as an RSS reader
 ;;twitter           ; twitter client https://twitter.com/vnought
   #+end_src
@@ -554,7 +555,7 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
 **** 主题和 modeline
 ~doom-one~ 是 Doom 自带的大而全的主题，里面实在太多好看的主题了，干嘛还要自己找。
 这里我想在众多我喜欢的主题中，启动时随机选取一款。
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (setq doom-theme (let ((themes '(doom-vibrant
                                  doom-fairy-floss
                                  doom-dracula
@@ -566,7 +567,7 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
 #+end_src
 
 当然你不喜欢这样，可以直接指定一款。
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (setq doom-theme 'doom-vibrant)
 #+end_src
 
@@ -729,294 +730,7 @@ Dashboard 是打开 Emacs 的主页，在这里添加一些常用命令是很舒
 
 *** 守护进程
 守护进程是个好东西，可惜我用的是 WSL，没有 =systemd= ，不过 [[https://www.emacswiki.org/emacs/EmacsAsDaemon][EmacsWiki]] 中还是列出了
-各种 Daemon 的方法。
-
-  - Systemd (Not WSL) :: ~~/.config/systemd/user/emacs.service~
-    #+name: emacsdaemon systemd service
-#+begin_example
-[Unit]
-Description=Emacs text editor
-Documentation=info:emacs man:emacs(1) https://gnu.org/software/emacs/
-
-[Service]
-Type=forking
-ExecStart=/usr/bin/emacs --daemon
-ExecStop=/usr/bin/emacsclient --no-wait --eval "(progn (setq kill-emacs-hook 'nil) (kill-emacs))"
-Restart=on-failure
-
-[Install]
-WantedBy=default.target
-#+end_example
-
-  - Launchd (MacOS) :: ~/Library/LaunchAgents/gnu.emacs.daemon.plist~
-    #+name: emacsdaemon launchd service
-#+begin_example
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-    "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
- <plist version="1.0">
-  <dict>
-    <key>Label</key>
-    <string>gnu.emacs.daemon</string>
-    <key>ProgramArguments</key>
-    <array>
-      <string>/Applications/Emacs.app/Contents/MacOS/Emacs</string>
-      <string>--daemon</string>
-    </array>
-    <key>RunAtLoad</key>
-    <true/>
-    <key>ServiceDescription</key>
-    <string>Gnu Emacs Daemon</string>
-  </dict>
- </plist>
-#+end_example
-
-  - rc.d (FreeBSD) :: 这来自 FreeBSD 论坛的[[https://forums.FreeBSD.org/threads/rc-d-daemon-as-user-emacs.83055/post-558902][讨论]] ~/etc/init.d/emacsd~
-    #+name: emacsdaemon rc.d (freebsd) service
-    #+begin_src bash :tangle no
-#!/bin/sh
-#
-
-# PROVIDE: emacsd
-# REQUIRE: LOGIN
-# KEYWORD: shutdown
-
-. /etc/rc.subr
-
-name="emacsd"
-rcvar="${name}_enable"
-start_precmd="${name}_prestart"
-
-load_rc_config $name
-: "${emacsd_enable:="NO"}"
-: "${emacsd_user:="nobody"}"
-
-piddir="/var/run/${emacsd_user}"
-pidfile="${piddir}/${name}_daemon.pid"
-pidfile_child="${piddir}/${name}_emacs.pid"
-user_id="$(id -u ${emacsd_user}"
-emacsd_env="$(env -iL ${user_id} XDG_RUNTIME_DIR=/var/run/user/${user_id} HOME=/home/${emacsd_user} | tr '\n' ' ')"
-proc_cmd="/usr/local/bin/emacs"
-proc_args="--fg-daemon -u ${emacsd_user}"
-command="/usr/sbin/daemon"
-command_args="-f -P ${pidfile} -p ${pidfile_child} -r ${proc_cmd} ${proc_args}"
-
-emacsd_prestart()
-{
-    [ -z "${XDG_RUNTIME_DIR}" ] && XDG_RUNTIME_DIR="/var/run/user/$(id -u ${emacsd_user})"
-    ! [ -d "${XDG_RUNTIME_DIR}" ] && \
-    install -d -o "$(id -u ${emacsd_user})" -m 0700 "${XDG_RUNTIME_DIR}" -
-
-    ! [ -d "${piddir}" ] && \
-    install -d -o "$(id -u ${emacsd_user})" -g "$(id -u ${emacsd_user})" "${piddir}" -
-    return 0
-}
-
-run_rc_command "$1"
-    #+end_src
-  - rc.d (Linux, Maybe WSL) :: 这是 EmacsWiki 上为 GNU/Debian 创建的 rc.d 脚本，
-    或许 WSL 也能用， ~/etc/init.d/emacsd~
-    #+begin_src bash :tangle no
-#!/bin/sh
-
-### BEGIN INIT INFO
-# Provides:          emacsd
-# Required-Start:    $remote_fs $syslog
-# Required-Stop:     $remote_fs $syslog
-# Default-Start:     2 3 4 5
-# Default-Stop:      0 1 6
-# Short-Description: Start emacsd at boot time
-# Description:       Enable service provided by daemon.
-### END INIT INFO
-
-# Local Settings
-
-PATH=/usr/local/bin:/usr/bin:/bin
-
-# emacs location.
-emacs="emacs"
-emacsclient="emacsclient"
-
-# EE code
-EE_EMACS_NOT_FOUND=1
-EE_INVALID_OPTION=2
-EE_EMACS_FAIL_TO_START=3
-EE_EMACS_FAIL_TO_STOP=4
-
-# Real code begins here
-
-if [ -z `which emacs` ]
-then
-    log_daemon_msg "Error: Emacs not found. emacsd will now exit."
-    exit $EE_EMACS_NOT_FOUND
-fi
-
-# TODO Start emacs as normal user "emacsd" or "daemon"
-#emacs run under this uid
-emacsd_uid="1000"
-socket_file="/tmp/emacs${emacsd_uid}/server"
-
-case "$1" in
-    start)
-        #check whether already started
-        if [ -e "$socket_file" ]
-        then
-            echo "Error: emacsd already started."
-            exit $EE_EMACSD_ALREADY_STARTED
-        fi
-
-        echo "Start emacs daemon ..."
-        if sudo -u"#"$emacsd_uid $emacs --daemon
-        then
-            echo "emacsd is up."
-            exit 0
-        else
-            echo "Error: emacsd failed to start."
-            exit $EE_EMACS_FAIL_TO_START
-        fi
-        ;;
-
-    stop)
-        #options="-s $socket_file"
-        options=""
-        lispcode="(kill-emacs)"
-
-        if sudo -u"#"$emacsd_uid $emacsclient $options --eval $lispcode
-        then
-            echo "emacsd is down."
-            exit 0
-        else
-            echo "Error: emacsd failed to stop."
-            exit $EE_EMACS_FAIL_TO_STOP
-        fi
-        ;;
-
-    restart|force-reload)
-        if [ -e "$socket_file" ]
-        then
-            $0 stop
-        fi
-        $0 start
-        exit $?
-        ;;
-
-    ,*)
-        echo "Usage: /etc/init.d/emacsd {start|stop|restart|force-reload}"
-        if ! [ -z "$1" ]
-        then
-            echo "No such option:" $*
-            exit $EE_INVALID_OPTION
-        fi
-        ;;
-esac
-    #+end_src
-
-好了，让其开机启动吧！
-  - Systemd (Not WSL)
-    #+begin_src shell :tangle no
-systemctl --user enable emacs.service
-    #+end_src
-  - Launchd (MacOS)
-    #+begin_src shell :tangle no
-launchctl load -w ~/Library/LaunchAgents/gnu.emacs.daemon.plist
-    #+end_src
-
-剩下两个实在不会了。。。
-
-做一个 desktop 文件，可以直接从桌面启动，再添加一些打来文件的默认应用
-#+begin_example
-[Desktop Entry]
-Name=Emacs client
-GenericName=Text Editor
-Comment=A flexible platform for end-user applications
-MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
-Exec=emacsclient -create-frame --alternate-editor="" --no-wait %F
-Icon=emacs
-Type=Application
-Terminal=false
-Categories=TextEditor;Utility;
-StartupWMClass=Emacs
-Keywords=Text;Editor;
-X-KDE-StartupNotify=false
-#+end_example
-
-emacsclient 似乎不会开始于 dashboard，修复一下这个让我不爽的问题
-#+begin_src emacs-lisp
-(when (daemonp)
-  (add-hook! 'server-after-make-frame-hook (switch-to-buffer +doom-dashboard-name)))
-#+end_src
-
-既然有了 emacsclient，那就抄一下 [[github:tecosaur][tecosaur]] 的启动脚本吧
-#+name: e
-#+begin_src shell :tangle no
-#!/usr/bin/env bash
-force_tty=false
-force_wait=false
-stdin_mode=""
-
-args=()
-
-while :; do
-    case "$1" in
-        -t | -nw | --tty)
-            force_tty=true
-            shift ;;
-        -w | --wait)
-            force_wait=true
-            shift ;;
-        -m | --mode)
-            stdin_mode=" ($2-mode)"
-            shift 2 ;;
-        -h | --help)
-            echo -e "\033[1mUsage: e [-t] [-m MODE] [OPTIONS] FILE [-]\033[0m
-
-Emacs client convenience wrapper.
-
-\033[1mOptions:\033[0m
-\033[0;34m-h, --help\033[0m            Show this message
-\033[0;34m-t, -nw, --tty\033[0m        Force terminal mode
-\033[0;34m-w, --wait\033[0m            Don't supply \033[0;34m--no-wait\033[0m to graphical emacsclient
-\033[0;34m-\033[0m                     Take \033[0;33mstdin\033[0m (when last argument)
-\033[0;34m-m MODE, --mode MODE\033[0m  Mode to open \033[0;33mstdin\033[0m with
-
-Run \033[0;32memacsclient --help\033[0m to see help for the emacsclient."
-            exit 0 ;;
-        --*=*)
-            set -- "$@" "${1%%=*}" "${1#*=}"
-            shift ;;
-        ,*)
-            if [ "$#" = 0 ]; then
-                break; fi
-            args+=("$1")
-            shift ;;
-    esac
-done
-
-if [ ! "${#args[*]}" = 0 ] && [ "${args[-1]}" = "-" ]; then
-    unset 'args[-1]'
-    TMP="$(mktemp /tmp/emacsstdin-XXX)"
-    cat > "$TMP"
-    args+=(--eval "(let ((b (generate-new-buffer \"*stdin*\"))) (switch-to-buffer b) (insert-file-contents \"$TMP\") (delete-file \"$TMP\")${stdin_mode})")
-fi
-
-if [ -z "$DISPLAY" ] || $force_tty; then
-    # detect terminals with sneaky 24-bit support
-    if { [ "$COLORTERM" = truecolor ] || [ "$COLORTERM" = 24bit ]; } \
-        && [ "$(tput colors 2>/dev/null)" -lt 257 ]; then
-        if echo "$TERM" | grep -q "^\w\+-[0-9]"; then
-            termstub="${TERM%%-*}"; else
-            termstub="${TERM#*-}"; fi
-        if infocmp "$termstub-direct" >/dev/null 2>&1; then
-            TERM="$termstub-direct"; else
-            TERM="xterm-direct"; fi # should be fairly safe
-    fi
-    emacsclient --tty -create-frame --alternate-editor="" "${args[@]}"
-else
-    if ! $force_wait; then
-        args+=(--no-wait); fi
-    emacsclient -create-frame --alternate-editor="" "${args[@]}"
-fi
-#+end_src
+各种 Daemon 的方法
 
 * 包
 ** 加载结构
@@ -1072,12 +786,6 @@ doom 通过 =packages.el= 来安装包，非常简单，只需要 ~package!~ 就
 ** 工具
 *** 缩写
 Emacs Stack Exchange 上的[[https://emacs.stackexchange.com/questions/45462/use-a-single-abbrev-table-for-multiple-modes/45476#45476][在多种模式下使用统一的缩写表]]，是一个很好的思路
-#+begin_src emacs-lisp
-(add-hook 'doom-first-buffer-hook
-          (defun +abbrev-file-name ()
-            (setq-default abbrev-mode t)
-            (setq abbrev-file-name (expand-file-name "abbrev.el" doom-private-dir))))
-#+end_src
 
 *** hungry delete
 一次 ~backspace~ 吃掉所有空白符 (当前光标限定)
@@ -1092,23 +800,11 @@ Emacs Stack Exchange 上的[[https://emacs.stackexchange.com/questions/45462/use
   (add-hook! 'after-init-hook #'global-hungry-delete-mode))
 #+end_src
 
-# *** 超大文件
-# 或许我对超大文件有什么误解，大概几个 G 就已经大的不行了，据说 vlfi 支持的是 T 级别
-# 的文件。如果对 vlfi 感兴趣可以阅读这篇[[https://phenix3443.github.io/notebook/emacs/modes/vlf.html][翻译]]。
+*** Dired
+#+begin_comment
+来自 =:emacs dired= 模块
+#+end_comment
 
-# 老实说 500 KiB 这种级别的 Org 文件用原生 Doom 打开还行，应该不会打开 G 级别的文件
-# 吧，不过还是加上。
-
-# #+begin_src emacs-lisp :tangle packages.el
-# (package! vlf :recipe (:host github :repo "m00natic/vlfi" :files ("*.el")))
-# #+end_src
-
-# #+begin_src emacs-lisp
-# (use-package! vlf-setup
-#   :defer-incrementally vlf-tune vlf-base vlf-write vlf-search vlf-occur vlf-follow vlf-ediff vlf)
-# #+end_src
-
-*** DIRED
 emacs 自带的强大文件管理器，和之后提到的 [[Magit]]、[[TRAMP]] 都是 Emacs 的杀手级应用。
 还出现了很多增强性的包来增加其能力，不过对我来说，稍微修改一下也就够了。
 
@@ -1197,7 +893,7 @@ cargo install git-delta
 #+end_src
 
 **** 冲突
-在 Emacs 中处理冲突也是不错的体验，和或许可以尝试自己制造一点
+在 Emacs 中处理冲突也是不错的体验，或许可以尝试自己制造一点
 #+begin_src emacs-lisp
 (defun smerge-repeatedly ()
   "Perform smerge actions again and again"
@@ -1229,7 +925,7 @@ cargo install git-delta
 #+end_src
 
 *** 补全
-没有补全怎么写代码，尤其是 =Java= ！！！
+没有补全怎么写代码，尤其是 =Java=​！！！
 #+begin_src emacs-lisp
 (after! company
   (setq! company-idle-delay 0.3
@@ -1367,22 +1063,6 @@ Access, Multiple Protocol/) 工具。简单说这是简单访问其他主机文�
               "/run/current-system/profile/bin"
               "/run/current-system/profile/sbin")))
 #+end_src
-
-# *** Etrace
-# /Emacs Lisp Profiler/ (emacs lisp 分析器, ELP) 是记录信息的好手，但它并不善于
-# 查看信息。 =etrace= 可以将 ELP 的结果转化为 "Chromium Catapult Trace Event
-# Format" (Chromium Catapult 性能视图)。这意味着 =etrace= 的输出可以加载到
-# [[https://www.speedscope.app/][speedscope]] 等网络应用中，方便分析视图。
-
-# 不过 ELP 是 =Emacs Lisp= 的性能分析器。:(
-
-# #+begin_src emacs-lisp :tangle packages.el
-# (package! etrace :recipe (:host github :repo "aspiers/etrace"))
-# #+end_src
-
-# #+begin_src emacs-lisp :tangle packages.el
-# (use-package! etrace :after elp)
-# #+end_src
 
 *** VTerm
 #+begin_quote
@@ -1801,7 +1481,6 @@ OOTB 的 emoji 模块！麻烦的一点是设置的有些默认字符，可能�
       )
 #+end_src
 
-
 *** Treemacs
 #+begin_comment
 来自 =:ui treemacs= 模块
@@ -1843,7 +1522,6 @@ OOTB 的 emoji 模块！麻烦的一点是设置的有些默认字符，可能�
       "C-t" #'treemacs-find-tag
       )
 #+end_src
-
 
 *** hl todo
 ~hl-todo~ 允许你设置一些关键字，这些关键字将高亮并且便于查找。往往用于代码注释中
@@ -1934,58 +1612,6 @@ OOTB 的 emoji 模块！麻烦的一点是设置的有些默认字符，可能�
            (format "![%s](https://xkcd.com/%s)" (subst-char-in-string ?\" ?“ alt) num))
           (t (format "https://xkcd.com/%s" num)))))
 #+end_src
-
-*** 打字机
-或许你想听听打字机的声音，或者让身边人听听。
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! selectric-mode)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! selectric-mode :defer t)
-#+end_src
-
-当然这是需要 =aplay= 的，如果你没有，可以找一下有没有 =alsa= 相关内容。
-但是我的 WSL ？没声？没声！
-
-*** wakatime
-Wakatime 可以帮助你记录在编程语言、编辑器、项目以及操作系统上所用的时间，并在
-GitHub / GitLab 同名仓库下展示。
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! wakatime-mode :recipe (:host github :repo "wakatime/wakatime-mode"))
-#+end_src
-
-#+begin_src emacs-lisp
-(global-wakatime-mode)
-#+end_src
-
-*** Elcord
-
-除非你不断告诉身边的每个人，不然你使用 Emacs 的意义是什么？
-#+begin_src emacs-lisp :tangle packages.el
-;; (package! elcord)
-#+end_src
-
-#+begin_src emacs-lisp
-;; (use-package! elcord
-;;   :commands elcord-mode
-;;   :config
-;;   (setq elcord-use-major-mode-as-main-icon t))
-#+end_src
-
-但是国内好像用不上，到时候看看 steam。
-
-*** IRC
-=circe= 是 Emacs 的 IRC 客户端 (这个名字+缩写简直太棒了)，还是将人变为怪物的希腊女神
---- 喀耳刻。
-
-还是用前面说的意思吧，用它与那些在线 +隐身+ 的人聊天！
-
-[[xkcd:1782]]
-
-或许我们暂时用不上它，先这样吧
 
 *** 字典
 我用了很久也不知道 doom 提供了字典，采用 =define-word= 和 [[https://github.com/gromnitsky/wordnut][wordnut]] 提供服务，不过
@@ -4161,7 +3787,7 @@ This condition is applied when cover page option is set to auto.")
 
 *** ASCII 导出
 ASCII 导出通常不错，我认为从改进中收益的主要方面是 LaTeX 片段的外观，我们可以使
-用一个很好的程序来创建更好的 unicode 表示。它叫做 ~latex2text~ ，它是
+用一个很好的程序来创建更好的 unicode 表示。它叫做 ~latex2text~​，它是
 =pylatexenc= 的一部分。因此将使用 =pip= 安装它。
 
 #+begin_src shell :tangle (if (executable-find "latex2text") "no" "setup.sh")
@@ -4514,6 +4140,12 @@ Doom 默认的 Markdown 是 ~GFM~ (GitHub Flavored Markdown)，不过有了 =Ema
 tcc 也是 C++
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.tcc\\'" . c++-mode))
+#+end_src
+
+#+begin_src emacs-lisp
+(after! c++-mode
+  (require 'dap-gdb-lldb)
+  )
 #+end_src
 
 * 生成 Org 文件

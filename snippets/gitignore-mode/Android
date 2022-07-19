@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Android #########################
-# repo: github/gitignore; pin: 7e98309900; file: Android.gitignore
+# repo: github/gitignore; pin: d7a25eddfb; file: Android.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Gradle files
 .gradle/
@@ -26,6 +26,9 @@ output.json
 # IntelliJ
 *.iml
 .idea/
+misc.xml
+deploymentTargetDropDown.xml
+render.experimental.xml
 
 # Keystore files
 *.jks
