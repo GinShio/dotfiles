@@ -1277,6 +1277,17 @@ cite 时 calibre 只能做 book。
   (add-hook 'nov-mode-hook #'+nov-mode-setup))
 #+end_src
 
+*** iedit
+iedit 介绍说它是都行同时编辑工具，当然 lsp 也可能需要它 (如果你要多行同时修改代
+码的话)。
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! iedit :recipe (:host github :repo "victorhge/iedit"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! iedit :defer t)
+#+end_src
 ** UI
 *** Nyan
 首先添加一下彩虹猫，这不能忘！
@@ -1621,6 +1632,7 @@ GoldenDict CLI 在 GitHub 上是 [[https://github.com/goldendict/goldendict/issu
 但 1.5 依旧难产，也许你可以考虑贡献一下。
 
 我的配置也等 GoldenDict 吧。
+
 
 * 编程语言配置
 ** 纯文本
