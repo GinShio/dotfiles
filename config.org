@@ -90,6 +90,7 @@
 说实话，我是个 Emacs 「低手」，并不是高手。所以 ELisp 有点痛苦，不过还好吧，起码
 会算 src_elisp{(+ 1 1)}。
 
+
 * 基础配置
 创建词法绑定可以 (稍微) 加速配置文件的运行。 (更多内容可以查看 [[https://nullprogram.com/blog/2016/12/22/][这篇博客]])
 #+begin_src emacs-lisp :comments no
@@ -301,7 +302,8 @@ literate
   及 ~vertico~ 是功能一致的，生态不同的四个包
   #+name: doom-completion
   #+begin_src emacs-lisp
-company             ; the ultimate code completion backend
+(company            ; the ultimate code completion backend
+  +childframe)
 ;;helm              ; the *other* search engine for love and life
 ;;ido               ; the other *other* search engine...
 ;;(ivy              ; a search engine for love and life
@@ -732,6 +734,7 @@ Dashboard 是打开 Emacs 的主页，在这里添加一些常用命令是很舒
 守护进程是个好东西，可惜我用的是 WSL，没有 =systemd= ，不过 [[https://www.emacswiki.org/emacs/EmacsAsDaemon][EmacsWiki]] 中还是列出了
 各种 Daemon 的方法
 
+
 * 包
 ** 加载结构
 :properties:
@@ -961,6 +964,24 @@ Doom 下 Marginalia 被调教的不错，如果遇到什么好玩的配置了，
 这不是老色批！自从 lsp 普及开始，无论配置什么编辑器都不再复杂了。看了一圈
 [[https://emacs-lsp.github.io/lsp-mode/tutorials/][lsp-mode tutorial]] 甚至觉得不需要配置什么，估计 doom 也有相应的配置。问题就是，熟
 悉配置、操作的问题。
+
+#+begin_src emacs-lisp
+(after! lsp-ui
+  (setq lsp-ui-sideline-enable t
+        lsp-ui-sideline-show-diagnostics t
+        lsp-ui-sideline-show-hover nil
+        lsp-ui-sideline-show-code-actions t
+        lsp-ui-sideline-update-mode 'line
+
+        lsp-ui-peek-enable t
+        lsp-ui-peek-always-show t
+
+        lsp-ui-doc-enable t
+        lsp-ui-doc-use-childframe t
+        lsp-ui-doc-position 'at-point
+        lsp-ui-doc-delay 0.5
+        ))
+#+end_src
 
 *** 拼写检查
 ~Ispell~ 是一个古老的 Unix 拼写检查软件，当然你可以将其当作拼写检查软件的一种代称。
@@ -4159,6 +4180,7 @@ tcc 也是 C++
   (require 'dap-gdb-lldb)
   )
 #+end_src
+
 
 * 生成 Org 文件
 - agenda
