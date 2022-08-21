@@ -206,9 +206,10 @@ source /etc/os-release
 
 ** Doom 配置
 拉取 doom-emacs 仓库的分支
-  - git commit: *33c5f372*
+  - emacs-version: *28.1*
+  - git commit: *c44bc81a0*
   - doom-version: *3.0.0-dev*
-  - doom-modules-version: *22.07.0-dev*
+  - doom-modules-version: *22.08.0-dev*
 *** 模组
 :properties:
 :header-args:emacs-lisp: :tangle no
@@ -336,12 +337,12 @@ ophints             ; highlight the region an operation acts on
 tabs                ; a tab bar for Emacs
 treemacs            ; a project drawer, like neotree but cooler
 ;;unicode           ; extended unicode support for various languages
-vc-gutter           ; vcs diff in the fringe
+(vc-gutter +pretty) ; vcs diff in the fringe
 vi-tilde-fringe     ; fringe tildes to mark beyond EOB
 (window-select      ; visually switch windows
  +numbers)
 workspaces          ; tab emulation, persistence & separate workspaces
-zen                 ; distraction-free coding or writing
+;; zen              ; distraction-free coding or writing
   #+end_src
 
 - 编辑器 :: *VI VI VI Editor of the Beast*
@@ -864,6 +865,9 @@ see: https://www.emacswiki.org/emacs/DiredOmitMode"
 #+end_src
 
 *** Magit
+:properties:
+:header-args:emacs-lisp: :tangle no :noweb-ref magit-tweaks
+:end:
 #+begin_comment
 来自 =:tools magit= 模块
 #+end_comment
@@ -871,6 +875,61 @@ see: https://www.emacswiki.org/emacs/DiredOmitMode"
 [[xkcd:1597]]
 
 这应该是 Emacs 的杀手应用之一了，感谢 [[https://github.com/tarsius][Jonas]] 及其他贡献者。
+
+#+begin_src emacs-lisp
+(after! magit
+  <<magit-tweaks>>)
+#+end_src
+
+**** 默认设置
+在创建新项目时，我经常希望 remote 到我的个人 gitlab 实例，我希望通过这节内容快速
+配置它。
+
+#+begin_src emacs-lisp
+(defvar +magit-default-forge-remote (format "git@gitiris:%s/%%s.git" user-full-name)
+  "Format string that fills out to a remote from the repo name.
+Set to nil to disable this functionality.")
+#+end_src
+
+#+begin_src emacs-lisp
+(defadvice! +magit-remote-add--streamline-forge-a (args)
+  :filter-args #'magit-remote-add
+  (interactive
+   (or (and +magit-default-forge-remote
+            (not (magit-list-remotes))
+            (eq (read-char-choice
+                 (format "Setup %s remote? [y/n]: "
+                         (replace-regexp-in-string
+                          "\\`\\(?:[^@]+@\\|https://\\)\\([^:/]+\\)[:/].*\\'" "\\1"
+                          +magit-default-forge-remote))
+                 '(?y ?n))
+                ?y)
+            (let* ((default-name
+                     (subst-char-in-string ?\s ?-
+                                           (file-name-nondirectory
+                                            (directory-file-name (doom-project-root)))))
+                   (name (read-string "Name: " default-name)))
+              (list "origin" (format +magit-default-forge-remote name)
+                    (transient-args 'magit-remote))))
+       (let ((origin (magit-get "remote.origin.url"))
+             (remote (magit-read-string-ns "Remote name"))
+             (gh-user (magit-get "github.user")))
+         (when (and (equal remote gh-user)
+                    (string-match "\\`https://github\\.com/\\([^/]+\\)/\\([^/]+\\)\\.git\\'"
+                                  origin)
+                    (not (string= (match-string 1 origin) gh-user)))
+           (setq origin (replace-regexp-in-string
+                         "\\`https://github\\.com/" "git@github.com:"
+                         origin)))
+         (list remote
+               (magit-read-url
+                "Remote url"
+                (and origin
+                     (string-match "\\([^:/]+\\)/[^/]+\\(\\.git\\)?\\'" origin)
+                     (replace-match remote t t origin 1)))
+               (transient-args 'magit-remote)))))
+  args)
+#+end_src
 
 **** 提交模板
 现在并没有完成这部分，处于一种完全不会写提交的状态，以后大概率会增加一个提交模板。
@@ -1422,7 +1481,7 @@ OOTB 的 emoji 模块！麻烦的一点是设置的有些默认字符，可能�
 #+begin_src emacs-lisp
 (defvar emojify-disabled-emojis
   '(;; Org
-    "◼" "☑" "☸" "⚙" "⏩" "⏪" ":end:"
+    "◼" "☑" "☸" "⚙" "⏩" "⏪" ":end:" "↔"
     ;; Org Heading
     "✙" "♱" "♰" "☥" "✞" "✟" "✝" "†"
     "☰" "☱" "☲" "☳" "☴" "☵" "☶" "☷"
@@ -1657,14 +1716,55 @@ GoldenDict CLI 在 GitHub 上是 [[https://github.com/goldendict/goldendict/issu
 
 * 编程语言配置
 ** 纯文本
+*** ANSI 色彩
 Emacs 可以显示 ANSI 颜色代码。然而，在 Emacs 28 之前，如果不修改缓冲区是不可能做到这
 一点的，所以让我们以此为基础设置这个块。
 #+begin_src emacs-lisp :tangle (if (>= emacs-major-version 28) "yes" "no")
 (after! text-mode
   (add-hook! 'text-mode-hook
-             ;; Apply ANSI color codes
-             (with-silent-modifications
-               (ansi-color-apply-on-region (point-min) (point-max) t))))
+    (unless (derived-mode-p 'org-mode)
+      ;; Apply ANSI color codes
+      (with-silent-modifications
+        (ansi-color-apply-on-region (point-min) (point-max) t)))))
+#+end_src
+
+*** 无行号边距
+我不介意左侧没有任何边距的 buffer，但是一旦剥离行号，buffer 就会感觉有点不对劲。
+
+#+begin_src emacs-lisp
+(defvar +text-mode-left-margin-width 1
+  "The `left-margin-width' to be used in `text-mode' buffers.")
+
+(defun +setup-text-mode-left-margin ()
+  (when (and (derived-mode-p 'text-mode)
+             (eq (current-buffer) ; Check current buffer is active.
+                 (window-buffer (frame-selected-window))))
+    (setq left-margin-width (if display-line-numbers
+                                0 +text-mode-left-margin-width))
+    (set-window-buffer (get-buffer-window (current-buffer))
+                       (current-buffer))))
+#+end_src
+
+现在我们只需要将它连接到所有可能表明条件发生变化或需要重新应用设置的事件。
+
+#+begin_src emacs-lisp
+(add-hook 'window-configuration-change-hook #'+setup-text-mode-left-margin)
+(add-hook 'display-line-numbers-mode-hook #'+setup-text-mode-left-margin)
+(add-hook 'text-mode-hook #'+setup-text-mode-left-margin)
+#+end_src
+
+Doom 有一个小问题，因为 ~doom/toggle-line-numbers~ 不运行 ~display-line-numbers-mode-hook~​，所以需要一些设置。
+
+#+begin_src emacs-lisp
+(defadvice! +doom/toggle-line-numbers--call-hook-a ()
+  :after #'doom/toggle-line-numbers
+  (run-hooks 'display-line-numbers-mode-hook))
+#+end_src
+
+最后，我想我真的很喜欢这个，我会继续在文本模式下删除行号。
+
+#+begin_src emacs-lisp
+(remove-hook 'text-mode-hook #'display-line-numbers-mode)
 #+end_src
 
 ** Org Mode
@@ -1672,6 +1772,7 @@ Emacs 可以显示 ANSI 颜色代码。然而，在 Emacs 28 之前，如果不�
 :CUSTOM_ID: org
 :header-args:emacs-lisp: :tangle no :noweb-ref org-conf
 :end:
+:intro:
 Org Mode 无疑是 Emacs 的杀手级应用，其扩展能力以及 Emacs 的契合，让它吊打一众
 标记语言和富文本格式。当然 LaTeX 除外。
 
@@ -1724,12 +1825,12 @@ figure.png╶─╧─▶ PROJECT.ORG ▶───╴filters╶───╧─�
                     ╟─────────────────────────────────▶ .hs   ⎪ (Code)
                     ╙─────────────────────────────────▶ .el   ⎭
 #+end_example
+:end:
 
 因为这部分初始化时相当费时，我们需要将其放在 src_elisp{(after! ...)} 中。
-#+begin_src emacs-lisp :noweb no-export :tangle yes :noweb-ref nil
+#+begin_src emacs-lisp :noweb no-export :tangle yes :noweb-prefix no :noweb-ref nil
 (after! org
-  <<org-conf>>
-)
+  <<org-conf>>)
 #+end_src
 
 *** 系统设置
@@ -1772,6 +1873,100 @@ Protesilaos 写了一篇 [[https://protesilaos.com/codelog/2021-01-26-git-diff-h
 
 *** 功能增强
 [[xkcd:1319]]
+
+**** 基础功能
+
+#+begin_src emacs-lisp
+(setq! org-use-property-inheritance t         ; it's convenient to have properties inherited
+       org-log-done 'time                     ; having the time a item is done sounds convenient
+       org-list-allow-alphabetical t          ; have a. A. a) A) list bullets
+       ;; org-export-in-background t             ; run export processes in external emacs process
+       org-catch-invisible-edits 'smart       ; try not to accidently do weird stuff in invisible regions
+       org-export-with-sub-superscripts '{}   ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
+       org-image-actual-width '(0.9)          ; Make the in-buffer display closer to the exported result..
+       )
+#+end_src
+
+***** 零宽空格
+偶尔在用 Org 是你希望将两个分开的块放在一起，这点有点烦人。比如将加​*重*​一个单词
+的一部分，或者说在内联源码块之前放一些符号。有一个可以解决的方法 --- 零宽空格。
+由于这是 Emacs，我们可以为 org-mode 做一个很小的改动将其添加到快捷键上 🙂。
+
+#+begin_src emacs-lisp
+(map! :map org-mode-map
+      :leader
+      :desc "zero-width-space" "SPC" (cmd! (insert "\u200B")))
+#+end_src
+
+不过在导出时，我并不想要它，加一个简单的过滤器将其过滤掉。
+#+begin_src emacs-lisp
+(defun +org-export-remove-zero-width-space (text _backend _info)
+  "Remove zero width spaces from TEXT."
+  (unless (org-export-derived-backend-p 'org)
+    (replace-regexp-in-string "\u200B" "" text)))
+
+(after! ox
+  (add-to-list 'org-export-filter-final-output-functions #'+org-export-remove-zero-width-space t))
+#+end_src
+
+***** 目录生成
+生成目录的需求并不大，但是像 =GitHub= 的环境下 TOC 可能成为必要，采用 ~toc-org~
+来生成。
+#+begin_src emacs-lisp :noweb-ref none :tangle yes
+(use-package! toc-org
+  :defer t
+  :after (:any org markdown)
+  :config
+  (toc-org-mode t)
+  (add-hook! '(org-mode-hook markdown-mode-hook) #'toc-org-mode)
+  (define-key! org-mode-map "C-c C-i" #'toc-org-insert-toc)
+  (define-key! markdown-mode-map "C-c M-t" #'toc-org-insert-toc))
+#+end_src
+
+=toc-org= 会清空带有 ~TOC~ 标签的 heading，并生成目录。
+
+***** 加密块
+=org-crypt= 可以用 =GPG= 加密 Org Mode 的某些 heading，当然是带有 ~crypt~ 标签的。
+现在来设置一下。
+#+begin_src emacs-lisp :noweb-ref none :tangle yes
+(use-package! org-crypt
+  :defer t
+  :after org
+  :custom
+  (org-crypt-key user-gpg-key)
+  (org-tags-exclude-from-inheritance '("crypt")) ;; avoid repeated encryption
+  :config
+  (org-crypt-use-before-save-magic) ;; encrypt when writing back to the hard disk
+  (map! :map org-mode-map
+        :localleader
+        :desc "org-encrypt" "C" nil
+        :desc "encrypt current" "C e" #'org-encrypt-entry
+        :desc "encrypt all" "C E" #'org-encrypt-entries
+        :desc "decrypt current" "C d" #'org-decrypt-entry
+        :desc "decrypt all" "C D" #'org-decrypt-entries))
+#+end_src
+
+如果想用其他密钥加密，可以设置 ~cryptkey~ 属性。
+#+begin_example
+,* Totally secret :crypt:
+:properties:
+:cryptkey: 0x0123456789012345678901234567890123456789
+:end:
+#+end_example
+
+***** 从 Pandoc 导入
+有时我不得不使用 Org-mode 文件，但幸运的是，Pandoc 提供了处理非 Org-mode 文件的
+方法。
+#+begin_src emacs-lisp :tangle packages.el :comments no :noweb-ref none
+(package! org-pandoc-import :recipe
+  (:host github :repo "tecosaur/org-pandoc-import" :files ("*.el" "filters" "preprocessors")))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes :noweb-ref none
+(use-package! org-pandoc-import
+  :after org)
+#+end_src
+
 **** 标题结构
 说起标题行，我注意到了一个非常棒的包，它可以浏览并管理标题结构。
 #+begin_src emacs-lisp :tangle packages.el :comments no :noweb-ref none
@@ -1782,7 +1977,14 @@ Protesilaos 写了一篇 [[https://protesilaos.com/codelog/2021-01-26-git-diff-h
 (use-package! org-ol-tree
   :defer t
   :after org
+  :commands org-ol-tree
   :config
+  (setq org-ol-tree-ui-icon-set
+        (if (and (display-graphic-p)
+                 (fboundp 'all-the-icons-material))
+            'all-the-icons
+          'unicode))
+  (org-ol-tree-ui--update-icon-set)
   (map! :map org-mode-map
         :localleader
         :desc "Outline" "O" #'org-ol-tree))
@@ -1974,35 +2176,6 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
           )))
 #+end_src
 
-**** 修改默认值
-#+begin_src emacs-lisp
-(setq! org-use-property-inheritance t         ; it's convenient to have properties inherited
-       org-log-done 'time                     ; having the time a item is done sounds convenient
-       org-list-allow-alphabetical t          ; have a. A. a) A) list bullets
-       org-export-in-background t             ; run export processes in external emacs process
-       org-catch-invisible-edits 'smart       ; try not to accidently do weird stuff in invisible regions
-       org-export-with-sub-superscripts '{})  ; don't treat lone _ / ^ as sub/superscripts, require _{} / ^{}
-#+end_src
-**** 零宽度工具
-偶尔在用 Org 是你希望将两个分开的块放在一起，这点有点烦人。比如将加​*重*​一个单词
-的一部分，或者说在内联源码块之前放一些符号。有一个可以解决的方法 --- 零宽空格。
-由于这是 Emacs，我们可以为 org-mode 做一个很小的改动将其添加到快捷键上 🙂。
-#+begin_src emacs-lisp
-(map! :map org-mode-map
-      :leader
-      :desc "zero-width-space" "SPC" (cmd! (insert "\u200B")))
-#+end_src
-
-不过在导出时，我并不想要它，加一个简单的过滤器将其过滤掉。
-#+begin_src emacs-lisp
-(defun +org-export-remove-zero-width-space (text _backend _info)
-  "Remove zero width spaces from TEXT."
-  (unless (org-export-derived-backend-p 'org)
-    (replace-regexp-in-string "\u200B" "" text)))
-
-(after! ox
-  (add-to-list 'org-export-filter-final-output-functions #'+org-export-remove-zero-width-space t))
-#+end_src
 **** 引用
 偶尔会引用某些东西，当然还有之前的 =calibre= 。设置一下，让 =org= 、 =LaTeX= 以
 及 =markdown= 可以使用 citar。
@@ -2049,60 +2222,114 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
 当然这配置很简单，只不过功能很强大，关于 =org-cite= 和 =citar= 要学的还有很多。
 可以看看 [[https://blog.tecosaur.com/tmio/2021-07-31-citations.html][这篇]]。
 
-**** TOC
-生成目录的需求并不大，但是像 =GitHub= 的环境下 TOC 可能成为必要，采用 ~toc-org~
-来生成。
-#+begin_src emacs-lisp :noweb-ref none :tangle yes
-(use-package! toc-org
-  :defer t
-  :after (:any org markdown)
-  :config
-  (toc-org-mode t)
-  (add-hook! '(org-mode-hook markdown-mode-hook) #'toc-org-mode)
-  (define-key! org-mode-map "C-c C-i" #'toc-org-insert-toc)
-  (define-key! markdown-mode-map "C-c M-t" #'toc-org-insert-toc))
-#+end_src
-
-=toc-org= 会清空带有 ~TOC~ 标签的 heading，并生成目录。
-
-**** 加密
-=org-crypt= 可以用 =GPG= 加密 Org Mode 的某些 heading，当然是带有 ~crypt~ 标签的。
-现在来设置一下。
-#+begin_src emacs-lisp :noweb-ref none :tangle yes
-(use-package! org-crypt
-  :defer t
-  :after org
-  :custom
-  (org-crypt-key user-gpg-key)
-  (org-tags-exclude-from-inheritance '("crypt")) ;; avoid repeated encryption
-  :config
-  (org-crypt-use-before-save-magic) ;; encrypt when writing back to the hard disk
-  (map! :map org-mode-map
-        :localleader
-        :desc "org-encrypt" "C" nil
-        :desc "encrypt current" "C e" #'org-encrypt-entry
-        :desc "encrypt all" "C E" #'org-encrypt-entries
-        :desc "decrypt current" "C d" #'org-decrypt-entry
-        :desc "decrypt all" "C D" #'org-decrypt-entries))
-#+end_src
-
-如果想用其他密钥加密，可以设置 ~cryptkey~ 属性。
-#+begin_example
-,* Totally secret :crypt:
-:properties:
-:cryptkey: 0x0123456789012345678901234567890123456789
-:end:
-#+end_example
-
 *** 视觉
+**** Org Modern
+使 =org-mode= buffer 尽可能漂亮是很重要的，Minad 的 =org-modern= 在这方面大有帮助。
+
+#+begin_src emacs-lisp :noweb-ref none :tangle packages.el
+(package! org-modern)
+#+end_src
+
+...还有一些配置...
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-modern
+  :hook (org-mode . org-modern-mode)
+  :config
+  (setq org-modern-star '("♇" "♆" "♅" "♄" "♃" "♂" "♀" "☿")
+  ;; (setq org-modern-star '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+        org-modern-table-vertical 1
+        org-modern-table-horizontal 0.2
+        org-modern-list '((43 . "➤")
+                          (45 . "–")
+                          (42 . "•"))
+        org-modern-todo-faces '(("TODO" :inverse-video t :inherit org-todo)
+          ("PROJ" :inverse-video t :inherit +org-todo-project)
+          ("STRT" :inverse-video t :inherit +org-todo-active)
+          ("[-]"  :inverse-video t :inherit +org-todo-active)
+          ("HOLD" :inverse-video t :inherit +org-todo-onhold)
+          ("WAIT" :inverse-video t :inherit +org-todo-onhold)
+          ("[?]"  :inverse-video t :inherit +org-todo-onhold)
+          ("KILL" :inverse-video t :inherit +org-todo-cancel)
+          ("NO"   :inverse-video t :inherit +org-todo-cancel))
+        org-modern-footnote (cons nil (cadr org-script-display))
+        org-modern-progress nil
+        org-modern-priority nil
+        org-modern-horizontal-rule (make-string 36 ?─)
+        org-modern-keyword
+        '((t . t)
+          ("title" . "𝙏")
+          ("subtitle" . "𝙩")
+          ("author" . "𝘼")
+          ("email" . #("" 0 1 (display (raise -0.14))))
+          ("date" . "𝘿")
+          ("property" . "☸")
+          ("options" . "⌥")
+          ("startup" . "⏻")
+          ("macro" . "𝓜")
+          ("bind" . #("" 0 1 (display (raise -0.1))))
+          ("bibliography" . "")
+          ("print_bibliography" . #("" 0 1 (display (raise -0.1))))
+          ("cite_export" . "⮭")
+          ("print_glossary" . #("ᴬᶻ" 0 1 (display (raise -0.1))))
+          ("glossary_sources" . #("" 0 1 (display (raise -0.14))))
+          ("include" . "⇤")
+          ("setupfile" . "⇚")
+          ("html_head" . "🅷")
+          ("html" . "🅗")
+          ("latex_class" . "🄻")
+          ("latex_class_options" . #("🄻" 1 2 (display (raise -0.14))))
+          ("latex_header" . "🅻")
+          ("latex_header_extra" . "🅻⁺")
+          ("latex" . "🅛")
+          ("beamer_theme" . "🄱")
+          ("beamer_color_theme" . #("🄱" 1 2 (display (raise -0.12))))
+          ("beamer_font_theme" . "🄱𝐀")
+          ("beamer_header" . "🅱")
+          ("beamer" . "🅑")
+          ("attr_latex" . "🄛")
+          ("attr_html" . "🄗")
+          ("attr_org" . "⒪")
+          ("name" . "⁍")
+          ("header" . "›")
+          ("caption" . "☰")
+          ("RESULTS" . "🠶")))
+  (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo)))
+#+end_src
+
+由于 =org-modern= 的标签面取代了 Org 的标签面，我们需要调整拼写检查面忽略列表。
+
+#+begin_src emacs-lisp :tangle yes
+(after! spell-fu
+  (cl-pushnew 'org-modern-tag (alist-get 'org-mode +spell-excluded-faces-alist)))
+#+end_src
+
+**** 强调标记
+虽然 ~org-hide-emphasis-markers~ 非常好，但有时它会使边界处的编辑变得更加繁琐。
+我们可以使用 =org-appear= 包在不牺牲视觉便利的情况下改善这种情况。
+
+#+begin_src emacs-lisp :noweb-ref none :tangle packages.el
+(package! org-appear
+  :recipe (:host github :repo "awth13/org-appear"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes
+(use-package! org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoemphasis t
+        org-appear-autosubmarkers t
+        org-appear-autolinks nil)
+  ;; for proper first-time setup, `org-appear--set-elements'
+  ;; needs to be run after other hooks have acted.
+  (run-at-time nil nil #'org-appear--set-elements))
+#+end_src
+
 **** 符号
 更改用于折叠项目的字符也很好 (默认情况下 ~…~)，我认为用 ~▾~ 更适合指示 「折叠部
 分」。并在默认的四个列表中添加一个额外的 ~org-bullet~ 。对了，别忘记优先级也要修
 改。
+
 #+begin_src emacs-lisp :noweb-ref none :tangle yes
-(after! org-superstar
-  (setq! org-superstar-headline-bullets-list '("♇" "♆" "♅" "♄" "♃" "♂" "♀" "☿")
-         org-superstar-prettify-item-bullets t))
 (after! org-fancy-priorities
   (custom-set-variables '(org-lowest-priority ?E))
   (setq! org-fancy-priorities-list '("⚡" "↑" "↓" "☕" "❓")))
@@ -2121,81 +2348,29 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
          (?E . 'all-the-icons-blue)))
 #+end_src
 
-将 Unicode 字符用于复选框和其他命令也很好。
 #+begin_src emacs-lisp
 (appendq! +ligatures-extra-symbols
-          `(:checkbox      "☐"
-            :pending       "◼"
-            :checkedbox    "☑"
-            :list_property "∷"
-            :em_dash       "—"
-            :ellipses      "…"
-            :arrow_right   "→"
-            :arrow_left    "←"
-            :title         "𝙏"
-            :subtitle      "𝙩"
-            :author        "𝘼"
-            :date          "𝘿"
-            :property      "☸"
-            :options       "⌥"
-            :startup       "⏻"
-            :macro         "𝓜"
-            :html_head     "🅷"
-            :html          "🅗"
-            :latex_class   "🄻"
-            :latex_header  "🅻"
-            :beamer_header "🅑"
-            :latex         "🅛"
-            :attr_latex    "🄛"
-            :attr_html     "🄗"
-            :attr_org      "⒪"
-            :begin_quote   "❝"
-            :end_quote     "❞"
-            :caption       "☰"
-            :header        "›"
-            :results       "🠶"
-            :begin_export  "⏩"
-            :end_export    "⏪"
-            :properties    "⚙"
-            :end           "∎"))
-(set-ligatures! 'org-mode
-  :merge t
-  :checkbox      "[ ]"
-  :pending       "[-]"
-  :checkedbox    "[X]"
-  :list_property "::"
-  :em_dash       "---"
-  :ellipsis      "..."
-  :arrow_right   "->"
-  :arrow_left    "<-"
-  :title         "#+title:"
-  :subtitle      "#+subtitle:"
-  :author        "#+author:"
-  :date          "#+date:"
-  :property      "#+property:"
-  :options       "#+options:"
-  :startup       "#+startup:"
-  :macro         "#+macro:"
-  :html_head     "#+html_head:"
-  :html          "#+html:"
-  :latex_class   "#+latex_class:"
-  :latex_header  "#+latex_header:"
-  :beamer_header "#+beamer_header:"
-  :latex         "#+latex:"
-  :attr_latex    "#+attr_latex:"
-  :attr_html     "#+attr_html:"
-  :attr_org      "#+attr_org:"
-  :begin_quote   "#+begin_quote"
-  :end_quote     "#+end_quote"
-  :caption       "#+caption:"
-  :header        "#+header:"
-  :begin_export  "#+begin_export"
-  :end_export    "#+end_export"
-  :results       "#+RESULTS:"
-  :property      ":properties:"
-  :end           ":end:"
-  )
-(plist-put +ligatures-extra-symbols :name "⁍")
+          (list :list_property "∷"
+                :em_dash       "—"
+                :ellipses      "…"
+                :arrow_right   "→"
+                :arrow_left    "←"
+                :arrow_lr      "↔"
+                :properties    "⚙"
+                :end           "∎"))
+
+(defadvice! +org-init-appearance-h--no-ligatures-a ()
+  :after #'+org-init-appearance-h
+  (set-ligatures! 'org-mode nil)
+  (set-ligatures! 'org-mode
+    :list_property "::"
+    :em_dash       "---"
+    :ellipsis      "..."
+    :arrow_right   "->"
+    :arrow_left    "<-"
+    :arrow_lr      "<->"
+    :properties    ":PROPERTIES:"
+    :end           ":END:"))
 #+end_src
 
 **** LaTeX 片段
@@ -2279,7 +2454,119 @@ $\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}$ 。
        (plist-put org-format-latex-options :background "Transparent"))
 #+end_src
 
-*** 导出通用设置
+**** Org Plot
+我们可以使用 =org-plot= 中的一些变量来使用当前的 doom 主题颜色。
+
+#+begin_src emacs-lisp :noweb no-export :noweb-ref none :tangle yes
+(defvar +org-plot-term-size '(1050 . 650)
+  "The size of the GNUPlot terminal, in the form (WIDTH . HEIGHT).")
+
+(after! org-plot
+  (defun +org-plot-generate-theme (_type)
+    "Use the current Doom theme colours to generate a GnuPlot preamble."
+    (format "
+fgt = \"textcolor rgb '%s'\" # foreground text
+fgat = \"textcolor rgb '%s'\" # foreground alt text
+fgl = \"linecolor rgb '%s'\" # foreground line
+fgal = \"linecolor rgb '%s'\" # foreground alt line
+
+# foreground colors
+set border lc rgb '%s'
+# change text colors of  tics
+set xtics @fgt
+set ytics @fgt
+# change text colors of labels
+set title @fgt
+set xlabel @fgt
+set ylabel @fgt
+# change a text color of key
+set key @fgt
+
+# line styles
+set linetype 1 lw 2 lc rgb '%s' # red
+set linetype 2 lw 2 lc rgb '%s' # blue
+set linetype 3 lw 2 lc rgb '%s' # green
+set linetype 4 lw 2 lc rgb '%s' # magenta
+set linetype 5 lw 2 lc rgb '%s' # orange
+set linetype 6 lw 2 lc rgb '%s' # yellow
+set linetype 7 lw 2 lc rgb '%s' # teal
+set linetype 8 lw 2 lc rgb '%s' # violet
+
+# border styles
+set tics out nomirror
+set border 3
+
+# palette
+set palette maxcolors 8
+set palette defined ( 0 '%s',\
+1 '%s',\
+2 '%s',\
+3 '%s',\
+4 '%s',\
+5 '%s',\
+6 '%s',\
+7 '%s' )
+"
+            (doom-color 'fg)
+            (doom-color 'fg-alt)
+            (doom-color 'fg)
+            (doom-color 'fg-alt)
+            (doom-color 'fg)
+            ;; colours
+            (doom-color 'red)
+            (doom-color 'blue)
+            (doom-color 'green)
+            (doom-color 'magenta)
+            (doom-color 'orange)
+            (doom-color 'yellow)
+            (doom-color 'teal)
+            (doom-color 'violet)
+            ;; duplicated
+            (doom-color 'red)
+            (doom-color 'blue)
+            (doom-color 'green)
+            (doom-color 'magenta)
+            (doom-color 'orange)
+            (doom-color 'yellow)
+            (doom-color 'teal)
+            (doom-color 'violet)))
+
+  (defun +org-plot-gnuplot-term-properties (_type)
+    (format "background rgb '%s' size %s,%s"
+            (doom-color 'bg) (car +org-plot-term-size) (cdr +org-plot-term-size)))
+
+  (setq org-plot/gnuplot-script-preamble #'+org-plot-generate-theme)
+  (setq org-plot/gnuplot-term-extra #'+org-plot-gnuplot-term-properties))
+#+end_src
+
+**** 字体化内联 src 块
+
+Org 使用 =#+begin_src= 块做了一些事情，比如在幕后使用 font-lock 作为语言的主要模
+式并拉出良好的彩色结果。相比之下，内联 =src_= 块在某种程度上被忽略了。
+
+我不是第一个有这种感觉的人, 幸好他们已经开始在 [[https://stackoverflow.com/questions/20309842/how-to-syntax-highlight-for-org-mode-inline-source-code-src-lang/28059832][stackexchange]] 上开始讨论了。 我打
+算直接使用他们的结果，但不幸的是，他们没有执行 /true/ 源代码字体化，而只是将
+=org-code= 应用在内容上。
+
+我们可以做得比这更好！使用 ~org-src-font-lock-fontify-block~ 我们可以应用适合语
+言的语法高亮。然后，继续到 ={{{results(...)}}}=，它可以将 =org-block= 应用相应的
+规则，然后通过模仿 ~prettify-symbols-mode~ 的行为隐藏值包围结构。
+
+#+begin_warning
+但目前只能一行高亮一个内联 src 块。我不知道它为什么会停止，我希望它正常。如果您
+知道发生了什么或如何解决此问题 /请/ 联系。
+#+end_warning
+
+#+begin_src emacs-lisp
+(setq org-inline-src-prettify-results '("⟨" . "⟩"))
+#+end_src
+
+Doom 主题的额外字体化问题多于帮助。
+#+begin_src emacs-lisp
+(setq doom-themes-org-fontify-special-tags nil)
+#+end_src
+
+*** 导出
 默认情况下，Org 仅将前三个级别的标题导出为标题。当使用 =article= 时，LaTeX 标题
 从 =\section= 、 =\subsection= 、 =\subsubsection= 和 =\paragraph= 、
 =\subgraph= --- /五/ 个级别。HTML5 有六级标题 (=<h1>= 到 =<h6>=)，但第一级 Org
@@ -2287,6 +2574,21 @@ $\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}$ 。
 
 #+begin_src emacs-lisp
 (setq! org-export-headline-levels 5)
+#+end_src
+
+我还将使用 =ox-extra= 中的一个项目，以便我可以在标题中添加一个 =:ignore:= 标记以
+保留内容，但标题本身会被忽略（​=:noexport:= 它忽略了标题和内容）。当我想使用标题
+来提供未出现在最终文档中的写作结构时，这很有用。
+
+#+begin_src emacs-lisp
+(require 'ox-extra)
+(ox-extras-activate '(ignore-headlines))
+#+end_src
+
+由于我（大致）跟踪 Org ~HEAD~​，因此在创建者字符串中包含 git 版本是有意义的。
+#+begin_src emacs-lisp
+(setq org-export-creator-string
+      (format "Emacs %s (Org mode %s–%s)" emacs-version (org-release) (org-git-version)))
 #+end_src
 
 *** HTML 导出
@@ -3491,6 +3793,33 @@ Each cdr is a plist with (optional) keys :serif, :sans, :mono, and :maths.
 A key's value is a LaTeX snippet which loads such a font.")
 #+end_src
 
+LaTeX 已经将 =---= 和 =---= 识别为 em/en-dashes，​=\-= 识别为连字符，并且 =...=
+到 =\ldots{}= 的转换被硬编码到 ~org-latex-plain-text~​（不像​~org-html-plain-text~​）。
+
+我也很想分辨 =->= 和 =<-=​，所以让我们提出一些建议。
+
+#+begin_src emacs-lisp
+(defvar org-latex-extra-special-string-regexps
+  '(("<->" . "\\\\(\\\↔{}\\\\)")
+    ("->" . "\\\\textrightarrow{}")
+    ("<-" . "\\\\textleftarrow{}")))
+
+(defun org-latex-convert-extra-special-strings (string)
+  "Convert special characters in STRING to LaTeX."
+  (dolist (a org-latex-extra-special-string-regexps string)
+    (let ((re (car a))
+          (rpl (cdr a)))
+      (setq string (replace-regexp-in-string re rpl string t)))))
+
+(defadvice! org-latex-plain-text-extra-special-a (orig-fn text info)
+  "Make `org-latex-plain-text' handle some extra special strings."
+  :around #'org-latex-plain-text
+  (let ((output (funcall orig-fn text info)))
+    (when (plist-get info :with-special-strings)
+      (setq output (org-latex-convert-extra-special-strings output)))
+    output))
+#+end_src
+
 **** 封面
 要制作漂亮的封面，想到的一个简单方法就是重新定义 =\maketitle= 。为了精确控制定位
 ，我们将使用 =tikz= 包，然后添加 Tikz 库 =calc= 和 =shape.geometric= 来为背
@@ -3793,6 +4122,121 @@ This condition is applied when cover page option is set to auto.")
          (verbatim . verb)))
 #+end_src
 
+# **** 检查所需的包
+
+# 对于我如何设置 Org 的 LaTeX 导出，需要以下包：
+
+# #+name: org-latex-required-packages-list
+# | Package    | Description                                           |
+# |------------+-------------------------------------------------------|
+# | adjustbox  | Adjust general LaTeX material in like includegraphics |
+# | amsmath    | A near-essential maths package                        |
+# | booktabs   | Nice horizontal lines in tables                       |
+# | cancel     | Cancel terms in equations                             |
+# | capt-of    | Captions outside floats                               |
+# | caption    | Finer control over captions                           |
+# | cleveref   | Easy cross-referencing                                |
+# | embedall   | Embed files in the document                           |
+# | float      | Floating environments                                 |
+# | fontenc    | Font encodings                                        |
+# | fvextra    | Enhanced verbatim environments                        |
+# | graphicx   | An extended graphics package                          |
+# | hanging    | Used by oc-csl                                        |
+# | hyperref   | Links                                                 |
+# | inputenc   | Input file encodings                                  |
+# | longtable  | Multi-page tables                                     |
+# | mathalpha  | Set extended math alphabet fonts                      |
+# | mathtools  | Typesetting tools for maths                           |
+# | microtype  | Microtypography                                       |
+# | pdfx       | Create pdf/a- and pdf/x- compatible documents         |
+# | pifont     | A collection of symbols                               |
+# | preview    | Needed for AUCTeX and ob-latex                        |
+# | scrbase    | KOMA classes and more                                 |
+# | siunitx    | Proper unit support                                   |
+# | soul       | Strikethrough and underline, flexibly                 |
+# | subcaption | Form subfigures and subcaptions                       |
+# | svg        | Insert SVG images                                     |
+# | tikz       | Generally handy, as a dependancy and for graphics     |
+# | tcolorbox  | Nice boxes for code                                   |
+# | textcomp   | Font encodings                                        |
+# | xcolor     | Colours                                               |
+# | xparse     | Extended command/env definition forms                 |
+# | xcoffins   | Manipulate coffins (boxes) for typesetting            |
+
+# 然后对于各种字体集：
+# #+name: org-latex-font-packages-list
+# + Alegreya
+# + arev
+# + biolinum
+# + FiraMono
+# + FiraSans
+# + fourier
+# + gillius
+# + kpfonts
+# + libertine
+# + newpxmath
+# + newpxtext
+# + newtxmath
+# + newtxtext
+# + newtxsf
+# + noto
+# + plex-mono
+# + plex-sans
+# + plex-serif
+# + sourcecodepro
+# + sourcesanspro
+# + sourceserifpro
+
+# 我们可以编写一个函数，用 =kpsewhich= 检查这些包，然后如果其中任何一个缺失，我们
+# 将在生成的配置中注入一些建议，获取缺失包的列表并在每次导出时产生警告。
+
+# #+name: org-missing-latex-packages
+# #+begin_src emacs-lisp :noweb-ref none :var org-latex-required-packages-list=org-latex-required-packages-list[,0] :var org-latex-font-packages-list=org-latex-font-packages-list
+# (setq org-required-latex-packages (append org-latex-required-packages-list
+#                                           (mapcar #'car org-latex-font-packages-list)))
+
+# (defun check-for-latex-packages (packages)
+#   (delq nil (mapcar (lambda (package)
+#                       (unless
+#                           (= 0 (shell-command (format "kpsewhich %s.sty" package)))
+#                         package))
+#                     packages)))
+
+# (if-let ((missing-pkgs (check-for-latex-packages org-required-latex-packages)))
+#     (concat
+#      (pp-to-string `(setq org-required-latex-packages ',org-required-latex-packages))
+#      (message ";; Detected missing LaTeX packages: %s\n" (mapconcat #'identity missing-pkgs ", "))
+#      (pp-to-string
+#       '(defun check-for-latex-packages (packages)
+#          (delq nil (mapcar (lambda (package)
+#                              (unless
+#                                  (= 0 (shell-command (format "kpsewhich %s.sty" package)))
+#                                package))
+#                            packages))))
+#      (pp-to-string
+#       '(defun +org-warn-about-missing-latex-packages (&rest _)
+#          (message "Checking for missing LaTeX packages...")
+#          (sleep-for 0.4)
+#          (if-let (missing-pkgs (check-for-latex-packages org-required-latex-packages))
+#              (message "%s You are missing the following LaTeX packages: %s."
+#                       (propertize "Warning!" 'face '(bold warning))
+#                       (mapconcat (lambda (pkg) (propertize pkg 'face 'font-lock-variable-name-face))
+#                                  missing-pkgs
+#                                  ", "))
+#            (message "%s You have all the required LaTeX packages. Run %s to make this message go away."
+#                     (propertize "Success!" 'face '(bold success))
+#                     (propertize "doom sync" 'face 'font-lock-keyword-face))
+#            (advice-remove 'org-latex-export-to-pdf #'+org-warn-about-missing-latex-packages))
+#          (sleep-for 1)))
+#      (pp-to-string
+#       '(advice-add 'org-latex-export-to-pdf :before #'+org-warn-about-missing-latex-packages)))
+#   ";; No missing LaTeX packags detected")
+# #+end_src
+
+# #+begin_src emacs-lisp :noweb no-export
+# <<org-missing-latex-packages()>>
+# #+end_src
+
 *** 幻灯片导出
 :properties:
 :header-args:emacs-lisp: :noweb-ref ox-latex-conf
@@ -3921,6 +4365,7 @@ contextual information."
              ("---\\([^-]\\|$\\)" . "—\\1")
              ("--\\([^-]\\|$\\)" . "–\\1")
              ("\\.\\.\\." . "…")
+             ("<->" . "⟷")
              ("->" . "→")
              ("<-" . "←"))))
       (funcall orig-fn text (plist-put info :with-smart-quotes nil)))))
@@ -3968,7 +4413,7 @@ contextual information."
   <<tex-conf>>
   )
 #+end_src
-# *** 随想随用
+
 *** 编译
 #+begin_src emacs-lisp
 (setq! TeX-save-query nil
@@ -4134,6 +4579,15 @@ Such special cases should be remapped to another value, as given in `string-offs
   (if (string-match-p "^\\\\?\\w+$" teststring) t nil))
 #+end_src
 
+一些 local 快捷键使生活更轻松
+#+begin_src emacs-lisp
+(after! tex
+  (map!
+   :map LaTeX-mode-map
+   :ei [C-return] #'LaTeX-insert-item)
+  (setq TeX-electric-math '("\\(" . "")))
+#+end_src
+
 当然数学界定符不需要强调
 #+begin_src emacs-lisp
 ;; Making \( \) less visible
@@ -4151,6 +4605,38 @@ Such special cases should be remapped to another value, as given in `string-offs
 ;;  'latex-mode
 ;;  '(("\\\\[[:word:]]+" 0 'font-lock-keyword-face prepend))
 ;;  'end)
+#+end_src
+
+*** CDLaTeX
+
+默认情况下，符号修改非常好用，但可以充实更多符号。让我们将前缀更改为同样很少使用但更方便的键，例如 =;=​。
+#+begin_src emacs-lisp :noweb no-export :tangle yes :noweb-ref nil
+(after! cdlatex
+  (setq cdlatex-env-alist
+        '(("bmatrix" "\\begin{bmatrix}\n?\n\\end{bmatrix}" nil)
+          ("equation*" "\\begin{equation*}\n?\n\\end{equation*}" nil)))
+  (setq ;; cdlatex-math-symbol-prefix ?\; ;; doesn't work at the moment :(
+   cdlatex-math-symbol-alist
+   '( ;; adding missing functions to 3rd level symbols
+     (?_    ("\\downarrow"  ""           "\\inf"))
+     (?2    ("^2"           "\\sqrt{?}"     ""     ))
+     (?3    ("^3"           "\\sqrt[3]{?}"  ""     ))
+     (?^    ("\\uparrow"    ""           "\\sup"))
+     (?k    ("\\kappa"      ""           "\\ker"))
+     (?m    ("\\mu"         ""           "\\lim"))
+     (?c    (""             "\\circ"     "\\cos"))
+     (?d    ("\\delta"      "\\partial"  "\\dim"))
+     (?D    ("\\Delta"      "\\nabla"    "\\deg"))
+     ;; no idea why \Phi isnt on 'F' in first place, \phi is on 'f'.
+     (?F    ("\\Phi"))
+     ;; now just convenience
+     (?.    ("\\cdot" "\\dots"))
+     (?:    ("\\vdots" "\\ddots"))
+     (?*    ("\\times" "\\star" "\\ast")))
+   cdlatex-math-modify-alist
+   '( ;; my own stuff
+     (?B    "\\mathbb"        nil          t    nil  nil)
+     (?a    "\\abs"           nil          t    nil  nil))))
 #+end_src
 
 *** Fixes
