@@ -289,7 +289,7 @@ literate
 可以做很多事来增强 Emacs 的功能，。
 
 - 输入 ::
-  中日文输入与键盘布局，我主要依赖系统输入法 fcitx 且不输入法语，因此不开此选项
+  中日文输入与键盘布局
   #+name: doom-input
   #+begin_src emacs-lisp
 ;;bidi              ; (tfel ot) thgir etirw uoy gnipleh
@@ -331,9 +331,9 @@ modeline            ; snazzy, Atom-inspired modeline, plus API
 nav-flash           ; blink cursor line after big motions
 ;;neotree           ; a project drawer, like NERDTree for vim
 ophints             ; highlight the region an operation acts on
-(popup              ; tame sudden yet inevitable temporary windows
- +all               ; catch all popups that start with an asterix
- +defaults)         ; default popup rules
+;;(popup            ; tame sudden yet inevitable temporary windows
+;; +all             ; catch all popups that start with an asterix
+;; +defaults)       ; default popup rules
 tabs                ; a tab bar for Emacs
 treemacs            ; a project drawer, like neotree but cooler
 ;;unicode           ; extended unicode support for various languages
@@ -788,8 +788,91 @@ doom 通过 =packages.el= 来安装包，非常简单，只需要 ~package!~ 就
   #+end_src
 
 ** 工具
-*** 缩写
-Emacs Stack Exchange 上的[[https://emacs.stackexchange.com/questions/45462/use-a-single-abbrev-table-for-multiple-modes/45476#45476][在多种模式下使用统一的缩写表]]，是一个很好的思路
+*** Input
+**** Spell Check
+~Ispell~ 是一个古老的 Unix 拼写检查软件，当然你可以将其当作拼写检查软件的一种代称。
+#+begin_src emacs-lisp
+(set-company-backend!
+  '(text-mode
+    markdown-mode
+    gfm-mode)
+  '(:seperate
+    company-ispell
+    company-files
+    company-yasnippet))
+#+end_src
+
+Hunspell 还是 Aspell 都听不错，但是 Aspell 比较式微，故本配置使用的是前者，
+但是之后的配置是一样的
+
+Hunspell 和 Aspell 都可以从  [[http://app.aspell.net/create][SCOWL Custom List / Dicionary Creator]]
+获取一个好用的大词典
+- size (大小) :: 95 (疯狂)
+- spellings (拼写) :: 英语 (美国) 和 英语 (英国, -ise)
+- spelling variants level (拼写变体等级) :: 0
+- diacritics (变音符号) :: 保留
+- extra lists (额外列表) :: hacker、罗马数字
+
+如果你用的是 Linux 且不想自己下载了，可以用用下面这个小脚本 (hunspell 不用)
+  - Hunspell
+    #+begin_src shell :tangle no
+cd /tmp
+wget -O "hunspell-en-custom.zip" \
+    -c 'http://app.aspell.net/create?max_size=95&spelling=US&spelling=GBs&max_variant=0&diacritic=keep&special=hacker&special=roman-numerals&encoding=utf-8&format=tar.gz&download=hunspell'
+unzip "hunspell-en-custom.zip"
+sudo chown root:root en-custom.*
+sudo mkdir -p /usr/share/hunspell/
+sudo mv en-custom.{aff,dic} /usr/share/hunspell/
+sudo ln -s /usr/share/hunspell/en-custom.aff /usr/share/hunspell/en_US.aff
+sudo ln -s /usr/share/hunspell/en-custom.dic /usr/share/hunspell/en_US.dic
+    #+end_src
+  - Aspell
+    #+begin_src shell :tangle no
+cd /tmp
+wget -O "aspell6-en-custom.tar.bz2" \
+    -c 'http://app.aspell.net/create?max_size=95&spelling=US&spelling=GBs&max_variant=0&diacritic=keep&special=hacker&special=roman-numerals&encoding=utf-8&format=tar.gz&download=aspell'
+tar -xjf "aspell6-en-custom.tar.bz2"
+cd aspell6-en-custom
+./configure && make && sudo make install
+    #+end_src
+
+配置一下就能开始用了
+#+begin_src emacs-lisp
+(setq! ispell-dictionary "en-custom")
+#+end_src
+
+**** String Inflection
++变形汽车人！+ 变形字符串！
+#+begin_src emacs-lisp :tangle packages.el
+(package! string-inflection)
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! string-inflection
+  :defer t
+  :init
+  (map! :leader :prefix ("cS" . "naming convention")
+        :desc "cycle" "~" #'string-inflection-all-cycle
+        :desc "toggle" "t" #'string-inflection-toggle
+        :desc "CamelCase" "c" #'string-inflection-camelcase
+        :desc "downCase" "d" #'string-inflection-lower-camelcase
+        :desc "kebab-case" "k" #'string-inflection-kebab-case
+        :desc "under_score" "u" #'string-inflection-underscore
+        :desc "Upper_Score" "_" #'string-inflection-capital-underscore
+        :desc "UP_CASE" "U" #'string-inflection-upcase))
+#+end_src
+
+**** iedit
+iedit 是多行同时编辑工具，当然 lsp 也可能需要它 (如果你要多行同时修改代
+码的话)。
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! iedit :recipe (:host github :repo "victorhge/iedit"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! iedit :defer t)
+#+end_src
 
 *** hungry delete
 一次 ~backspace~ 吃掉所有空白符 (当前光标限定)
@@ -986,7 +1069,7 @@ cargo install git-delta
       ("q" "quit" (lambda () (interactive) (smerge-auto-leave)))]]))
 #+end_src
 
-*** 补全
+*** Completion
 没有补全怎么写代码，尤其是 =Java=​！！！
 #+begin_src emacs-lisp
 (after! company
@@ -1007,17 +1090,9 @@ cargo install git-delta
 (custom-set-variables '(company-show-numbers t))
 #+end_src
 
-*** Consult
-#+begin_comment
-来自 =:completion vertico= 模块
-#+end_comment
-
-*** Marginalia
-#+begin_comment
-模块 =:completion vertico= 的一部分。
-#+end_comment
-
-Doom 下 Marginalia 被调教的不错，如果遇到什么好玩的配置了，可以继续加。
+*** Vertico
++ Consult
++ Marginalia
 
 *** LSP
 这不是老色批！自从 lsp 普及开始，无论配置什么编辑器都不再复杂了。看了一圈
@@ -1040,79 +1115,6 @@ Doom 下 Marginalia 被调教的不错，如果遇到什么好玩的配置了，
         lsp-ui-doc-position 'at-point
         lsp-ui-doc-delay 0.5
         ))
-#+end_src
-
-*** 拼写检查
-~Ispell~ 是一个古老的 Unix 拼写检查软件，当然你可以将其当作拼写检查软件的一种代称。
-#+begin_src emacs-lisp
-(set-company-backend!
-  '(text-mode
-    markdown-mode
-    gfm-mode)
-  '(:seperate
-    company-ispell
-    company-files
-    company-yasnippet))
-#+end_src
-
-Hunspell 还是 Aspell 都听不错，但是 Aspell 比较式微，故本配置使用的是前者，
-但是之后的配置是一样的
-
-Hunspell 和 Aspell 都可以从  [[http://app.aspell.net/create][SCOWL Custom List / Dicionary Creator]]
-获取一个好用的大词典
-- size (大小) :: 95 (疯狂)
-- spellings (拼写) :: 英语 (美国) 和 英语 (英国, -ise)
-- spelling variants level (拼写变体等级) :: 0
-- diacritics (变音符号) :: 保留
-- extra lists (额外列表) :: hacker、罗马数字
-
-如果你用的是 Linux 且不想自己下载了，可以用用下面这个小脚本 (hunspell 不用)
-  - Hunspell
-    #+begin_src shell :tangle no
-cd /tmp
-wget -O "hunspell-en-custom.zip" \
-    -c 'http://app.aspell.net/create?max_size=95&spelling=US&spelling=GBs&max_variant=0&diacritic=keep&special=hacker&special=roman-numerals&encoding=utf-8&format=tar.gz&download=hunspell'
-unzip "hunspell-en-custom.zip"
-sudo chown root:root en-custom.*
-sudo mkdir -p /usr/share/hunspell/
-sudo mv en-custom.{aff,dic} /usr/share/hunspell/
-sudo ln -s /usr/share/hunspell/en-custom.aff /usr/share/hunspell/en_US.aff
-sudo ln -s /usr/share/hunspell/en-custom.dic /usr/share/hunspell/en_US.dic
-    #+end_src
-  - Aspell
-    #+begin_src shell :tangle no
-cd /tmp
-wget -O "aspell6-en-custom.tar.bz2" \
-    -c 'http://app.aspell.net/create?max_size=95&spelling=US&spelling=GBs&max_variant=0&diacritic=keep&special=hacker&special=roman-numerals&encoding=utf-8&format=tar.gz&download=aspell'
-tar -xjf "aspell6-en-custom.tar.bz2"
-cd aspell6-en-custom
-./configure && make && sudo make install
-    #+end_src
-
-配置一下就能开始用了
-#+begin_src emacs-lisp
-(setq! ispell-dictionary "en-custom")
-#+end_src
-
-*** String Inflection
-+变形汽车人！+ 变形字符串！
-#+begin_src emacs-lisp :tangle packages.el
-(package! string-inflection)
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! string-inflection
-  :defer t
-  :init
-  (map! :leader :prefix ("cS" . "naming convention")
-        :desc "cycle" "~" #'string-inflection-all-cycle
-        :desc "toggle" "t" #'string-inflection-toggle
-        :desc "CamelCase" "c" #'string-inflection-camelcase
-        :desc "downCase" "d" #'string-inflection-lower-camelcase
-        :desc "kebab-case" "k" #'string-inflection-kebab-case
-        :desc "under_score" "u" #'string-inflection-underscore
-        :desc "Upper_Score" "_" #'string-inflection-capital-underscore
-        :desc "UP_CASE" "U" #'string-inflection-upcase))
 #+end_src
 
 *** TRAMP
@@ -1357,17 +1359,6 @@ cite 时 calibre 只能做 book。
   (add-hook 'nov-mode-hook #'+nov-mode-setup))
 #+end_src
 
-*** iedit
-iedit 介绍说它是都行同时编辑工具，当然 lsp 也可能需要它 (如果你要多行同时修改代
-码的话)。
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! iedit :recipe (:host github :repo "victorhge/iedit"))
-#+end_src
-
-#+begin_src emacs-lisp
-(use-package! iedit :defer t)
-#+end_src
 ** UI
 *** Nyan
 首先添加一下彩虹猫，这不能忘！
