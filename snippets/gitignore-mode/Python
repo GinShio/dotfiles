@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Python #########################
-# repo: github/gitignore; pin: 8e67b9420c; file: Python.gitignore
+# repo: github/gitignore; pin: d0b80a4699; file: Python.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Byte-compiled / optimized / DLL files
 __pycache__/

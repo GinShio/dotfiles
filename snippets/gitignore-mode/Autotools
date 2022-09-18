@@ -3,6 +3,9 @@
 # key: autotools
 # expand-env: ((yas-indent-line nil))
 # --
+######################### Autotools #########################
+# repo: github/gitignore; pin: 991e760c1c; file: Autotools.gitignore
+# LICENSE: Creative Commons Zero v1.0 Universal
 # http://www.gnu.org/software/automake
 
 Makefile.in

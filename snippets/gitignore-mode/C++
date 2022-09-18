@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: c++
+# name: cplusplus
 # key: cpp
 # expand-env: ((yas-indent-line nil))
 # --
