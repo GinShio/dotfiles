@@ -3,31 +3,20 @@
 # key: blogheader
 # condition: t
 # --
-#+hugo_base_dir: `(expand-file-name "publisher/hugo" org-directory)`
-#+hugo_section: ${2:posts/$1}
-#+hugo_auto_set_lastmod: t
+#+hugo_categories: ${1:`(file-name-nondirectory (directory-file-name (file-name-directory (buffer-file-name))))`}
+#+hugo_tags: $2
 #+hugo_draft: true
-#+hugo_categories: ${1:`(car (cdr (reverse (split-string (buffer-file-name) "/"))))`}
-#+hugo_tags: $3
 #+hugo_locale: zh
+#+hugo_lastmod: $4
+#+hugo_auto_set_lastmod: nil
 #+hugo_front_matter_key_replace: author>authors
-#+title: ${4:`(mapconcat #'capitalize (split-string (file-name-base (buffer-file-name)) "[-_]+") " ")`}
+#+title: ${3:`(mapconcat #'capitalize (split-string (file-name-base (buffer-file-name)) "[-_]+") " ")`}
 #+author: `user-full-name`
+#+date: ${4:`(format-time-string "%Y-%m-%dT%H:%M:%S%:z" (current-time))`}
 #+email: `user-mail-address`
-#+date: ${5:`(format-time-string "%Y-%m-%d %H:%M:%S" (current-time))`}
-#+export_file_name: ${6:`(file-name-sans-extension (file-name-nondirectory (buffer-file-name)))`}.zh-cn.txt
-#+description: $7
-#+keywords: $1 $3
-#+latex_compiler: xelatex
-#+latex_header: \usepackage{xeCJK}
-#+latex_header: \setCJKmainfont{Source Han Serif SC}
-#+latex_header: \setCJKsansfont{Source Han Sans SC}
-#+latex_header: \setCJKmonofont{Source Han Mono SC}
+#+description: GinShio | $5
+#+keywords: $1 $2
+#+export_file_name: `(file-name-sans-extension (file-name-nondirectory (buffer-file-name)))`.zh-cn.txt
+
 
 $0
-
-#+begin_export hugo
-<style>
-div.info{background:rgba(58,129,195,0.15);border-left:4px solid rgba(58,129,195,0.45);margin:1.8rem 0 1.25rem 15px;padding:0.8em;line-height:1.4;text-align:left;position:relative;clear:both}div.info p{margin:0}div.info::before{content:"i";background:rgba(58,129,195,0.8);align-items:flex-end;top:-1rem;font-weight:700;font-size:1.4rem;-webkit-clip-path:circle(50% at 50% 50%);clip-path:circle(50% at 50% 50%);width:30px;height:30px;display:inline-flex;justify-content:center;position:absolute;left:-1.2rem;line-height:1.3;text-align:left}div.success{background:rgba(45,149,116,0.15);border-left:4px solid rgba(45,149,116,0.45);margin:1.8rem 0 1.25rem 15px;padding:0.8em;line-height:1.4;text-align:left;position:relative;clear:both}div.success p{margin:0}div.success::before{content:"✔";background:rgba(45,149,116,0.8);align-items:flex-end;top:-1rem;font-weight:700;font-size:1.4rem;-webkit-clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);clip-path:polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);width:35px;height:35px;display:inline-flex;justify-content:center;position:absolute;left:-1.2rem;line-height:1.5;text-align:left}div.warning{background:rgba(220,117,47,0.15);border-left:4px solid rgba(220,117,47,0.45);margin:1.8rem 0 1.25rem 15px;padding:0.8em;line-height:1.4;text-align:left;position:relative;clear:both}div.warning p{margin:0}div.warning::before{content:"!";background:rgba(220,117,47,0.8);align-items:flex-end;top:-1rem;font-weight:700;font-size:1.4rem;-webkit-clip-path:polygon(50% 0, 0 100%, 100% 100%);clip-path:polygon(50% 0, 0 100%, 100% 100%);width:35px;height:35px;display:inline-flex;justify-content:center;position:absolute;left:-1.2rem;line-height:1.1;text-align:left}div.error{background:rgba(186,47,89,0.15);border-left:4px solid rgba(186,47,89,0.45);margin:1.8rem 0 1.25rem 15px;padding:0.8em;line-height:1.4;text-align:left;position:relative;clear:both}div.error p{margin:0}div.error::before{content:"!";background:rgba(186,47,89,0.8);align-items:flex-end;top:-1rem;font-weight:700;font-size:1.4rem;-webkit-clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);clip-path:polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);width:35px;height:30px;display:inline-flex;justify-content:center;position:absolute;left:-1.2rem;line-height:1.1;text-align:left}
-</style>
-#+end_export

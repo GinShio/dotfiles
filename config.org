@@ -107,7 +107,8 @@ source /etc/os-release
 (setq user-full-name "GinShio"
       user-mail-address "ginshio78@gmail.com"
       user-gpg-key "9E2949D214995C7E"
-      org-directory "~/org")
+      org-directory "~/cyberlive"
+      )
 #+end_src
 显然这可以被 GPG 或其他程序使用。
 
@@ -4381,23 +4382,6 @@ contextual information."
 当我想在某处粘贴导出的 Markdown 时，最好使用 unicode 字符 =---= 而不是
 =&#x2014;= 。为此，只需要在本地重新绑定提供的 alist。而
 ~org-md-plain-text-unicode-a~ 就是解决这个问题的。
-
-*** Hugo
-我用 hugo 的主要原因是就是可以用 Org Mode 来写作，之后交给 [[https://ox-hugo.scripter.co/][ox-hugo]] 就好。需要尽
-量减少 hugo 所带来的额外语法，这样可以让我们仅用 Org 编辑，发布不同的文件。
-
-# 在导出时，只要 Org 使用的相对路经，导出的 Markdown 就不会采用绝对路经，可以有效
-# 避免 Hugo 使用绝对路经导致资源不在根目录中。
-
-# #+begin_src emacs-lisp
-# (setq! org-hugo-external-file-extensions-allowed-for-copying nil)
-# #+end_src
-
-我使用的 Hugo 主题是 [[https://github.com/HEIGE-PCloud/DoIt][DoIt]]，​~authors~ 字段接受数组类型，而 =ox-hugo= 默认导出
-~author~ 字段为数组类型，对于该问题可以参考该 [[https://github.com/kaushalmodi/ox-hugo/issues/608#issuecomment-1086950058][issue]]
-#+begin_example
-,#+hugo_front_matter_key_replace: author>authors
-#+end_example
 
 ** LaTeX
 :properties:
