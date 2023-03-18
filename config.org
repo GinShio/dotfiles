@@ -4650,6 +4650,9 @@ Doom 默认的 Markdown 是 ~GFM~ (GitHub Flavored Markdown)，不过有了 =Ema
 tcc 也是 C++
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.tcc\\'" . c++-mode))
+(set-formatter! 'clang-format
+  '("clang-format" "--Wno-error=unknown" ("-assume-filename=%S" (or buffer-file-name mode-result "")))
+  :modes '(c-mode c++-mode))
 #+end_src
 
 #+begin_src emacs-lisp
