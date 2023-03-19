@@ -7,8 +7,14 @@ for ctx in `git diff --cached --name-only --diff-filter=ACM |git check-attr --st
         continue
     fi
     case "${file##*.}" in
-        c|h|cc|hh|cxx|hxx|cpp|hpp|c\+\+|h\+\+|tcc)
-            clang-format --Wno-error=unknown -i "$file"
+        c|h|inc) # C files
+            clang-format --Wno-error=unknown --style='file:$GIT_TOPLEVEL_DIR/.clang-format-c' -i "$file"
+            ;;
+        hh|hpp|hxx|h\+\+)  ;& # C++ header files
+        cc|cpp|cxx|c\+\+)  ;& # C++ source files
+        icc|ipp|ixx|i\+\+) ;& # C++ macro / template files
+        tcc|tpp|txx|t\+\+)    # C++ template files
+            clang-format --Wno-error=unknown --style='file:$GIT_TOPLEVEL_DIR/.clang-format-cpp' -i "$file"
             ;;
         *)
             sed -i -e :a -e '/^\n*$/{$d;N;};/\n$/ba' -e 's/[[:space:]]*$//' "$file"
