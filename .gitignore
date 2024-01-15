@@ -1,4 +1,5 @@
 /*.el
+/misc/org-export-header.html
 
 ######################### Emacs #########################
 # repo: github/gitignore; pin: 87ec1bd864; file: Global/Emacs.gitignore

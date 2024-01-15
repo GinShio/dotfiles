@@ -2856,10 +2856,10 @@ digraph {
 }
 #+end_src
 
-#+caption: Org 功能、功能标志和 LaTeX 片段之间的关联
-#+attr_html: :class invertible :alt DAG showing how Org features flow through to LaTeX :style max-width:min(24em,100%)
-#+attr_latex: :width 0.6\linewidth
-[[file:misc/org-latex-clever-preamble.svg]]
+# #+caption: Org 功能、功能标志和 LaTeX 片段之间的关联
+# #+attr_html: :class invertible :alt DAG showing how Org features flow through to LaTeX :style max-width:min(24em,100%)
+# #+attr_latex: :width 0.6\linewidth
+# [[file:misc/org-latex-clever-preamble.svg]]
 
 首先，我们将实现该模型的特征检测组件。我希望它能够使用尽可能多的状态信息，因此功
 能测试应该非常通用。
