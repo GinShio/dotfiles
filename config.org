@@ -79,10 +79,10 @@ source /etc/os-release
   (prefer-coding-system 'utf-8-unix))
                                     ; 将 Windows 上的编码改为 UTF-8 Unix 换行
 
-(custom-set-faces! '(delete-selection-mode t) ;; delete when you select region and modify
-                   '(delete-by-moving-to-trash t) ;; delete && move to transh
-                   '(inhibit-compacting-font-caches t) ;; don’t compact font caches during GC.
-                   '(gc-cons-percentage 1))
+(custom-set-variables '(delete-selection-mode t) ;; delete when you select region and modify
+                      '(delete-by-moving-to-trash t) ;; delete && move to transh
+                      '(inhibit-compacting-font-caches t) ;; don’t compact font caches during GC.
+                      '(gc-cons-percentage 1))
 
 (add-hook 'prog-mode-hook (lambda () (setq show-trailing-whitespace 1)))
                                     ; 编程模式下让结尾的空白符亮起
@@ -492,9 +492,9 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
 设置一下 modeline，比如说图标、文件名称以及彩虹猫 (Nyan cat)！
 #+begin_src emacs-lisp
 (after! doom-modeline
-  (custom-set-faces! '(doom-modeline-buffer-file-name-style 'relative-to-project)
-                     '(doom-modeline-major-mode-icon t)
-                     '(doom-modeline-modal-icon nil))
+  (custom-set-variables '(doom-modeline-buffer-file-name-style 'relative-to-project)
+                        '(doom-modeline-major-mode-icon t)
+                        '(doom-modeline-modal-icon nil))
   (nyan-mode t))
 #+end_src
 
@@ -949,7 +949,7 @@ cargo install git-delta
 
 还有最要紧的事，让待选选项有数字提示，方便直接 =M-<num>= 选择
 #+begin_src emacs-lisp
-(custom-set-faces! '(company-show-numbers t))
+(custom-set-variables '(company-show-numbers t))
 #+end_src
 
 *** Vertico
@@ -1331,7 +1331,7 @@ Theme Magic 提供了一个数字界面，尝试从饱和度、色彩差异来�
 ~hl-todo~ 允许你设置一些关键字，这些关键字将高亮并且便于查找。往往用于代码注释中
 强调某些内容。
 #+begin_src emacs-lisp
-(custom-set-faces!
+(custom-set-variables
  '(hl-todo-keyword-faces '(("NOTE" font-lock-builtin-face bold) ;; needs discussion or further investigation.
                            ("REVIEW" font-lock-keyword-face bold) ;; review was conducted.
                            ("HACK" font-lock-variable-name-face bold) ;; workaround a known problem.
@@ -1784,7 +1784,7 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
                                " ┄┄┄┄┄ " "┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄")
         org-agenda-current-time-string "⭠ now ─────────────────────────────────────────────────"
         )
-  (custom-set-faces! '(org-modern-statistics :inherit org-checkbox-statistics-todo)))
+  (custom-set-variables '(org-modern-statistics :inherit org-checkbox-statistics-todo)))
 #+end_src
 
 **** 强调标记
@@ -1820,7 +1820,7 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
   (setq! org-superstar-headline-bullets-list '("♇" "♆" "♅" "♄" "♃" "♂" "♀" "☿")
          org-superstar-prettify-item-bullets t))
 (after! org-fancy-priorities
-  (custom-set-faces! '(org-lowest-priority ?E))
+  (custom-set-variables '(org-lowest-priority ?E))
   (setq! org-fancy-priorities-list '("⚡" "↑" "↓" "☕" "❓")))
 (setq! org-ellipsis " ▾ "
        org-hide-leading-stars t
@@ -3547,13 +3547,13 @@ This condition is applied when cover page option is set to auto.")
 
 #+begin_src emacs-lisp :noweb no-export :tangle yes :noweb-ref nil
 (setq! LaTeX-biblatex-use-Biber t)
-(custom-set-faces! '(LaTeX-section-label '(("part" . "part:")
-                                           ("chapter" . "chap:")
-                                           ("section" . "sec:")
-                                           ("subsection" . "subsec:")
-                                           ("subsubsection" . "subsubsec:")))
-                   '(TeX-auto-local "auto")
-                   '(TeX-command-extra-options "--shell-escape --interaction=nonstopmode"))
+(custom-set-variables '(LaTeX-section-label '(("part" . "part:")
+                                              ("chapter" . "chap:")
+                                              ("section" . "sec:")
+                                              ("subsection" . "subsec:")
+                                              ("subsubsection" . "subsubsec:")))
+                      '(TeX-auto-local "auto")
+                      '(TeX-command-extra-options "--shell-escape --interaction=nonstopmode"))
 (after! latex
   <<tex-conf>>
   )
