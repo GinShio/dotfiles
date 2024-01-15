@@ -65,9 +65,9 @@ source /etc/os-release
        read-process-output-max 1048576
        )
 
-(remove-hook 'text-mode-hook #'visual-line-mode)
-(add-hook 'text-mode-hook #'auto-fill-mode)
-(add-hook! 'window-setup-hook #'toggle-frame-maximized)
+(remove-hook! text-mode #'visual-line-mode)
+(add-hook! text-mode #'auto-fill-mode)
+(add-hook! window-setup #'toggle-frame-maximized)
                                     ; 设置最大化启动
 (global-subword-mode 1)             ; 识别驼峰，而不是傻瓜前进
 (global-unset-key (kbd "C-z"))      ; 关闭 "C-z" 最小化
@@ -84,7 +84,7 @@ source /etc/os-release
                       '(inhibit-compacting-font-caches t) ;; don’t compact font caches during GC.
                       '(gc-cons-percentage 1))
 
-(add-hook 'prog-mode-hook (lambda () (setq show-trailing-whitespace 1)))
+(add-hook! prog-mode (lambda () (setq show-trailing-whitespace 1)))
                                     ; 编程模式下让结尾的空白符亮起
 #+end_src
 
@@ -543,7 +543,7 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
       ;; NOTE: ONLY TUI
       <<doom-ascii-banner>>
       )))
-(add-hook! 'doom-init-ui-hook #'ginshio/doom-init-ui-misc)
+(add-hook! doom-init-ui #'ginshio/doom-init-ui-misc)
 #+end_src
 
 *** 辅助宏
@@ -579,10 +579,8 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
 Dashboard 是打开 Emacs 的主页，展示命令并不是很有用，移除掉它们！
 #+name: doom-dashboard-layout
 #+begin_src emacs-lisp :tangle no
-(remove-hook '+doom-dashboard-functions
-             #'doom-dashboard-widget-shortmenu)
-(add-hook! '+doom-dashboard-mode-hook (hide-mode-line-mode 1)
-           (hl-line-mode 1))
+(remove-hook! '+doom-dashboard-functions #'doom-dashboard-widget-shortmenu)
+(add-hook! +doom-dashboard-mode (hide-mode-line-mode 1) (hl-line-mode 1))
 #+end_src
 
 ** 其他设置
@@ -786,7 +784,7 @@ Doom 通过 =packages.el= 来安装包，非常简单，只需要 ~package!~ 就
 (use-package! hungry-delete
   :config
   (setq-default hungry-delete-chars-to-skip " \t\v")
-  (add-hook! 'prog-mode-hook #'hungry-delete-mode))
+  (add-hook! prog-mode #'hungry-delete-mode))
 #+end_src
 
 *** Dired
@@ -1118,7 +1116,7 @@ screenshot 依赖于 [[https://imagemagick.org/index.php][ImageMagick]]
         nyan-cat-face-number 4
         nyan-bar-length 16
         nyan-minimum-window-width 64)
-  (add-hook! 'doom-modeline-hook #'nyan-mode))
+  (add-hook! doom-modeline #'nyan-mode))
 #+end_src
 
 *** Eros
@@ -1203,8 +1201,9 @@ Theme Magic 提供了一个数字界面，尝试从饱和度、色彩差异来�
 
 #+begin_src emacs-lisp
 (use-package! info-colors
-  :commands (info-colors-fontify-node))
-(add-hook 'Info-selection-hook 'info-colors-fontify-node)
+  :after info
+  :commands (info-colors-fontify-node)
+  :hook (Info-selection . info-colors-fontify-node))
 #+end_src
 
 *** Tabs
@@ -1376,9 +1375,9 @@ Snippet 可以很好的帮助我们初始化一些文件。
 现在我们只需要将它连接到所有可能表明条件发生变化或需要重新应用设置的事件。
 
 #+begin_src emacs-lisp
-(add-hook 'window-configuration-change-hook #'+setup-text-mode-left-margin)
-(add-hook 'display-line-numbers-mode-hook #'+setup-text-mode-left-margin)
-(add-hook 'text-mode-hook #'+setup-text-mode-left-margin)
+(add-hook! (window-configuration-change display-line-numbers-mode)
+           #'+setup-text-mode-left-margin)
+(add-hook! text-mode #'+setup-text-mode-left-margin)
 #+end_src
 
 Doom 有一个小问题，因为 ~doom/toggle-line-numbers~ 不运行 ~display-line-numbers-mode-hook~​，所以需要一些设置。
@@ -1392,7 +1391,7 @@ Doom 有一个小问题，因为 ~doom/toggle-line-numbers~ 不运行 ~display-l
 最后，我想我真的很喜欢这个，我会继续在文本模式下删除行号。
 
 #+begin_src emacs-lisp
-(remove-hook 'text-mode-hook #'display-line-numbers-mode)
+(remove-hook! text-mode #'display-line-numbers-mode)
 #+end_src
 
 ** Org Mode
@@ -1458,7 +1457,7 @@ I also like the src_elisp{:comments} header-argument, so let’s make that a def
   :after (:any org markdown)
   :config
   (toc-org-mode t)
-  (add-hook! '(org-mode-hook markdown-mode-hook) #'toc-org-mode)
+  (add-hook! (org-mode markdown-mode) #'toc-org-mode)
   (define-key! org-mode-map "C-c C-i" #'toc-org-insert-toc)
   (define-key! markdown-mode-map "C-c M-t" #'toc-org-insert-toc))
 #+end_src
@@ -1957,7 +1956,7 @@ $\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}$​。
         (org-clear-latex-preview (point-min) (point-max))
         (org--latex-preview-region (point-min) (point-max))))))
 
-(add-hook 'doom-load-theme-hook #'+org-refresh-latex-images-previews-h)
+(add-hook! doom-load-theme #'+org-refresh-latex-images-previews-h)
 #+end_src
 
 **** 字体化内联 src 块
@@ -2384,7 +2383,7 @@ Org 使用 [[https://github.com/hniksic/emacs-htmlize][htmlize.el]] 导出带有
 
 #+begin_src emacs-lisp
 (require 'htmlize)
-(add-hook 'htmlize-before-hook #'highlight-numbers--turn-on)
+(add-hook! htmlize-before #'highlight-numbers--turn-on)
 #+end_src
 
 **** 处理表溢出
@@ -3798,7 +3797,7 @@ Such special cases should be remapped to another value, as given in `string-offs
 *** Fixes
 
 #+begin_src emacs-lisp
-(add-hook 'latex-mode-hook #'TeX-latex-mode)
+(add-hook! latex-mode #'TeX-latex-mode)
 #+end_src
 
 ** Markdown
