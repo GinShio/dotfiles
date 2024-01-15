@@ -1014,8 +1014,8 @@ cargo install git-delta
 
 #+begin_src emacs-lisp
 (setq! +tree-sitter-hl-enabled-modes '(c-mode c++-mode python-mode rust-mode))
-(after! tree-sitter
-  (ts-fold-indicators-mode t))
+(after! ts-fold
+  (add-hook! (c-mode c++-mode python-mode rust-mode) #'ts-fold-indicators-mode))
 #+end_src
 
 *** 格式化
