@@ -1010,10 +1010,12 @@ cargo install git-delta
 (package! combobulate :recipe (:host github :repo "mickeynp/combobulate"))
 #+end_src
 
-默认启用 tree-sitter
+默认启用 tree-sitter，不要忘记打开折叠功能
 
 #+begin_src emacs-lisp
 (setq! +tree-sitter-hl-enabled-modes '(c-mode c++-mode python-mode rust-mode))
+(after! tree-sitter
+  (ts-fold-indicators-mode t))
 #+end_src
 
 *** 格式化
