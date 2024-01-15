@@ -992,6 +992,12 @@ cargo install git-delta
         ))
 #+end_src
 
+由于使用 tree-sitter 进行上色，那我们就不再需要 lsp 进行代码上色了
+#+begin_src emacs-lisp
+(after! lsp
+  (setq! lsp-enable-semantic-highlighting nil))
+#+end_src
+
 *** Tree sitter
 
 #+begin_comment
@@ -1008,10 +1014,33 @@ cargo install git-delta
 
 #+begin_src emacs-lisp
 (after! tree-sitter
+  (setq! font-lock-maximum-decoration t)
   (add-hook! 'tree-sitter-after-on-hook #'tree-sitter-hi-mode)
   (add-hook! 'tree-sitter-after-on-hook #'ts-fold-mode)
-  (add-hook! 'tree-sitter-after-on-hook #'ts-fold-indicators-mode)
-  (setq! font-lock-maximum-decoration t))
+  (add-hook! 'tree-sitter-after-on-hook #'ts-fold-indicators-mode))
+#+end_src
+
+*** 格式化
+
+#+begin_comment
+来自 =:tools format= 模块
+#+end_comment
+
+格式化代码是一个很重要的事情，但是，我希望还是不要再保存的时候格式化了！这会让代
+码变得奇怪，尤其是合作的项目上。当然你可以手动用 ~+format/buffer~ 在需要的时候格式
+化代码。
+
+#+begin_src emacs-lisp
+(setq! +format-on-save-disabled-modes
+       '(cc-mode
+         python-mode
+         tex-mode         ; latexindent is broken
+         latex-mode))
+#+end_src
+
+另外，不要让 lsp 污染 format！
+#+begin_src emacs-lisp
+(setq! +format-with-lsp nil)
 #+end_src
 
 *** TRAMP
@@ -3800,7 +3829,7 @@ tcc 也是 C++
 #+end_src
 
 设置 gud-gdb 显示当前行
-#+begin_src emacs-list
+#+begin_src emacs-lisp
 (after! gud-gdb
   ;;; Keep the current line in sync with the point and in the center of the
   ;;; buffer. Otherwise the current line may disappear from the buffer as you step
@@ -3816,5 +3845,3 @@ tcc 也是 C++
           (forward-line (1- (ad-get-arg 1)))
           (recenter))))))
 #+end_src
-
-
