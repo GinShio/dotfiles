@@ -259,7 +259,7 @@ workspaces          ; tab emulation, persistence & separate workspaces
 ;;(evil +everywhere); come to the dark side, we have cookies
 file-templates      ; auto-snippets for empty files
 fold                ; (nigh) universal code folding
-(format +onsave)    ; automated prettiness
+format              ; automated prettiness
 ;;god               ; run Emacs commands without modifier keys
 ;;lispy             ; vim for lisp, for people who don't like vim
 multiple-cursors    ; editing in many places at once
@@ -1028,19 +1028,18 @@ cargo install git-delta
 
 格式化代码是一个很重要的事情，但是，我希望还是不要再保存的时候格式化了！这会让代
 码变得奇怪，尤其是合作的项目上。当然你可以手动用 ~+format/buffer~ 在需要的时候格式
-化代码。
+化代码。但我不知道为什么这没什么用。
 
-#+begin_src emacs-lisp
-(setq! +format-on-save-disabled-modes
-       '(cc-mode
-         python-mode
-         tex-mode         ; latexindent is broken
-         latex-mode))
+#+begin_src emacs-lisp :tangle no
+(appendq! +format-on-save-disabled-modes
+          '(c-mode
+            c++-mode
+            python-mode))
 #+end_src
 
 另外，不要让 lsp 污染 format！
 #+begin_src emacs-lisp
-(setq! +format-with-lsp nil)
+(setq +format-with-lsp nil)
 #+end_src
 
 *** TRAMP
