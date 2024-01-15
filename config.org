@@ -1013,11 +1013,7 @@ cargo install git-delta
 默认启用 tree-sitter
 
 #+begin_src emacs-lisp
-(after! tree-sitter
-  (setq! font-lock-maximum-decoration t)
-  (add-hook! 'tree-sitter-after-on-hook #'tree-sitter-hi-mode)
-  (add-hook! 'tree-sitter-after-on-hook #'ts-fold-mode)
-  (add-hook! 'tree-sitter-after-on-hook #'ts-fold-indicators-mode))
+(setq! +tree-sitter-hl-enabled-modes '(c-mode c++-mode python-mode rust-mode))
 #+end_src
 
 *** 格式化
