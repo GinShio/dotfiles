@@ -1589,7 +1589,7 @@ I also like the src_elisp{:comments} header-argument, so let’s make that a def
   (eval `(lsp-org-babel-enable ,lang)))
 #+end_src
 
-*** Super Agenda
+*** Agenda
 
 #+begin_src emacs-lisp :tangle yes :noweb-ref none
 (defvar org-agenda-dir (concat org-directory "/" "agenda"))
@@ -1729,15 +1729,14 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
         org-modern-list '((43 . "➤")
                           (45 . "–")
                           (42 . "•"))
-        org-modern-todo-faces '(("TODO" :inverse-video t :inherit org-todo)
-                                ("PROJ" :inverse-video t :inherit +org-todo-project)
-                                ("STRT" :inverse-video t :inherit +org-todo-active)
-                                ("[-]"  :inverse-video t :inherit +org-todo-active)
-                                ("HOLD" :inverse-video t :inherit +org-todo-onhold)
-                                ("WAIT" :inverse-video t :inherit +org-todo-onhold)
-                                ("[?]"  :inverse-video t :inherit +org-todo-onhold)
-                                ("KILL" :inverse-video t :inherit +org-todo-cancel)
-                                ("NO"   :inverse-video t :inherit +org-todo-cancel))
+        org-modern-todo-faces '(("TODO" . (:inherit org-verbatim :weight semi-bold :foreground "white" :background "goldenrod"))
+                                ("NEXT" . (:inherit org-verbatim :weight semi-bold :foreground "white" :background "IndianRed1"))
+                                ("STRT" . (:inherit org-verbatim :weight semi-bold :foreground "white" :background "OrangeRed"))
+                                ("WAIT" . (:inherit org-verbatim :weight semi-bold :foreground "white" :background "coral"))
+                                ("KILL" . (:inherit org-verbatim :weight semi-bold :foreground "white" :background "DarkGreen"))
+                                ("PROJ" . (:inherit org-verbatim :weight semi-bold :foreground "white" :background "LimeGreen"))
+                                ("HOLD" . (:inherit org-verbatim :weight semi-bold :foreground "white" :background "orange"))
+                                ("DONE" . (:inherit org-verbatim :weight semi-bold :foreground "black" :background "LightGray")))
         org-modern-footnote (cons nil (cadr org-script-display))
         org-modern-block-fringe nil
         org-modern-block-name '((t . t)
