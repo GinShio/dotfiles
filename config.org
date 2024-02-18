@@ -37,7 +37,7 @@ source /etc/os-release
 #+begin_src emacs-lisp
 (setq user-full-name "GinShio"
       user-mail-address "ginshio78@gmail.com"
-      user-gpg-key "9E2949D214995C7E"
+      user-gpg-key "65F09D172E677525"
       org-directory "~/cyberlive"
       )
 #+end_src
