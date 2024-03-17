@@ -37,7 +37,6 @@ source /etc/os-release
 #+begin_src emacs-lisp
 (setq user-full-name "GinShio"
       user-mail-address "ginshio78@gmail.com"
-      user-gpg-key "65F09D172E677525"
       org-directory "~/cyberlive"
       )
 #+end_src
@@ -1490,7 +1489,7 @@ I also like the src_elisp{:comments} header-argument, so let’s make that a def
 #+begin_src emacs-lisp
 (use-package! org-crypt
   :custom
-  (org-crypt-key user-gpg-key)
+  (org-crypt-key "0xA173AD0063A4E2DFAB4F9EAE65F09D172E677525")
   (org-tags-exclude-from-inheritance '("crypt")) ;; avoid repeated encryption
   :config
   (org-crypt-use-before-save-magic) ;; encrypt when writing back to the hard disk
