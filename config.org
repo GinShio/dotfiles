@@ -1009,9 +1009,7 @@ cargo install git-delta
 默认启用 tree-sitter，不要忘记打开折叠功能
 
 #+begin_src emacs-lisp
-;; (setq! +tree-sitter-hl-enabled-modes '(c-mode c++-mode python-mode rust-mode))
-(after! ts-fold
-  (add-hook! tree-sitter-after-on #'ts-fold-indicators-mode))
+(setq! +tree-sitter-hl-enabled-modes '(python-mode rust-mode))
 #+end_src
 
 但是 tree-sitter 的高亮似乎有些问题，在这样的 C++ 代码中，会错误的高亮变量中的
