@@ -96,7 +96,7 @@ source /etc/os-release
 默认情况下通过自定义界面所做的修改会被添加到 =init.el= 中。
 不过正常的方法是将它们放在 =.custom.el= 中。
 #+begin_src emacs-lisp
-(setq-default custom-file (expand-file-name ".custom.el" doom-private-dir))
+(setq-default custom-file (expand-file-name ".custom.el" doom-user-dir))
 (when (file-exists-p custom-file) (load custom-file))
 #+end_src
 
@@ -604,7 +604,7 @@ Dashboard 是打开 Emacs 的主页，展示命令并不是很有用，移除掉
 #+name: doom-image-banner
 #+begin_src emacs-lisp :tangle no
 (setq! fancy-splash-image
-       (let ((banners (directory-files (expand-file-name "banners" doom-private-dir)
+       (let ((banners (directory-files (expand-file-name "banners" doom-user-dir)
                                        'full (rx ".png" eos))))
          (elt banners (random (length banners)))))
 #+end_src
@@ -615,7 +615,7 @@ Dashboard 是打开 Emacs 的主页，展示命令并不是很有用，移除掉
 (setq! ginshio/+doom-dashbord-ascii-banner
        (split-string (with-output-to-string
                        (call-process "cat" nil standard-output nil
-                                     (let ((banners (directory-files (expand-file-name "banners" doom-private-dir)
+                                     (let ((banners (directory-files (expand-file-name "banners" doom-user-dir)
                                                                      'full (rx ".txt" eos))))
                                        (elt banners (random (length banners))))))
                      "\n" t))
@@ -1521,6 +1521,7 @@ I also like the src_elisp{:comments} header-argument, so let’s make that a def
 #+end_comment
 
 #+begin_src emacs-lisp
+;;; (org-cite-global-bibliography '("~/library/ebooks/catalog.bib" "~/library/papers/catalog.bib"))
 (after! citar
   (setq! citar-symbol-separator "  "
          citar-bibliography org-cite-global-bibliography
@@ -1528,6 +1529,8 @@ I also like the src_elisp{:comments} header-argument, so let’s make that a def
            `((file ,(nerd-icons-faicon "nf-fa-file_o" :face 'nerd-icons-green :v-adjust -0.1) . " ")
              (note ,(nerd-icons-octicon "nf-oct-note" :face 'nerd-icons-blue :v-adjust -0.3) . " ")
              (link ,(nerd-icons-octicon "nf-oct-link" :face 'nerd-icons-orange :v-adjust 0.01) . " ")))
+  (org-cite-follow-processor 'citar)
+  (org-cite-activate-processor 'citar)
   (add-to-list 'citar-major-mode-functions
                '((gfm-mode)
                  (insert-keys . citar-markdown-insert-keys)
@@ -1559,7 +1562,7 @@ I also like the src_elisp{:comments} header-argument, so let’s make that a def
 (cl-defmacro lsp-org-babel-enable (lang)
   "Support LANG in org source code block."
   (setq centaur-lsp 'lsp-mode)
-  (cl-check-type lang stringp)
+  (cl-check-type lang string)
   (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
          (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
     `(progn
@@ -2200,12 +2203,17 @@ compared to the default implementation."
 (defun org-html-reload-fancy-style ()
   (interactive)
   (setq org-html-style-fancy
-        (concat (f-read-text (expand-file-name "misc/org-export-header.html" doom-private-dir))
-                "<script>\n"
-                (f-read-text (expand-file-name "misc/org-css/main.js" doom-private-dir))
-                "</script>\n<style>\n"
-                (f-read-text (expand-file-name "misc/org-css/main.min.css" doom-private-dir))
-                "</style>"))
+        (with-temp-buffer
+          (insert-file-contents (expand-file-name "misc/org-export-header.html" doom-user-dir))
+          (goto-char (point-max))
+          (insert "<script>\n")
+          (insert-file-contents (expand-file-name "misc/org-css/main.js" doom-user-dir))
+          (goto-char (point-max))
+          (insert "</script>\n<style>\n")
+          (insert-file-contents (expand-file-name "misc/org-css/main.min.css" doom-user-dir))
+          (goto-char (point-max))
+          (insert "</style>")
+          (buffer-string)))
   (when org-fancy-html-export-mode
     (setq org-html-style-default org-html-style-fancy)))
 (org-html-reload-fancy-style)
@@ -2548,31 +2556,46 @@ Emacs 中最有用的快捷键，或文件名：我将我的配置保存在 =~/.
 \[D(N) = \frac{2}{N}[\sum_{j=0}^{N-1}{D(j)}] + N - 1.\]
 
 #+begin_src emacs-lisp
-(setq! org-html-mathjax-options
-      '((path "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" )
-        (scale "1")
-        (multlinewidth "85%")
-        (tagindent ".8em")
-        (tagside "right")))
+(setcdr (assoc 'path org-html-mathjax-options)
+        (list "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"))
 
 (setq! org-html-mathjax-template
       "<script>
-MathJax = {
+window.MathJax = {
   loader: {
-    load: ['[tex]/ams', '[tex]/upgreek', '[tex]/mathtools']
+    load: ['[tex]/ams', '[tex]/upgreek', '[tex]/mathtools'],
+  },
+  tex: {
+    ams: {
+      multlineWidth: '%MULTLINEWIDTH'
+    },
+    tags: '%TAGS',
+    tagSide: '%TAGSIDE',
+    tagIndent: '%TAGINDENT',
+    packages: {'[+]': ['ams', 'upgreek', 'mathtools']},
+    mathtools: {
+      pairedDelimiters: {
+        abs: ['\\\\lvert', '\\\\rvert'],
+        norm: ['\\\\lVert', '\\\\rVert'],
+        ceil: ['\\\\lceil', '\\\\rceil'],
+        floor: ['\\\\lfloor', '\\\\rfloor'],
+        round: ['\\\\lfloor', '\\\\rceil'],
+      }
+    }
   },
   chtml: {
-    scale: %SCALE
+    scale: %SCALE,
+    displayAlign: '%ALIGN',
+    displayIndent: '%INDENT'
   },
   svg: {
     scale: %SCALE,
-    fontCache: \"global\"
+    displayAlign: '%ALIGN',
+    displayIndent: '%INDENT'
   },
-  tex: {
-    packages: {'[+]': ['ams', 'upgreek', 'mathtools']},
-    multlineWidth: \"%MULTLINEWIDTH\",
-    tagSide: \"%TAGSIDE\",
-    tagIndent: \"%TAGINDENT\"
+  output: {
+    font: '%FONT',
+    displayOverflow: '%OVERFLOW'
   }
 };
 </script>
@@ -2607,8 +2630,6 @@ MathJax = {
 <<org-latex-box-preamble>>
 "
   "Preamble that provides a macro for custom boxes.")
-(defvar org-latex-embed-files nil
-  "Embed the source .org, .tex, and any tangled files.")
 (defvar org-latex-use-microtype t
   "Use the microtype pakage.")
 (defvar org-latex-italic-quotes t
@@ -2936,8 +2957,6 @@ digraph {
 LaTeX 中的另一个考虑因素是加载顺序，这在某些情况下很重要。除此之外，有某种合理的
 排序是很好的。为此我将介绍一个 =:order= 关键字。使用它将按如下方式排列片段。
 
-+ =-2= 嵌入文件设置
-+ =-1= 额外的文件嵌入
 + =0= 排版
   - =0= 字体本身
   # - =0.1= 排版调整 (=microtype=)
@@ -2962,14 +2981,14 @@ LaTeX 中的另一个考虑因素是加载顺序，这在某些情况下很重�
          (float-wrap    :snippet "\\usepackage{wrapfig}" :order 2)
          (rotate        :snippet "\\usepackage{rotating}" :order 2)
          (caption       :snippet org-latex-caption-preamble :order 2.1)
-         (microtype     :snippet "\\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=2000]{microtype}\n"
+         (microtype     :snippet "\\usepackage[activate={true,nocompatibility},final,tracking=true,kerning=true,spacing=true,factor=2000]{microtype}"
                         :order 0.1)
          (acronym       :snippet "\\newcommand{\\acr}[1]{\\protect\\textls*[110]{\\scshape #1}}\n\\newcommand{\\acrs}{\\protect\\scalebox{.91}[.84]{\\hspace{0.15ex}s}}"
                         :order 0.4)
          (box-drawing   :snippet "\\usepackage{pmboxdraw}" :order 0.05)
          (italic-quotes :snippet "\\renewcommand{\\quote}{\\list{}{\\rightmargin\\leftmargin}\\item\\relax\\em}\n"
                         :order 0.5)
-         (par-sep       :snippet "\\setlength{\\parskip}{\\baselineskip}\n\\setlength{\\parindent}{0pt}\n"
+         (par-sep       :snippet "\\setlength{\\parskip}{\\baselineskip}\n\\setlength{\\parindent}{0pt}"
                         :order 0.5)
          (.pifont       :snippet "\\usepackage{pifont}")
          (.xcoffins     :snippet "\\usepackage{xcoffins}")
@@ -3854,3 +3873,10 @@ tcc 也是 C++
           (forward-line (1- (ad-get-arg 1)))
           (recenter))))))
 #+end_src
+
+
+
+* 参考配置
+
+ + [[https://tecosaur.github.io/emacs-config/config.html][tecosaur - Doom Emacs Configuration]]
+ + [[https://www.hugchange.life/posts/202401_core_emacs_config.html][metaescape - 个人 Emacs 核心配置]]
