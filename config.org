@@ -456,7 +456,7 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
       doom-big-font (font-spec :family "Source Code Pro" :size 30)
       doom-variable-pitch-font (font-spec :family "Source Code Variable" :size 15)
       doom-unicode-font (font-spec :family "JuliaMono")
-      doom-serif-font (font-spec :family "TeX Gyre Cursor")
+      doom-serif-font (font-spec :family "Source Serif 4")
       )
 #+end_src
 
@@ -529,12 +529,11 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
       (progn
         ;; NOTE: ONLY GUI
         ;; set font
-        (dolist (charset '(kana han symbol cjk-misc bopomofo gb18030))
+        (dolist (charset '(kana han bopomofo))
           (set-fontset-font (frame-parameter nil 'font) charset
-                            (font-spec :family "Source Han Mono")))
+                            (font-spec :family "Source Han Mono SC")))
         (appendq! face-font-rescale-alist
-                  '(("Source Han Mono" . 1.2)
-                    ))
+                  '(("Source Han Mono SC" . 1.2)))
         <<doom-image-banner>>
         ;; random banner image from bing.com, NOTE: https://emacs-china.org/t/topic/264/33
         )
@@ -1722,8 +1721,8 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
   (org-mode . org-modern-mode)
   (org-agenda-finalize . org-modern-agenda)
   :config
-  (setq org-modern-star '("♇" "♆" "♅" "♄" "♃" "♂" "♀" "☿")
-                   ;;;  '("◉" "○" "✸" "✿" "✤" "✜" "◆" "▶")
+  (setq org-modern-star 'replace
+        org-modern-replace-stars "♇♆♅♄♃♂♀☿" ;;  "◉○✸✿✤✜◆▶"
         org-modern-table-vertical 1
         org-modern-table-horizontal 0.2
         org-modern-list '((43 . "➤")
@@ -1829,9 +1828,6 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
 改。
 
 #+begin_src emacs-lisp
-(after! org-superstar
-  (setq! org-superstar-headline-bullets-list '("♇" "♆" "♅" "♄" "♃" "♂" "♀" "☿")
-         org-superstar-prettify-item-bullets t))
 (after! org-fancy-priorities
   (custom-set-variables '(org-lowest-priority ?E))
   (setq! org-fancy-priorities-list '("⚡" "↑" "↓" "☕" "❓")))
@@ -1910,25 +1906,17 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
 自定义 LaTeX 片段的外观很舒适，这样它们就更适合文本了 --- 比如这个
 $\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}$​。
 
-#+name: latex-default-snippet-preamble
-#+begin_src LaTeX
-\\documentclass{standalone}
-[DEFAULT-PACKAGES]
-[PACKAGES]
-\\usepackage[svgnames]{xcolor}
-#+end_src
-
 #+begin_src emacs-lisp :noweb no-export :noweb-prefix no
 (setq! org-preview-latex-default-process 'dvisvgm
        org-preview-latex-process-alist
        '((dvipng :programs ("latex" "dvipng")
-                 :description "dvi --> png"
-                 :message "you need to install the programs: latex and dvipng."
-                 :image-input-type "dvi"
-                 :image-output-type "png"
-                 :image-size-adjust (1.0 . 1.0)
-                 :latex-compiler ("lualatex --shell-escape --output-format=dvi --interaction=nonstopmode --output-directory=%o %f")
-                 :image-converter ("dvipng -D %D -T tight -bg Transparent -o %O %f"))
+          :description "dvi --> png"
+          :message "you need to install the programs: latex and dvipng."
+          :image-input-type "dvi"
+          :image-output-type "png"
+          :image-size-adjust (1.0 . 1.0)
+          :latex-compiler ("lualatex --shell-escape --output-format=dvi --interaction=nonstopmode --output-directory=%o %f")
+          :image-converter ("dvipng -D %D -T tight -bg Transparent -o %O %f"))
          (dvisvgm :programs ("latex" "dvisvgm")
                   :description "dvi --> svg"
                   :message "you need to install the programs: latex and dvisvgm."
@@ -1947,16 +1935,15 @@ $\sqrt{\beta^2+3}-\sum_{\phi=1}^\infty \frac{x^\phi-1}{\Gamma(a)}$​。
                       :image-size-adjust (1.0 . 1.0)
                       :latex-compiler ("lualatex --shell-escape --output-format=pdf --interaction=nonstopmode --output-directory=%o %f")
                       :image-converter ("convert -density %D -trim -antialias %f -quality 100 %O")))
-       org-format-latex-header
-       (concat
-        "
-<<latex-default-snippet-preamble>>
-"
-        "\n% Custom font\n\\usepackage{arev}\n\n"
-        "
+       org-format-latex-header "
+\\documentclass{standalone}
+[DEFAULT-PACKAGES]
+[PACKAGES]
+% Custom font
+\\usepackage{arev}
+
 <<latex-maths-conveniences>>
-"
-        ))
+")
 (plist-put org-format-latex-options :background "Transparent")
 (plist-put org-format-latex-options :zoom 0.93) ; Calibrated based on the TeX font and org-buffer font.
 #+end_src
@@ -2000,6 +1987,103 @@ Org 使用 =#+begin_src= 块做了一些事情，比如在幕后使用 font-lock
 Doom 主题的额外字体化问题多于帮助。
 #+begin_src emacs-lisp
 (setq! doom-themes-org-fontify-special-tags nil)
+#+end_src
+
+
+*** Babel
+:properties:
+:CUSTOM_ID: org_babel_generic
+:header-args:emacs-lisp: :tangle no :noweb-ref org-babel-conf
+:end:
+
+我们需要建立一个通天的巴别塔，以便我们可以在 org-mode 的任意位置编写以及运行任何
+编程语言！
+
+#+begin_src emacs-lisp :noweb no-export :noweb-ref org-conf :tangle no
+<<org-babel-conf>>
+#+end_src
+
+**** LaTeX
+
+如果导出到文件，我们使用定制化的 LaTeX 导出，也就是应用所有关于我们对于 org-mode
+latex 的定制化设置。(HTML 除外？)
+
+#+begin_src emacs-lisp
+(defadvice! org-babel-execute-latex-export-file (orig-fn body params)
+  "Like `org-babel-execute:latex', support org-format-latex-header for all"
+  :around #'org-babel-execute:latex
+  (if (string-suffix-p ".html" (cdr (assq :file params)))
+      (funcall orig-fn body params)
+    (let ((expanded-body (org-babel-expand-body:latex body params))
+          (latex-compiler
+           (list :latex-compiler (or (cadar (org-collect-keywords '("latex_compiler"))) org-latex-compiler))))
+      (if (cdr (assq :file params))
+          (ginshio/org-babel-execute-latex-export-file latex-compiler expanded-body params)
+        expanded-body))))
+
+(defun ginshio/org-babel-execute-latex-export-file (latex-compiler body params)
+  (let* ((out-file (cdr (assq :file params)))
+         (extension (file-name-extension out-file))
+         (tex-file (org-babel-temp-file "latex-" ".tex"))
+         (border (cdr (assq :border params)))
+         (imagemagick (cdr (assq :imagemagick params)))
+         (fit (or (cdr (assq :fit params)) border))
+         (headers (cdr (assq :headers params))))
+    (stringp nil)
+    (with-temp-file tex-file
+      (require 'ox-latex)
+      (insert
+       (org-latex--insert-compiler latex-compiler)
+       (org-latex-guess-inputenc
+        (org-splice-latex-header
+         org-format-latex-header
+         (delq nil
+               (mapcar
+                (lambda (el)
+                  (unless (and (listp el) (string= "hyperref" (cadr el))) el))
+                org-latex-default-packages-alist))
+         (append (cdr (assq :packages params)) org-latex-packages-alist)
+         nil))
+       (if (string= "png" extension)
+           (format "%s%s%s%s"
+                   (if fit "\n\\usepackage[active,tightpage]{preview}\n" "")
+                   (if border (format "\\setlength{\\PreviewBorder}{%s}\n" border) "")
+                   (let ((height (and fit (cdr (assq :pdfheight params)))))
+                     (if height (format "\\pdfpageheight %s\n" height) ""))
+                   (let ((width (and fit (cdr (assq :pdfwidth params)))))
+                     (if width (format "\\pdfpageheight %s\n" width) "")))
+         "")
+       (if headers
+           (concat "\n"
+                   (if (listp headers)
+                       (mapconcat #'identity headers "\n")
+                     headers) "\n")
+         "")
+       (if (and fit (string= "png" extension))
+           (concat "\n\\begin{document}\n\\begin{preview}\n" body
+                   "\n\\end{preview}\n\\end{document}\n")
+         (concat "\n\\begin{document}\n" body "\n\\end{document}\n"))))
+    (when (file-exists-p out-file) (delete-file out-file))
+    (if (string= "tex" extension)
+        (rename-file tex-file out-file)
+      (let* ((transient-pdf-file (org-babel-latex-tex-to-pdf tex-file)))
+        (cond
+         ((string= "pdf" extension)
+          (rename-file transient-pdf-file out-file))
+         ((and (string= "png" extension) imagemagick)
+          (org-babel-latex-convert-pdf
+           transient-pdf-file out-file (cdr (assq :iminoptions params)) (cdr (assq :imoutoptions params))))
+         ((string= "svg" extension)
+          (let* ((log-buf (get-buffer-create "*Org Babel LaTeX Output*"))
+                 (err-msg "org babel latex failed")
+                 (img-out (org-compile-file
+                           transient-pdf-file
+                           (list org-babel-latex-pdf-svg-process)
+                           extension err-msg log-buf)))
+            (rename-file img-out out-file)))
+         (t
+          (error "Can not create %s files, please specify a .svg, .png or .pdf file or try the :imagemagick header argument"
+                 extension)))))))
 #+end_src
 
 *** 导出通用设置
@@ -2630,7 +2714,7 @@ window.MathJax = {
 <<org-latex-box-preamble>>
 "
   "Preamble that provides a macro for custom boxes.")
-(defvar org-latex-use-microtype t
+(defvar org-latex-use-microtype nil
   "Use the microtype pakage.")
 (defvar org-latex-italic-quotes t
   "Make \"quote\" environments italic.")
@@ -3021,7 +3105,8 @@ LaTeX 中的另一个考虑因素是加载顺序，这在某些情况下很重�
 
 #+begin_src emacs-lisp
 (setq! org-latex-packages-alist
-       '(("" "xcolor" t)))
+       '(("svgnames" "xcolor" t)
+         ("" "tikz" t)))
 #+end_src
 
 ***** 特征确定
@@ -3569,6 +3654,38 @@ This condition is applied when cover page option is set to auto.")
          (strike-through . "\\sout{%s}")
          (underline . "\\uline{%s}")
          (verbatim . verb)))
+#+end_src
+
+*** Pandoc 导出
+:properties:
+:CUSTOM_ID: org_export_pandoc
+:header-args:emacs-lisp: :tangle no :noweb-ref ox-pandoc-conf
+:end:
+
+顾名思义，这是一个语言的巴别塔，我们可以在 org-mode 中运行所有编程语言！当然，我
+们需要定制一些东西。
+
+#+begin_src emacs-lisp :noweb no-export :noweb-ref org-export-conf :tangle no
+(after! ox-pandoc
+  <<ox-pandoc-conf>>
+  )
+#+end_src
+
+**** GitHub Flavored Markdown
+
+在使用 Pandoc 进行导出 gfm 时，链接 headline 时链接会被导出为数字。具体参见
+[[https://github.com/kawabata/ox-pandoc/issues/58][Issue #58]]。
+
+#+begin_src emacs-lisp
+(advice-add 'org-pandoc-link
+            :around #'(lambda (fun link contents info)
+                        (let* ((dest (when (string= (org-element-property :type link) "fuzzy")
+                                       (org-export-resolve-fuzzy-link link info)))
+                               (dest-type (when dest (org-element-type dest)))
+                               (path (org-element-property :path link)))
+                          (if (eq dest-type 'headline)
+                              (format "[[#%s][%s]]" path path)
+                            (funcall fun link contents info)))))
 #+end_src
 
 ** LaTeX
