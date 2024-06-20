@@ -388,8 +388,7 @@ markdown              ; writing docs for people to ignore
 (org                  ; organize your plain life in plain text
  +dragndrop           ; drag & drop files/images into org buffers
  +hugo                ; use Emacs for hugo blogging
- +pandoc              ; export-with-pandoc support
- +pretty)             ; yessss my pretties! (nice unicode symbols)
+ +pandoc)             ; export-with-pandoc support
 ;;php                 ; perl's insecure younger brother
 ;;plantuml            ; diagrams for confusing people more
 ;;purescript          ; javascript, but functional
@@ -1825,14 +1824,24 @@ https://www.zmonster.me/2018/02/28/org-mode-capture.html"
 
 **** 符号
 
+本身不用加这个包的，不过移除了 doom 配置里的 `(org +pretty)` 的选项，只好自己手
+动来做这件事了。
+
+#+begin_src emacs-lisp :noweb-ref none :tangle packages.el
+(package! org-fancy-priorities
+  :recipe (:host github :repo "harrybournis/org-fancy-priorities"))
+#+end_src
+
 更改用于折叠项目的字符也很好 (默认情况下 ~…~)，我认为用 ~▾~ 更适合指示 「折叠部
 分」。并在默认的四个列表中添加一个额外的 ~org-bullet~ 。对了，别忘记优先级也要修
 改。
 
 #+begin_src emacs-lisp
-(after! org-fancy-priorities
-  (custom-set-variables '(org-lowest-priority ?E))
-  (setq! org-fancy-priorities-list '("⚡" "↑" "↓" "☕" "❓")))
+(use-package! org-fancy-priorities
+  :ensure t
+  :hook (org-mode . org-fancy-priorities-mode)
+  :custom (org-lowest-priority ?E)
+  :config (setq! org-fancy-priorities-list '("⚡" "↑" "↓" "☕" "❓")))
 (setq! org-ellipsis " ▾ "
        org-hide-leading-stars t
        org-priority-highest ?A
@@ -3746,9 +3755,6 @@ This condition is applied when cover page option is set to auto.")
 
 增强一点点视觉效果
 #+begin_src emacs-lisp
-(after! latex
-  (setcar (assoc "⋆" LaTeX-fold-math-spec-list) "★")) ;; make \star bigger
-
 (setq TeX-fold-math-spec-list
       `(;; missing/better symbols
         ("≤" ("le"))
