@@ -32,6 +32,16 @@
 
 Or More...
 
+** Modules
+
+*** LLVM mode
+
+This directory is copy from LLVM projects.
+Copyright © LLVM
+SPDX-License-Identifier: Apache License v2.0 with LLVM Exceptions
+
+git-sha1: d2bfc2b52bf
+
 ** Directory
   + *base* org :: =~/org=
   + *roam* :: =base/roam=

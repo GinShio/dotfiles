@@ -3989,6 +3989,37 @@ tcc 也是 C++
           (recenter))))))
 #+end_src
 
+** LLVM
+
+先把需要的包下下來，这些东西就在 llvm 的仓库里。
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! llvm-mir-mode
+  :recipe `(:local-repo ,doom-user-dir
+            :files ("modules/llvm/llvm-mir-mode.el")))
+(package! llvm-mode
+  :recipe `(:local-repo ,doom-user-dir
+            :files ("modules/llvm/llvm-mode.el")))
+(package! tablegen-mode
+  :recipe `(:local-repo ,doom-user-dir
+            :files ("modules/llvm/tablegen-mode.el")))
+#+end_src
+
+别忘了让 emacs 可以认识 LLVM 的文件。
+#+begin_src emacs-lisp
+(add-to-list 'auto-mode-alist '("\\.ll\\'" . llvm-mode))
+(add-to-list 'auto-mode-alist '("\\.lgc\\'" . llvm-mode))  ; https://github.com/GPUOpen-Drivers/llpc/tree/dev/lgc
+(add-to-list 'auto-mode-alist '("\\.td\\'" . tablegen-mode))
+#+end_src
+
+恩，使用它们！应该很好使用。。。大概
+#+begin_src emacs-lisp
+(use-package! llvm-mode
+  :defer t)
+(use-package! tablegen-mode
+  :defer t)
+#+end_src
+
 
 
 * 参考配置
