@@ -215,6 +215,7 @@ literate
   #+begin_src emacs-lisp
 (company            ; the ultimate code completion backend
   +childframe)
+;;(corfu +orderless); complete with cap(f), cape and a flying feather!
 ;;helm              ; the *other* search engine for love and life
 ;;ido               ; the other *other* search engine...
 ;;(ivy              ; a search engine for love and life
@@ -310,7 +311,6 @@ biblio              ; Writes a PhD for you (citation needed)
 editorconfig        ; let someone else argue about tabs vs spaces
 ;;ein               ; tame Jupyter notebooks with emacs
 (eval +overlay)     ; run code, run (also, repls)
-;;gist              ; interacting with github gists
 lookup              ; helps you navigate your code and documentation
 (lsp +peek)         ; M-x vscode
 (magit              ; a git porcelain for Emacs
@@ -319,8 +319,6 @@ make                ; run make tasks from Emacs
 ;;pass              ; password manager for nerds
 ;;pdf               ; pdf enhancements
 ;;prodigy           ; FIXME managing external services & code builders
-rgb                 ; creating color strings
-;;taskrunner        ; taskrunner for all your projects
 ;;terraform         ; infrastructure as code
 ;;tmux              ; an API for interacting with tmux
 tree-sitter         ; syntax and parsing, sitting in a tree...
@@ -330,7 +328,7 @@ tree-sitter         ; syntax and parsing, sitting in a tree...
 - OS :: 有个问题，我会用 MAC 吗
   #+name: doom-os
   #+begin_src emacs-lisp
-(:if IS-MAC macos)  ; improve compatibility with macOS
+(:if (featurep :system 'macos) macos)  ; improve compatibility with macOS
 tty                 ; improve the terminal Emacs experience
   #+end_src
 
@@ -439,7 +437,6 @@ sh                    ; she sells {ba,z,fi}sh shells on the C xor
 ;;everywhere        ; *leave* Emacs!? You must be joking
 ;;irc               ; how neckbeards socialize
 ;;(rss +org)        ; emacs as an RSS reader
-;;twitter           ; twitter client https://twitter.com/vnought
   #+end_src
 
 *** 视觉设置
