@@ -455,7 +455,7 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Source Code Pro" :size 15)
       doom-big-font (font-spec :family "Source Code Pro" :size 30)
-      doom-variable-pitch-font (font-spec :family "Source Code Variable" :size 15)
+      doom-variable-pitch-font (font-spec :family "SourceCodeVF" :size 15)
       doom-unicode-font (font-spec :family "JuliaMono")
       doom-serif-font (font-spec :family "Source Serif 4")
       )
@@ -956,6 +956,7 @@ cargo install git-delta
 #+end_comment
 
 #+begin_src emacs-lisp
+(fmakunbound 'ConTeXt-mode)
 (after! consult
   (set-face-attribute 'consult-file nil :inherit 'consult-buffer)
   (setf (plist-get (alist-get 'perl consult-async-split-styles-alist) :initial) ";"))
