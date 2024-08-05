@@ -213,9 +213,11 @@ literate
   及 ~vertico~ 是功能一致的，生态不同的四个包。
   #+name: doom-completion
   #+begin_src emacs-lisp
-(company            ; the ultimate code completion backend
-  +childframe)
-;;(corfu +orderless); complete with cap(f), cape and a flying feather!
+;;(company          ; the ultimate code completion backend
+;; +childframe)
+(corfu              ; complete with cap(f), cape and a flying feather!
+ +icons
+ +orderless)
 ;;helm              ; the *other* search engine for love and life
 ;;ido               ; the other *other* search engine...
 ;;(ivy              ; a search engine for love and life
@@ -922,28 +924,15 @@ cargo install git-delta
 *** Completion
 
 #+begin_comment
-来自 =:completion company= 模块
+来自 =:completion corfu= 模块
 #+end_comment
 
 没有补全怎么写代码，尤其是 =Java=​！！！
-
 #+begin_src emacs-lisp
-(after! company
-  (setq! company-idle-delay 0.3
-         company-minimum-prefix-length 2
-         company-show-numbers t)
-  ) ;; make aborting less annoying.
-#+end_src
-
-现在改进大多来自 =先前选项= 的历史记录，所以我们改进以下历史记录。
-#+begin_src emacs-lisp
-(setq-default history-length 1024
-              prescient-history-length 1024)
-#+end_src
-
-还有最要紧的事，让待选选项有数字提示，方便直接 =M-<num>= 选择
-#+begin_src emacs-lisp
-(custom-set-variables '(company-show-numbers t))
+(after! corfu
+ (corfu-history-mode t)
+ (corfu-indexed-mode t)
+ )
 #+end_src
 
 *** Vertico
