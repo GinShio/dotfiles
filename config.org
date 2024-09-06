@@ -416,7 +416,9 @@ sh                    ; she sells {ba,z,fi}sh shells on the C xor
 ;;terra               ; Earth and Moon in alignment for performance.
 ;;web                 ; the tubes
 ;;yaml                ; JSON, but readable
-;;zig                 ; C, but simpler
+(zig                ; C, but simpler
+ +lsp
+ +tree-sitter)
 #+end_src
 
 **** Everything in Emacs
@@ -987,16 +989,10 @@ cargo install git-delta
 来自 =:tools tree-sitter= 模块
 #+end_comment
 
-结构化编辑似乎成为了主流，不过 combobulate 支持的太少了。
+结构化编辑似乎成为了主流，不过 combobulate 支持的太少了。暂不考虑。
 
 #+begin_src emacs-lisp :tangle no
 (package! combobulate :recipe (:host github :repo "mickeynp/combobulate"))
-#+end_src
-
-默认启用 tree-sitter，不要忘记打开折叠功能
-
-#+begin_src emacs-lisp
-(setq! +tree-sitter-hl-enabled-modes '(python-mode rust-mode))
 #+end_src
 
 但是 tree-sitter 的高亮似乎有些问题，在这样的 C++ 代码中，会错误的高亮变量中的
@@ -4012,12 +4008,22 @@ tcc 也是 C++
 (add-to-list 'auto-mode-alist '("\\.td\\'" . tablegen-mode))
 #+end_src
 
-恩，使用它们！应该很好使用。。。大概
+
+** GLSL
+
+似乎这份配置已经支持 glsl 了，那就把相关文件都标记为 glsl！
 #+begin_src emacs-lisp
-(use-package! llvm-mode
-  :defer t)
-(use-package! tablegen-mode
-  :defer t)
+(add-to-list 'auto-mode-alist '("\\.tesc\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.tese\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.comp\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.mesh\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.task\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rgen\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rint\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rahit\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rchit\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rmiss\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.rcall\\'" . glsl-mode))
 #+end_src
 
 
