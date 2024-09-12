@@ -3746,6 +3746,7 @@ This condition is applied when cover page option is set to auto.")
                       '(TeX-auto-local "auto")
                       '(TeX-command-extra-options "--shell-escape --interaction=nonstopmode"))
 (after! latex
+  (add-hook! latex-mode #'TeX-latex-mode)
   <<tex-conf>>
   )
 #+end_src
@@ -3985,20 +3986,6 @@ Such special cases should be remapped to another value, as given in `string-offs
  TeX-view-program-selection '((output-pdf "Okular") (output-dvi "Okular")))
 #+end_src
 
-*** Fixes
-
-#+begin_src emacs-lisp
-(add-hook! latex-mode #'TeX-latex-mode)
-#+end_src
-
-With Emacs 29.4
-
-#+begin_src emacs-lisp
-(when (and (= emacs-major-version 29) (= emacs-minor-version 4))
-  (after! auctex ; See <https://github.com/minad/vertico/discussions/475>
-    (fmakunbound 'ConTeXt-mode)))
-#+end_src
-
 ** Markdown
 
 Doom 默认的 Markdown 是 ~GFM~ (GitHub Flavored Markdown)，不过有了 =Emacs= 和
@@ -4080,6 +4067,16 @@ tcc 也是 C++
 (add-to-list 'auto-mode-alist '("\\.rchit\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.rmiss\\'" . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.rcall\\'" . glsl-mode))
+#+end_src
+
+** Workaround
+
+With Emacs 29.4
+
+#+begin_src emacs-lisp
+(when (and (= emacs-major-version 29) (= emacs-minor-version 4))
+  (after! auctex ; See <https://github.com/minad/vertico/discussions/475>
+    (fmakunbound 'ConTeXt-mode)))
 #+end_src
 
 
