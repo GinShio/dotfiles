@@ -1,0 +1,11 @@
+Port 22
+Protocol 2
+
+MaxAuthTries 8
+MaxSessions 32
+
+RSAAuthentication no
+PubkeyAuthentication yes
+PermitRootLogin no
+PasswordAuthentication no
+KbdInteractiveAuthentication no
