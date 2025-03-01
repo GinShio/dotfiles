@@ -1,0 +1,8 @@
+variables:
+  git:
+    user: "example"
+    email: "i@example.com"
+  v2core:
+    domain: "www.example.com"
+    wsPath: "/"
+    uuid: "7e2d0bd7-f165-4dfb-9cc4-81eaf8b84c95"
