@@ -1,0 +1,184 @@
+{
+  "log": {
+      "loglevel": "none"
+  },
+  "dns": {
+    "disableFallbackIfMatch": true,
+    "hosts": {},
+    "servers": [
+      {
+        "address": "tls://dns.google",
+        "concurrency": true
+      },
+      {
+        "address": "localhost",
+        "concurrency": true,
+        "domains": [
+          "geosite:cn",
+          "full:dns.google",
+          "full:{{@@ v2core.domain @@}}"
+        ],
+        "skipFallback": true
+      }
+    ]
+  },
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": 1080,
+      "protocol": "socks",
+      "settings": {
+        "auth": "noauth",
+        "udp": true
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ],
+        "enabled": true,
+        "routeOnly": true
+      },
+      "tag": "socks"
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 8118,
+      "protocol": "http",
+      "settings": {
+        "allowTransparent": true
+      },
+      "sniffing": {
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ],
+        "enabled": true,
+        "routeOnly": true
+      },
+      "tag": "http"
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": 6450,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "1.0.0.1",
+        "network": "tcp,udp",
+        "port": 53
+      },
+      "tag": "dns-in"
+    }
+  ],
+  "log": {
+    "loglevel": "none"
+  },
+  "outbounds": [
+    {
+      "domainStrategy": "PreferIPv4",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "{{@@ v2core.domain @@}}",
+            "port": 443,
+            "users": [
+              {
+                "encryption": "none",
+                "id": "{{@@ v2core.uuid @@}}"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "security": "tls",
+        "tlsSettings": {},
+        "wsSettings": {
+          "headers": {},
+          "path": "{{@@ v2core.wsPath @@}}"
+        }
+      },
+      "tag": "proxy-global-54"
+    },
+    {
+      "protocol": "freedom",
+      "tag": "direct"
+    },
+    {
+      "protocol": "freedom",
+      "tag": "bypass"
+    },
+    {
+      "protocol": "blackhole",
+      "tag": "block"
+    },
+    {
+      "protocol": "dns",
+      "settings": {
+        "address": "dns.google",
+        "userLevel": 1
+      },
+      "tag": "dns-out"
+    }
+  ],
+  "ping": {
+    "disableIPv6": false,
+    "protocol": "unprivileged"
+  },
+  "policy": {
+    "levels": {
+      "1": {
+        "connIdle": 30
+      }
+    },
+    "system": {
+      "statsOutboundDownlink": true,
+      "statsOutboundUplink": true
+    }
+  },
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        "inboundTag": [
+          "dns-in"
+        ],
+        "outboundTag": "dns-out",
+        "type": "field"
+      },
+      {
+        "outboundTag": "dns-out",
+        "protocol": [
+          "dns"
+        ],
+        "type": "field"
+      },
+      {
+        "domain": [
+          "geosite:category-ads-all"
+        ],
+        "outboundTag": "block",
+        "type": "field"
+      },
+      {
+        "domain": [
+          "geosite:cn"
+        ],
+        "outboundTag": "bypass",
+        "type": "field"
+      },
+      {
+        "ip": [
+          "geoip:cn"
+        ],
+        "outboundTag": "bypass",
+        "type": "field"
+      }
+    ]
+  },
+  "stats": {}
+}

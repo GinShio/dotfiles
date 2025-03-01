@@ -1,0 +1,38 @@
+[core]
+        autocrlf = false
+        editor = "emacs -nw"
+        quotepath = false
+        symlinks = true
+
+[fetch]
+        prune = true
+        pruneTags = true
+
+[filter "lfs"]
+        clean = git-lfs clean -- %f
+        process = git-lfs filter-process
+        required = true
+        smudge = git-lfs smudge -- %f
+
+[init]
+        defaultBranch = master
+        templatedir = ~/.config/git/templates
+        excludesfile = ~/.config/git/ignore
+
+[merge]
+        conflictstyle = diff3
+        ff = only
+
+[protocol]
+        version = 2
+
+[pull]
+        ff = only
+        rebase = false
+
+[push]
+        default = current
+
+[user]
+        name = {{@@ git.user @@}}
+        email = {{@@ git.email @@}}

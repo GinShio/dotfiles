@@ -1,0 +1,46 @@
+# https://docs.github.com/en/authentication/troubleshooting-ssh/using-ssh-over-the-https-port
+Host github github.com
+    Hostname ssh.github.com
+    User git
+    Port 443
+    PreferredAuthentications publickey
+{%@@ if profile == "ginshio" @@%}
+    IdentityFile {{@@ env['HOME'] @@}}/.ssh/personal-git
+{%@@ elif profile == "khronos3d" @@%}
+    IdentityFile {{@@ env['HOME'] @@}}/.ssh/amd-pub-git
+{%@@ endif @@%}
+
+# https://docs.gitlab.com/ee/user/gitlab_com
+Host gitlab gitlab.com
+    Hostname altssh.gitlab.com
+    User git
+    Port 443
+    PreferredAuthentications publickey
+{%@@ if profile == "ginshio" @@%}
+    IdentityFile {{@@ env['HOME'] @@}}/.ssh/personal-git
+{%@@ elif profile == "khronos3d" @@%}
+    IdentityFile {{@@ env['HOME'] @@}}/.ssh/amd-pub-git
+{%@@ endif @@%}
+
+# https://garbers.co.za/2014/03/03/connecting-to-bitbucket-on-https-port
+Host bitbucket bitbucket.org
+    Hostname altssh.bitbucket.org
+    User git
+    Port 443
+    PreferredAuthentications publickey
+{%@@ if profile == "ginshio" @@%}
+    IdentityFile {{@@ env['HOME'] @@}}/.ssh/personal-git
+{%@@ elif profile == "khronos3d" @@%}
+    IdentityFile {{@@ env['HOME'] @@}}/.ssh/amd-pub-git
+{%@@ endif @@%}
+
+Host codeberg
+    Hostname codeberg.org
+    User git
+    Port 22
+    PreferredAuthentications publickey
+{%@@ if profile == "ginshio" @@%}
+    IdentityFile {{@@ env['HOME'] @@}}/.ssh/personal-git
+{%@@ elif profile == "khronos3d" @@%}
+    IdentityFile {{@@ env['HOME'] @@}}/.ssh/amd-pub-git
+{%@@ endif @@%}

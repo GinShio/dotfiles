@@ -1,0 +1,98 @@
+config:
+  backup: true
+  banner: true
+  create: true
+  dotpath: dotfiles
+  ignoreempty: false
+  keepdot: false
+  longkey: false
+  showdiff: false
+  workdir: ~/dotfiles
+  import_variables:
+    - variables.yaml:optional
+dotfiles:
+  d_emacs:
+    dst: ~/.config/doom/
+    src: emacs/
+    link: absolute
+  d_fcitx5:
+    dst: ~/.config/fcitx5/
+    src: fcitx5/
+  d_fish:
+    dst: ~/.config/fish/
+    src: fish/
+  d_git:
+    dst: ~/.config/git/
+    src: git/
+    link: absolute
+  d_mpv:
+    dst: ~/.config/mpv/
+    src: mpv/
+  d_proxychains:
+    dst: ~/.proxychains/
+    src: proxychains/
+  f_screen:
+    dst: ~/.screenrc
+    src: screenrc
+  d_ssh:
+    dst: ~/.ssh/
+    src: ssh/
+  d_systemd:
+    dst: ~/.config/systemd/user/
+    src: systemd/
+    link: absolute
+  d_systemd-tmpfiles:
+    dst: ~/.config/user-tmpfiles.d/
+    src: systemd-tmpfiles/
+    link: absolute
+  d_tmux:
+    dst: ~/.config/tmux/
+    src: tmux/
+  f_user-dirs:
+    dst: ~/.config/user-dirs.dirs
+    src: user-dirs.dirs
+  d_v2core:
+    dst: ~/.config/v2core/
+    src: v2core/
+  d_xdg-autostart:
+    dst: ~/.config/autostart/
+    src: xdg-autostart/
+    link: absolute
+profiles:
+  profile_common:
+    dotfiles:
+    - d_fcitx5
+    - d_fish
+    - d_mpv
+    - d_systemd
+    - d_systemd-tmpfiles
+  profile_dev:
+    dotfiles:
+    - d_emacs
+    - d_git
+  profile_net:
+    dotfiles:
+    - d_proxychains
+    - d_v2core
+  profile_remote:
+    dotfiles:
+    - f_screen
+    - d_ssh
+    - d_tmux
+  profile_xdg:
+    dotfiles:
+    - f_user-dirs
+    - d_xdg-autostart
+  ginshio:
+    include:
+    - profile_common
+    - profile_dev
+    - profile_net
+    - profile_remote
+    - profile_xdg
+  khronos3d:
+    include:
+    - profile_common
+    - profile_dev
+    - profile_remote
+    - profile_xdg

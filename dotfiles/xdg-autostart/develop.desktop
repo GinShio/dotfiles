@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=development directory settings
+Exec=/usr/bin/bash $HOME/.config/autostart/develop.sh
+Type=Application
+Categories=Development;Utility;
+X-KDE-autostart-phase=2
+X-GNOME-Autostart-Phase=Panel
