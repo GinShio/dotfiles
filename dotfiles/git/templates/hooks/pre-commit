@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+export HOOK_NAME=pre-commit
+source $(git rev-parse --git-common-dir)/hooks/common.sh
+
+if [[ $CURRENT_BRANCH =~ $PROTECTED_BRANCH ]]; then
+  echo "Commit to protected branch ($CURRENT_BRANCH), think before you type."
+  $(prompt-to-confirm)
+  status=$?
+  if [ $status -ne 0 ]; then
+    echo "Abort..."
+    exit $status
+  fi
+fi
+
+find-program clang-format
+find-program perl
+
+commands=(encoding.pl format.sh)
+for subcommand in ${commands[@]}; do
+    "$GIT_COMMON_DIR/hooks/check/$subcommand"
+    status=$?
+    if [ $status -ne 0 ]; then
+        exit $status
+    fi
+done

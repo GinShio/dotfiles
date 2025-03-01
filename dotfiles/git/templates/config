@@ -1,0 +1,21 @@
+[core]
+        repositoryformatversion = 0
+        filemode = true
+        bare = false
+        logallrefupdates = true
+        fscache = true
+        untrackedCache = true
+[branch "master"]
+        merge = refs/heads/master
+        mergeoptions = --ff-only
+[lfs]
+        repositoryformatversion = 0
+[filter "lfs"]
+        required = true
+[protocol]
+        version = 2
+[pull]
+        ff = only
+        rebase = false
+[push]
+        default = current
