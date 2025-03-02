@@ -77,13 +77,13 @@ else
     git clone --recursive $url $src
 fi
 status=$?
-if [ 0 -ne $status ]; then
+if [[ 0 -ne $status ]]; then
     echo "Failed to clone/update"
     exit 1
 fi
 
 pushd $HOME/Projects/$project
-if [ -d $src/_build ]; then
+if [[ 0 -eq $skipbuild ]] && [ -d $src/_build ]; then
     case $project in
         mesa)
             meson compile -C $HOME/Projects/$project/_build/_rel
@@ -106,7 +106,7 @@ if [ -d $src/_build ]; then
             meson compile -C $HOME/Projects/$project/_build/_rel
             ;;
     esac
-elif [ 0 -eq $skipbuild ]; then
+elif ! [ -e $src/_build ]; then
     case $project in
         mesa)
             CC='ccache gcc' CXX='ccache g++' CFLAGS='-flto' CXXFLAGS='-flto' LDFLAGS='-fuse-ld=mold' \
@@ -119,6 +119,16 @@ elif [ 0 -eq $skipbuild ]; then
                 --libdir=lib --prefix $HOME/Projects/mesa/_build/_dbg -Dbuildtype=debug \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
                 -Dgallium-opencl=disabled -Dgallium-rusticl=true
+            # MESA_ROOT=$HOME/.local \
+            #       LD_LIBRARY_PATH=$MESA_ROOT/lib LIBGL_DRIVERS_PATH=$MESA_ROOT/lib/dri \
+            #       VK_DRIVER_FILES=$(eval echo "$MESA_ROOT/share/vulkan/icd.d/{radeon,lvp}_icd.x86_64.json" |tr ' ' ':') \
+            #       MESA_SHADER_CACHE_DISABLE=true MESA_LOADER_DRIVER_OVERRIDE=radeonsi LIBGL_ALWAYS_SOFTWARE= VK_LOADER_DRIVERS_DISABLE= \
+            #       RADV_DEBUG=nocache RADV_PERFTEST= \
+            #       AMD_DEBUG= \
+            #       LP_DEBUG= LP_PERF= \
+            #       ACO_DEBUG= NIR_DEBUG= \
+            #       dosomething
+            #### If disable radv: VK_LOADER_DRIVERS_DISABLE='radeon*'
             ;;
         llvm)
             llvm_num_link=$(awk '/MemTotal/{targets = int($2 / (16 * 2^20)); print targets<1?1:targets}' /proc/meminfo)
@@ -167,7 +177,7 @@ elif [ 0 -eq $skipbuild ]; then
 fi
 status=$?
 popd
-if [ 0 -ne $status ]; then
+if [[ 0 -ne $status ]]; then
     echo "Failed to compile"
     exit 1
 fi
