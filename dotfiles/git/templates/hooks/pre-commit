@@ -2,10 +2,14 @@
 export HOOK_NAME=pre-commit
 source $(git rev-parse --git-common-dir)/hooks/common.sh
 
-$GIT_COMMON_DIR/hooks/pre-commit.d/warn-protected.sh
-find-program clang-format
-find-program perl
+# git config --local hooks.protected.enabled 1
+ENABLE=$(git config --get hooks.protected.enabled)
+if [[ $ENABLE -ne 0 ]]; then
+    $GIT_COMMON_DIR/hooks/pre-commit.d/warn-protected.sh
+    check-result $?
+fi
 
+find-program perl
 commands=(encoding.pl format.sh)
 for subcommand in ${commands[@]}; do
     "$GIT_COMMON_DIR/hooks/pre-commit.d/$subcommand"

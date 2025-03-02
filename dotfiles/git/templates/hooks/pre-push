@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 export HOOK_NAME=pre-push
 source $(git rev-parse --git-common-dir)/hooks/common.sh
-push_command=$(ps -ocommand= -p $PPID)
+export push_command=$(ps -ocommand= -p $PPID)
 
-export REMOTE_REF=$1
-$GIT_COMMON_DIR/hooks/pre-push.d/warn-protected.sh
-check-result $?
-$GIT_COMMON_DIR/hooks/pre-push.d/warn-force-push.sh
-check-result $?
+# git config --local hooks.protected.enabled 1
+ENABLE=$(git config --get hooks.protected.enabled)
+if [[ $ENABLE -ne 0 ]]; then
+    export REMOTE_REF=$1
+    $GIT_COMMON_DIR/hooks/pre-push.d/warn-protected.sh
+    check-result $?
+    $GIT_COMMON_DIR/hooks/pre-push.d/warn-force-push.sh
+    check-result $?
+fi
 
 find-program git-lfs
 git lfs pre-push "$@"
