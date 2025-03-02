@@ -3,6 +3,9 @@ function set-git-urls
     if not set -ql _flag_path
         set -fx _flag_path $PWD
     end
+    if not set -ql _flag_repo
+        set -fx _flag_repo (basename $PWD)
+    end
     git -C $_flag_path remote remove origin >/dev/null 2>&1
     if set -ql _flag_page
         git -C $_flag_path remote add origin codeberg:GinShio/ginshio.codeberg.page.git
