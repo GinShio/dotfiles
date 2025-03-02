@@ -1,0 +1,3 @@
+dotfiles:
+  - f_user-dirs
+  - d_xdg-autostart
