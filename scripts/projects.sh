@@ -82,7 +82,7 @@ if [[ 0 -ne $status ]]; then
     exit 1
 fi
 
-pushd $HOME/Projects/$project
+pushd $HOME/Projects/$project 2>&1 >/dev/null
 if [[ 0 -eq $skipbuild ]] && [ -d $src/_build ]; then
     case $project in
         mesa)
@@ -109,16 +109,16 @@ if [[ 0 -eq $skipbuild ]] && [ -d $src/_build ]; then
 elif ! [ -e $src/_build ]; then
     case $project in
         mesa)
-            CC='ccache gcc' CXX='ccache g++' CFLAGS='-flto' CXXFLAGS='-flto' LDFLAGS='-fuse-ld=mold' \
+            CC='ccache gcc' CXX='ccache g++' LDFLAGS='-fuse-ld=mold' \
                 meson setup $HOME/Projects/mesa $HOME/Projects/mesa/_build/_rel \
                 --libdir=lib --prefix $HOME/.local -Dbuildtype=release \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
-                -Dgallium-opencl=disabled -Dgallium-rusticl=true
+                -Dgallium-opencl=disabled -Dgallium-rusticl=false
             CC='ccache gcc' CXX='ccache g++' LDFLAGS='-fuse-ld=mold' \
                 meson setup $HOME/Projects/mesa $HOME/Projects/mesa/_build/_dbg \
                 --libdir=lib --prefix $HOME/Projects/mesa/_build/_dbg -Dbuildtype=debug \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
-                -Dgallium-opencl=disabled -Dgallium-rusticl=true
+                -Dgallium-opencl=disabled -Dgallium-rusticl=false
             # MESA_ROOT=$HOME/.local \
             #       LD_LIBRARY_PATH=$MESA_ROOT/lib LIBGL_DRIVERS_PATH=$MESA_ROOT/lib/dri \
             #       VK_DRIVER_FILES=$(eval echo "$MESA_ROOT/share/vulkan/icd.d/{radeon,lvp}_icd.x86_64.json" |tr ' ' ':') \
@@ -176,7 +176,7 @@ elif ! [ -e $src/_build ]; then
     esac
 fi
 status=$?
-popd
+popd 2>&1 >/dev/null
 if [[ 0 -ne $status ]]; then
     echo "Failed to compile"
     exit 1
