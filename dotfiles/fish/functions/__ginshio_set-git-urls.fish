@@ -6,6 +6,7 @@ function set-git-urls
     if not set -ql _flag_repo
         set -fx _flag_repo (basename $PWD)
     end
+    set -fx username (git config --get user.name)
     git -C $_flag_path remote remove origin >/dev/null 2>&1
     if set -ql _flag_page
         git -C $_flag_path remote add origin codeberg:GinShio/ginshio.codeberg.page.git
@@ -14,11 +15,11 @@ function set-git-urls
         git -C $_flag_path remote set-url --add --push origin gitlab:GinShio/ginshio.gitlab.io.git
         git -C $_flag_path remote set-url --add --push origin bitbucket:GinShio/GinShio.bitbucket.io.git
     else if set -ql _flag_repo
-        git -C $_flag_path remote add origin codeberg:$_flag_repo.git
-        git -C $_flag_path remote set-url --add --push origin codeberg:$_flag_repo.git
-        git -C $_flag_path remote set-url --add --push origin github:$_flag_repo.git
-        git -C $_flag_path remote set-url --add --push origin gitlab:$_flag_repo.git
-        git -C $_flag_path remote set-url --add --push origin bitbucket:$_flag_repo.git
+        git -C $_flag_path remote add origin codeberg:$username/$_flag_repo.git
+        git -C $_flag_path remote set-url --add --push origin codeberg:$username/$_flag_repo.git
+        git -C $_flag_path remote set-url --add --push origin github:$username/$_flag_repo.git
+        git -C $_flag_path remote set-url --add --push origin gitlab:$username/$_flag_repo.git
+        git -C $_flag_path remote set-url --add --push origin bitbucket:$username/$_flag_repo.git
     end
     git -C $_flag_path --set-upstream=origin/master master >/dev/null 2>&1
     git -C $_flag_path --set-upstream=origin/main main >/dev/null 2>&1
