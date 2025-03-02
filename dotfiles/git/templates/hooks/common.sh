@@ -36,3 +36,13 @@ function prompt-to-confirm {
     return $status
 }
 export -f prompt-to-confirm
+
+function check-result {
+    local status=$1
+    if [ $status -ne 0 ]; then
+        exit $status
+    else
+        return 0
+    fi
+}
+export -f check-result
