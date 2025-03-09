@@ -1,4 +1,5 @@
 dotfiles:
   - d_emacs
+  - d_gdb
   - d_git
   - d_python

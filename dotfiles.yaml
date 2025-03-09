@@ -31,6 +31,9 @@ dotfiles:
   d_fish:
     dst: ~/.config/fish/
     src: fish/
+  d_gdb:
+    dst: ~/.config/gdb/
+    src: gdb/
   d_git:
     dst: ~/.config/git/
     src: git/

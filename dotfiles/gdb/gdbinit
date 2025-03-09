@@ -1,3 +1,6 @@
-set disassembly-flavor intel
-set debuginfod enabled off
 set breakpoint pending on
+set debuginfod enabled off
+set disassembly-flavor intel
+set history save
+set history filename ~/.cache/gdbhistory
+set history size 4096
