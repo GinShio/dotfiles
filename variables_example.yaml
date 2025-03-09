@@ -2,6 +2,10 @@ variables:
   git:
     user: "example"
     email: "i@example.com"
+  samba:
+    username: "example"
+    password: "examplePassword"
+    domain: "EXAMPLE.ORG"
   v2core:
     domain: "www.example.com"
     wsPath: "/"

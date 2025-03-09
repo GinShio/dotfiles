@@ -1,6 +1,11 @@
+dynvariables:
+  samba-common-args: "eval echo uid=$(id -nu $USER),gid=$(id -ng $USER),file_mode=0640,dir_mode=0750,cache=strict,iocharset=utf8,forcegid,mapposix,nounix"
+  samba-credentials: "eval echo credentials=~/Public/.config"
+  temp-dir: "mktemp -d /tmp/dotfiles-XXXXXXXXX.d"
 actions:
   emacs-config: emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"~/.config/doom/config.org\"))"
-  ssh-key-install: bash $HOME/dotfiles/scripts/ssh-key.sh --deploy
+  samba-mkdir: cat ~/Public/.config.d/*.fstab |awk '{print $2}' |sort |uniq |xargs -I@ 'mkdir -p $(eval echo @)'
+  ssh-key-install: bash $HOME/dotfiles/scripts/ssh-key.sh --deploy --tmpdir={{@@ temp-dir @@}}
 config:
   backup: true
   banner: true
@@ -35,6 +40,11 @@ dotfiles:
   d_proxychains:
     dst: ~/.proxychains/
     src: proxychains/
+  d_samba:
+    dst: ~/Public/
+    src: samba/
+    actions:
+      - samba-mkdir
   f_screen:
     dst: ~/.screenrc
     src: screenrc
@@ -62,7 +72,7 @@ dotfiles:
     dst: ~/.config/autostart/
     src: xdg-autostart/
 profiles:
-  ginshio:
+  personal:
     import:
     - profiles.d/dotfiles_common.yaml
     - profiles.d/dotfiles_dev.yaml

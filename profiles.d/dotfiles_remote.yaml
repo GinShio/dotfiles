@@ -1,4 +1,5 @@
 dotfiles:
+  - d_samba
   - f_screen
   - d_ssh
   - d_tmux
