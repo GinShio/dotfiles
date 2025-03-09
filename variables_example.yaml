@@ -1,4 +1,7 @@
 variables:
+  amdvlk:
+    config_dir: "/path"
+    debug_dir: "/path"
   git:
     user: "example"
     email: "i@example.com"
