@@ -4,7 +4,8 @@ ROOT_DIR=$HOME/dotfiles
 source $ROOT_DIR/.env
 
 function deploy_key() {
-    openssl enc -aes-256-cbc -d -a -kfile $ROOT_DIR/.kfile -salt -pbkdf2 -iter 100000 -in $ROOT_DIR/keys/ssh.tar.zst.ssl -out ./ssh.tar.zst
+    rsync -L $HOME/dotfiles/keys/ssh.tar.zst.ssl $tmpdir
+    bash $ROOT_DIR/scripts/encrypt.sh -d -i ssh.tar.zst.ssl -T $tmpdir
     tar --zstd -xf ssh.tar.zst
     rsync --remove-source-files * $HOME/.ssh
 }
@@ -29,18 +30,19 @@ function update_key() {
     done
     chmod a-w *
     tar -cf - * |zstd -z -19 --ultra --quiet -o $FILENAME.tar.zst
-    openssl enc -aes-256-cbc -e -a -kfile $ROOT_DIR/.kfile -salt -pbkdf2 -iter 100000 -in     $FILENAME.tar.zst -out $FILENAME.tar.zst.ssl
+    bash $ROOT_DIR/scripts/encrypt.sh -e -i $FILENAME.tar.zst -T $tmpdir
     rsync --remove-source-files $FILENAME.tar.zst.ssl $ROOT_DIR/keys
     cd $ROOT_DIR/keys
     ln -sf $FILENAME.tar.zst.ssl ssh.tar.zst.ssl
 }
 
-args=`getopt -l "deploy,update" -a -o "du" -- $@`
+args=`getopt -l "deploy,update,tmpdir:" -a -o "duT" -- $@`
 eval set -- $args
 while true ; do
     case "$1" in
         -d|--deploy) deploy=1; shift;;
         -u|--update) update=1; shift;;
+        -T|--tmpdir) tmpdir=$2; shift 2;;
         --) shift ; break ;;
         *) echo "Internal error!" ; exit 1 ;;
     esac
@@ -54,7 +56,10 @@ if [[ 0 -ne $update ]]; then
 fi
 
 echo $PASSPHRASE >$ROOT_DIR/.kfile
-cd $(mktemp -d)
+if [ -z "$tmpdir" ]
+then tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d)
+fi
+cd $tmpdir
 
 if [[ 0 -ne $update ]]; then
     update_key

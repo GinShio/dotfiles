@@ -1,3 +1,4 @@
 .env
 .kfile
 variables.yaml
+secret_plain/
