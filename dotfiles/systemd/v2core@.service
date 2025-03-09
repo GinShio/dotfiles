@@ -5,9 +5,9 @@ After=network.target nss-lookup.target
 # added automatically, for details please see
 # https://en.opensuse.org/openSUSE:Security_Features#Systemd_hardening_effort
 Type=simple
-ExecStart=/usr/bin/v2ray run -c {{@@ env['HOME'] @@}}/.config/v2core/config.json
+ExecStart=/usr/bin/v2ray run -c {{@@ env['HOME'] @@}}/.config/v2core/%i.json
 Restart=on-failure
 RestartPreventExitStatus=23
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
