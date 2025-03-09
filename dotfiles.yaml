@@ -4,7 +4,7 @@ dynvariables:
   temp-dir: "mktemp -d /tmp/dotfiles-XXXXXXXXX.d"
 actions:
   emacs-config: emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"~/.config/doom/config.org\"))"
-  samba-mkdir: cat ~/Public/.config.d/*.fstab |awk '{print $2}' |sort |uniq |xargs -I@ 'mkdir -p $(eval echo @)'
+  samba-mkdir: cat ~/Public/.config.d/*.fstab |tr -s ' ' |cut -d' ' -f2 |sort |uniq |xargs -I@ bash -c 'mkdir -p $(eval echo @)'
   ssh-key-install: bash $HOME/dotfiles/scripts/ssh-key.sh --deploy --tmpdir={{@@ temp-dir @@}}
 config:
   backup: true
