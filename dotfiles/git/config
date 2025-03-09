@@ -1,41 +1,16 @@
-[color]
-        ui = true
-
-[core]
-        autocrlf = false
-        editor = "emacs -nw"
-        quotepath = false
-        symlinks = true
-
-[fetch]
-        prune = true
-        pruneTags = true
-
-[filter "lfs"]
-        clean = git-lfs clean -- %f
-        process = git-lfs filter-process
-        required = true
-        smudge = git-lfs smudge -- %f
-
-[init]
-        defaultBranch = master
-        templatedir = ~/.config/git/templates
-        excludesfile = ~/.config/git/ignore
-
-[merge]
-        conflictstyle = diff3
-        ff = only
-
-[protocol]
-        version = 2
-
-[pull]
-        ff = only
-        rebase = false
-
-[push]
-        default = current
-
-[user]
-        name = {{@@ git.user @@}}
-        email = {{@@ git.email @@}}
+[include]
+    path = config.d/global_blame.conf
+    path = config.d/global_color.conf
+    path = config.d/global_core.conf
+    path = config.d/global_diff.conf
+    path = config.d/global_fetch.conf
+    path = config.d/global_filter.conf
+    path = config.d/global_hooks.conf
+    path = config.d/global_init.conf
+    path = config.d/global_log.conf
+    path = config.d/global_merge.conf
+    path = config.d/global_protocol.conf
+    path = config.d/global_pull.conf
+    path = config.d/global_push.conf
+    path = config.d/global_urls.conf
+    path = config.d/global_user.conf

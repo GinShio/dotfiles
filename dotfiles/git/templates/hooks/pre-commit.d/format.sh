@@ -3,7 +3,7 @@
 function clang-format-formatting() {
     # git config --local hooks.clangformat.enabled 1
     local ENABLE=$(git config --get hooks.clangformat.enabled)
-    if [ -z $ENABLE ]; then
+    if [ -z $ENABLE ] || [ $ENABLE -eq 0 ]; then
         return 0
     fi
     find-program clang-format
