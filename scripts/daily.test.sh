@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-export XDG_RUNTIME_DIR=/run/user/$(id -u $USER)
+XDG_RUNTIME_DIR=/run/user/$(id -u $USER)
 RUNNER_DIR=$XDG_RUNTIME_DIR/runner
-set -o allexport
 source $HOME/dotfiles/.driver.env
-set +o allexport
+source $HOME/dotfiles/.env
 
 SUFFIX=_$(date "+%Y-%m-%d")
 DEVICE_ID=$(vulkaninfo 2>/dev/null |awk '/deviceID[[:blank:]]*=/ {print $NF; exit}')
@@ -12,6 +11,15 @@ AVAILABLE_CPUS_CNT=$(cnt=$(bc <<<"($(lscpu -e |wc -l) - 1) * 0.75 / 1"); echo $(
 
 function get_repo_sha1() {
     touch git-sha1.txt
+    if [ "$vendor" = "llpc" ] && [ -e $HOME/Projects/Builder ]; then
+        case $glapi in
+            vk|zink)
+                driver_name=xgl;;
+            gl)
+                exit 1;;
+        esac
+        { python3 $HOME/Projects/Builder/scripts/main.py -p$driver_name info 2>&1; } >>git-sha1.txt
+    fi
     if [ "$glapi" = "zink" ] || [ "$vendor" = "mesa" ]
     then echo " + mesa: $(git -C $HOME/Projects/mesa rev-parse --short=11 HEAD)" >>git-sha1.txt
     fi
@@ -146,7 +154,10 @@ for elem in ${test_infos[@]}; do
         llpc)
             env_lists=(
                 VK_ICD_FILENAMES=$AMDVLK_ICD_PATH
+                __GLX_FORCE_VENDOR_LIBRARY_0=amd
+                MESA_LOADER_DRIVER_OVERRIDE=amdgpu
             )
+            sed -i -e 's~^EnablePipelineDump.*~EnablePipelineDump,0~' $HOME/.config/amdVulkanSettings.cfg
             ;;
         *)
             exit -1
@@ -168,5 +179,10 @@ for elem in ${test_infos[@]}; do
         tarball_name=${testkit}-${glapi}_${DEVICE_ID}${SUFFIX}
         output_dir=$RUNNER_DIR/baseline/${vendor}_${testkit}-${glapi}${SUFFIX}
         test_kits_$testkit
+        if [ -z $TEST_RESULT_DIR ]
+        then result_dir=$output_dir
+        else result_dir=$TEST_RESULT_DIR
+        fi
+        rsync --remove-source-files $output_dir/${tarball_name}.tar.zst $result_dir/$vendor
     done # test kits loop end
 done # test infos loop end

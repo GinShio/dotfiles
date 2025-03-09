@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-set -o allexport
 source $HOME/dotfiles/.env
-set +o allexport
 sudo -Sv <<<$ROOT_PASSPHRASE
 sudo -E zypper ref
+sudo -Sv <<<$ROOT_PASSPHRASE
 sudo -E zypper dup -y
+sudo -Sv <<<$ROOT_PASSPHRASE
 sudo cp /etc/hosts.bkp /etc/hosts
 sudo bash -c "curl -s https://gitlab.com/ineo6/hosts/-/raw/master/next-hosts |sed '1,2d' - |tee -a /etc/hosts"
 
@@ -13,6 +13,13 @@ export PATH=$HOME/.local/bin:$PATH
 
 now_timestamps=$(date +%s)
 
+if [ -e $HOME/Projects/amdvlk ] && [ -e $HOME/Projects/Builder ]; then
+    python3 $HOME/Projects/Builder/scripts/main.py --loglevel=info -pxgl monorepo
+    if [ $? -eq 0 ]; then
+        python3 $HOME/Projects/Builder/scripts/main.py --loglevel=info -pxgl build --release
+        python3 $HOME/Projects/Builder/scripts/main.py --loglevel=info -pxgl build --debug --tool
+    fi
+fi
 $HOME/dotfiles/scripts/projects.sh --project=mesa >dev/null 2>&1
 $HOME/dotfiles/scripts/projects.sh --project=llvm --skipbuild >dev/null 2>&1
 
@@ -21,6 +28,7 @@ fd -iHx /usr/bin/rm -rf {} \; --changed-before 3d --type directory -- . "/run/us
 # Testing only on Monday or Thursday
 { date +%A |grep -qi -e Monday -e Thursday; } || exit 0
 
+source $HOME/dotfiles/.driver.env
 drivers_tuple=(
     # vendor,glapi,kits,driver
     #llpc,vk,"deqp",$AMDVLK_PATH
