@@ -40,6 +40,9 @@ dotfiles:
   d_proxychains:
     dst: ~/.proxychains/
     src: proxychains/
+  d_python:
+    dst: ~/.config/python/
+    src: python/
   d_samba:
     dst: ~/Public/
     src: samba/
@@ -56,6 +59,9 @@ dotfiles:
   d_systemd:
     dst: ~/.config/systemd/user/
     src: systemd/
+  d_systemd-environment:
+    dst: ~/.config/environment.d/
+    src: systemd-environment/
   d_systemd-tmpfiles:
     dst: ~/.config/user-tmpfiles.d/
     src: systemd-tmpfiles/
