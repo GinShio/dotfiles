@@ -7,6 +7,7 @@ function deploy_key() {
     rsync -L $HOME/dotfiles/keys/ssh.tar.zst.ssl $tmpdir
     bash $ROOT_DIR/scripts/encrypt.sh -d -i ssh.tar.zst.ssl -T $tmpdir
     tar --zstd -xf ssh.tar.zst
+    rm -rf ssh.tar.zst{,.ssl}
     rsync --remove-source-files * $HOME/.ssh
 }
 

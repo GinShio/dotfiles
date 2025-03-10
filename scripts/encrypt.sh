@@ -19,24 +19,42 @@ done
 
 echo ${filename:?Missing input file.} >/dev/null
 
+get_encrypt_iv() {
+    local get_iv_dword='od -An -N8 -tx8 -d /dev/urandom 2>/dev/null |head -n1'
+    local format=""
+    declare -a ivs=()
+    for i in {1..2}; do
+        ivs+=$(eval $get_iv_dword)
+        format="${format}%s"
+    done
+    printf "$format" ${ivs[@]}
+}
+
+get_decrypt_iv() {
+    local filename=$1
+    head -n1 $filename
+}
+
 if [ -z "$tmpdir" ]
 then tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d)
 fi
 echo $PASSPHRASE >$tmpdir/.kfile
-cd $tmpdir
 
 if [[ "$method" = "encrypt" ]]; then
     if [ -z "$outdir" ]
     then output="$filename.ssl"
     else output="$outdir/$(basename $filename).ssl"
     fi
-    openssl enc -aes-256-cbc -e -a -kfile $tmpdir/.kfile -salt -pbkdf2 -iter 100000 -in $filename -out $output
+    iv=$(get_encrypt_iv)
+    echo $iv >$output
+    openssl enc -aes-256-ctr -e -a -kfile $tmpdir/.kfile -iv $iv -salt -pbkdf2 -iter 100000 -in $filename -out - >>$output
 elif [[ "$method" = "decrypt" ]]; then
     output="$(basename -s .ssl $filename)"
     if [ -z "$outdir" ]
     then output="$(dirname $filename)/$output"
     else output="$outdir/$output"
     fi
-    openssl enc -aes-256-cbc -d -a -kfile $tmpdir/.kfile -salt -pbkdf2 -iter 100000 -in $filename -out $output
+    iv=$(get_decrypt_iv $filename)
+    tail -n+2 $filename |openssl enc -aes-256-ctr -d -a -kfile $tmpdir/.kfile -iv $iv -salt -pbkdf2 -iter 100000 -in - -out $output
 fi
 rm $tmpdir/.kfile
