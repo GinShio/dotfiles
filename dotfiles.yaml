@@ -36,6 +36,9 @@ dotfiles:
   d_fish:
     dst: ~/.config/fish/
     src: fish/
+  d_flatpak:
+    dst: ~/.local/share/flatpak/
+    src: flatpak/
   d_gdb:
     dst: ~/.config/gdb/
     src: gdb/

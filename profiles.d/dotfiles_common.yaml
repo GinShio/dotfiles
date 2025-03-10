@@ -1,4 +1,5 @@
 dotfiles:
+  - d_flatpak
   - d_fcitx5
   - d_fish
   - d_mpv
