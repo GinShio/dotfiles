@@ -137,6 +137,7 @@ function test_kits_vkd3d() {
 
 declare -a test_infos=$1
 TEST_RESULT_DIR=$(eval echo $TEST_RESULT_DIR)
+AMDVLK_CONFIG_DIR=$(eval echo $AMDVLK_CONFIG_DIR)
 for elem in ${test_infos[@]}; do
     IFS=',' read vendor glapi testkits <<< "${elem}"
     case $vendor in
@@ -158,7 +159,7 @@ for elem in ${test_infos[@]}; do
                 __GLX_FORCE_VENDOR_LIBRARY_0=amd
                 MESA_LOADER_DRIVER_OVERRIDE=amdgpu
             )
-            sed -i -e 's~^EnablePipelineDump.*~EnablePipelineDump,0~' $HOME/.config/amdVulkanSettings.cfg
+            sed -i -e 's~^EnablePipelineDump.*~EnablePipelineDump,0~' $AMDVLK_CONFIG_DIR/amdVulkanSettings.cfg
             ;;
         *)
             exit -1

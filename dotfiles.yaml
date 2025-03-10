@@ -12,8 +12,9 @@ config:
   showdiff: false
   workdir: ~/dotfiles
   import_variables:
-    - config.d/variables_samba.yaml
     - config.d/variables.yaml
+    - config.d/variables_amdvlk.yaml
+    - config.d/variables_samba.yaml
   import_actions:
     - config.d/actions_samba.yaml
 dotfiles:
