@@ -1,5 +1,3 @@
 dynvariables:
   samba-common-args: "eval echo uid=$(id -nu $USER),gid=$(id -ng $USER),file_mode=0640,dir_mode=0750,cache=strict,iocharset=utf8,forcegid,mapposix,nounix"
   samba-credentials: "eval echo credentials=~/Public/.config"
-actions:
-  samba-mkdir: cat ~/Public/.config.d/*.fstab |tr -s ' ' |cut -d' ' -f2 |sort |uniq |xargs -I@ bash -c 'mkdir -p $(eval echo @)'

@@ -1,0 +1,2 @@
+actions:
+  samba-mkdir: cat ~/Public/.config.d/*.fstab |tr -s ' ' |cut -d' ' -f2 |sort |uniq |xargs -I@ bash -c 'mkdir -p $(eval echo @)'
