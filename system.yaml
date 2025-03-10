@@ -15,9 +15,6 @@ dotfiles:
   f_bluetooth:
     dst: /etc/bluetooth/main.conf
     src: bluetooth/main.conf
-  d_containers:
-    dst: /etc/containers/
-    src: containers/
   f_ssh:
     dst: /etc/ssh/sshd_config
     src: ssh/sshd_config

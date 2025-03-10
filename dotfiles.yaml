@@ -18,6 +18,9 @@ config:
   import_actions:
     - config.d/actions_samba.yaml
 dotfiles:
+  d_containers:
+    dst: ~/.config/containers/
+    src: containers/
   d_khronos3d_builder:
     dst: ~/Projects/Builder/
     src: builder/
@@ -90,6 +93,7 @@ profiles:
     - profiles.d/dotfiles_net.yaml
     - profiles.d/dotfiles_remote.yaml
     - profiles.d/dotfiles_systemd.yaml
+    - profiles.d/dotfiles_virtualization.yaml
     - profiles.d/dotfiles_xdg.yaml
   khronos3d:
     import:
@@ -98,4 +102,5 @@ profiles:
     - profiles.d/dotfiles_khronos3d.yaml
     - profiles.d/dotfiles_remote.yaml
     - profiles.d/dotfiles_systemd.yaml
+    - profiles.d/dotfiles_virtualization.yaml
     - profiles.d/dotfiles_xdg.yaml
