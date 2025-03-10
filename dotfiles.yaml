@@ -11,10 +11,9 @@ config:
   longkey: false
   showdiff: false
   workdir: ~/dotfiles
-  import_variables:
-    - variables.yaml:optional
   import_configs:
     - config.d/samba.yaml
+    - config.d/variables.yaml
 dotfiles:
   d_emacs:
     dst: ~/.config/doom/

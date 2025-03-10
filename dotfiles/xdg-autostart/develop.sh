@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $HOME/dotfiles/.env
+source $HOME/dotfiles/config.d/env
 sudo -Sv <<<$ROOT_PASSPHRASE
 sudo mount --all --fstab $HOME/Public/.config.d/{{@@ profile @@}}.imm.fstab
 sudo bash -c "nohup mount --all --fstab $HOME/Public/.config.d/{{@@ profile @@}}.nohup.fstab &"

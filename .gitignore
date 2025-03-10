@@ -1,4 +1,4 @@
-.env
 .kfile
-variables.yaml
-secret_plain/
+/config.d/env
+/config.d/variables.yaml
+/secret_plain/

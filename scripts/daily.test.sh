@@ -2,8 +2,8 @@
 
 XDG_RUNTIME_DIR=/run/user/$(id -u $USER)
 RUNNER_DIR=$XDG_RUNTIME_DIR/runner
-source $HOME/dotfiles/.driver.env
-source $HOME/dotfiles/.env
+source $HOME/dotfiles/config.d/env
+source $HOME/dotfiles/config.d/env.driver
 
 SUFFIX=_$(date "+%Y-%m-%d")
 DEVICE_ID=$(vulkaninfo 2>/dev/null |awk '/deviceID[[:blank:]]*=/ {print $NF; exit}')

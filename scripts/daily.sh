@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-source $HOME/dotfiles/.env
+source $HOME/dotfiles/config.d/env
+source $HOME/dotfiles/config.d/env.driver
 sudo -Sv <<<$ROOT_PASSPHRASE
 sudo -E zypper ref
 sudo -Sv <<<$ROOT_PASSPHRASE
@@ -28,7 +29,6 @@ fd -iHx /usr/bin/rm -rf {} \; --changed-before 3d --type directory -- . "/run/us
 # Testing only on Monday or Thursday
 { date +%A |grep -qi -e Monday -e Thursday; } || exit 0
 
-source $HOME/dotfiles/.driver.env
 drivers_tuple=(
     # vendor,glapi,kits,driver
     #llpc,vk,"deqp",$AMDVLK_PATH

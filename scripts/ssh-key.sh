@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ROOT_DIR=$HOME/dotfiles
-source $ROOT_DIR/.env
+source $ROOT_DIR/config.d/env
 
 function deploy_key() {
     rsync -L $HOME/dotfiles/keys/ssh.tar.zst.ssl $tmpdir

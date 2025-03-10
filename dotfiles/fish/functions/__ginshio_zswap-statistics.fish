@@ -5,7 +5,7 @@ source $HOME/.config/fish/functions/__ginshio_source-posix.fish
 function zswap-statistics
     # Copy from https://unix.stackexchange.com/questions/406936/get-current-zswap-memory-usage-and-statistics.
     # Authored-by: Вадим Илларионов
-    source-posix $HOME/dotfiles/.env
+    source-posix $HOME/dotfiles/config.d/env
     bash -c 'sudo -Sv <<<$ROOT_PASSPHRASE'
     set -f MDL /sys/module/zswap
     set -f EN (sudo cat $MDL/parameters/enabled)

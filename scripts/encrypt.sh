@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ROOT_DIR=$HOME/dotfiles
-source $ROOT_DIR/.env
+source $ROOT_DIR/config.d/env
 
 args=`getopt -l "input:,outdir:,tmpdir:,encrypt,decrypt" -a -o "i:o:T:ed" -- $@`
 eval set -- $args
