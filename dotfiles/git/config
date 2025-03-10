@@ -12,6 +12,7 @@
     path = config.d/global_protocol.conf
     path = config.d/global_pull.conf
     path = config.d/global_push.conf
+    path = config.d/global_rebase.conf
     path = config.d/global_urls.conf
     path = config.d/global_user.conf
 {%@@ if profile == "khronos3d" @@%}
