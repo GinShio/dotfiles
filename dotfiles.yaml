@@ -42,6 +42,9 @@ dotfiles:
   d_git:
     dst: ~/.config/git/
     src: git/
+  d_lxc:
+    dst: ~/.config/lxc/
+    src: lxc/
   d_mpv:
     dst: ~/.config/mpv/
     src: mpv/

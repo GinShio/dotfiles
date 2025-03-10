@@ -1,2 +1,3 @@
 dotfiles:
   - d_containers
+  - d_lxc
