@@ -53,6 +53,7 @@ if [[ 0 -ne $update ]]; then
     echo ${WORK_EMAIL:?Missing work email.} >/dev/null
     echo ${WORK_ORGNAIZATION:?Missing work orgnaization.} >/dev/null
     echo ${FILENAME:-ssh-in-$(date "+%Y")} >/dev/null
+    WORK_ORGNAIZATION=$(tr '[:upper:]' '[:lower:]' <<<$WORK_ORGNAIZATION)
 fi
 
 echo $PASSPHRASE >$ROOT_DIR/.kfile
