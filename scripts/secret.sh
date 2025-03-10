@@ -2,13 +2,14 @@
 
 ROOT_DIR=$HOME/dotfiles
 
-args=`getopt -l "encrypt,decrypt,profile:" -a -o "edp:" -- $@`
+args=`getopt -l "encrypt,decrypt,profile:,subproject:" -a -o "edp:S:" -- $@`
 eval set -- $args
 while true ; do
     case "$1" in
         -e|--encrypt) method="encrypt"; regexp="*"; shift;;
         -d|--decrypt) method="decrypt"; regexp=".*\.ssl$"; shift;;
         -p|--profile) profile="$2"; shift 2;;
+        -S|--subproject) subproject="$2"; shift 2;;
         --) shift ; break ;;
         *) echo "Internal error!" ; exit 1 ;;
     esac
@@ -46,6 +47,10 @@ if [[ "$method" = "decrypt" ]]; then
 else
   outdir=$encrypt_dir/$profile
   indir=$decrypt_dir/$profile
+fi
+if ! [ -z $subproject ]; then
+  outdir=$outdir/$subproject
+  indir=$indir/$subproject
 fi
 mkdir -p $outdir
 mkdir -p $indir
