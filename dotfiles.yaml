@@ -45,6 +45,10 @@ dotfiles:
   d_git:
     dst: ~/.config/git/
     src: git/
+  d_konsole:
+    dst: ~/
+    src: konsole/
+    chmod: 700
   d_lxc:
     dst: ~/.config/lxc/
     src: lxc/
@@ -100,6 +104,7 @@ profiles:
     - profiles.d/dotfiles_common.yaml
     - profiles.d/dotfiles_dev.yaml
     - profiles.d/dotfiles_net.yaml
+    - profiles.d/dotfiles_plasma.yaml
     - profiles.d/dotfiles_remote.yaml
     - profiles.d/dotfiles_systemd.yaml
     - profiles.d/dotfiles_virtualization.yaml
@@ -109,6 +114,7 @@ profiles:
     - profiles.d/dotfiles_common.yaml
     - profiles.d/dotfiles_dev.yaml
     - profiles.d/dotfiles_khronos3d.yaml
+    - profiles.d/dotfiles_plasma.yaml
     - profiles.d/dotfiles_remote.yaml
     - profiles.d/dotfiles_systemd.yaml
     - profiles.d/dotfiles_virtualization.yaml
