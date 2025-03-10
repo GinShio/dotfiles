@@ -49,6 +49,9 @@ dotfiles:
     dst: ~/
     src: konsole/
     chmod: 700
+  d_libvirt:
+    dst: ~/.config/libvirt/
+    src: libvirt/
   d_lxc:
     dst: ~/.config/lxc/
     src: lxc/
