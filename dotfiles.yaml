@@ -82,6 +82,9 @@ dotfiles:
   d_v2core:
     dst: ~/.config/v2core/
     src: v2core/
+  f_wget:
+    dst: ~/.wgetrc
+    src: wgetrc
   d_xdg-autostart:
     dst: ~/.config/autostart/
     src: xdg-autostart/

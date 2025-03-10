@@ -2,3 +2,4 @@ dotfiles:
   - d_fcitx5
   - d_fish
   - d_mpv
+  - f_wget
