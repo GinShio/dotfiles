@@ -14,6 +14,7 @@ DATA_REGEXP='[1-9][0-9][0-9]{3}-(0[1-9]|1[0-2])-([1-2][0-9]|0[1-9]|3[0-1])'
 TESTKIT_REGEXP='((piglit|deqp)-(vk|gl|zink))'
 DEVICE_ID=$(vulkaninfo 2>/dev/null |awk '/deviceID[[:blank:]]*=/ {print $NF; exit}')
 
+TEST_RESULT_DIR=$(eval echo $TEST_RESULT_DIR)
 if ! [ -z $TEST_RESULT_DIR ]; then
     DEVICE_VENDORS=(llpc mesa)
     for DV in ${DEVICE_VENDORS[@]}; do

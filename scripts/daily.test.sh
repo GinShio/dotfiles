@@ -136,6 +136,7 @@ function test_kits_vkd3d() {
 } # test_kits_vkd3d function end
 
 declare -a test_infos=$1
+TEST_RESULT_DIR=$(eval echo $TEST_RESULT_DIR)
 for elem in ${test_infos[@]}; do
     IFS=',' read vendor glapi testkits <<< "${elem}"
     case $vendor in
