@@ -61,10 +61,8 @@ then tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d)
 fi
 cd $tmpdir
 
-echo $PASSPHRASE >$tmpdir/.kfile
 if [[ 0 -ne $update ]]; then
     update_key
 elif [[ 0 -ne $deploy ]]; then
     deploy_key
 fi
-rm $tmpdir/.kfile
