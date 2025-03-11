@@ -1,11 +1,12 @@
 #!/usr/bin/env fish
 
-source $HOME/.config/fish/functions/__ginshio_source-posix.fish
+source {{@@ _dotfile_abs_dst @@}}/functions/__ginshio_source-posix.fish
+source {{@@ _dotfile_abs_dst @@}}/functions/__ginshio_desource-posix.fish
 
 function zswap-statistics
     # Copy from https://unix.stackexchange.com/questions/406936/get-current-zswap-memory-usage-and-statistics.
     # Authored-by: Вадим Илларионов
-    source-posix $HOME/dotfiles/config.d/env
+    source-posix {{@@ _dotdrop_workdir @@}}/config.d/env
     bash -c 'sudo -Sv <<<$ROOT_PASSPHRASE'
     set -f MDL /sys/module/zswap
     set -f EN (sudo cat $MDL/parameters/enabled)
@@ -28,4 +29,5 @@ function zswap-statistics
     else
         echo "0"
     end
+    desource-posix {{@@ _dotdrop_workdir @@}}/config.d/env
 end

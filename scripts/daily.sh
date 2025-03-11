@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-source $HOME/dotfiles/config.d/env
-source $HOME/dotfiles/config.d/env.driver
+source $(dirname $0)/common.sh
 sudo -Sv <<<$ROOT_PASSPHRASE
 sudo -E zypper ref
 sudo -Sv <<<$ROOT_PASSPHRASE
@@ -21,8 +20,8 @@ if [ -e $HOME/Projects/amdvlk ] && [ -e $HOME/Projects/Builder ]; then
         python3 $HOME/Projects/Builder/scripts/main.py --loglevel=info -pxgl build --debug --tool
     fi
 fi
-$HOME/dotfiles/scripts/projects.sh --project=mesa >dev/null 2>&1
-$HOME/dotfiles/scripts/projects.sh --project=llvm --skipbuild >dev/null 2>&1
+$DOTFILES_ROOT_PATH/scripts/projects.sh --project=mesa >dev/null 2>&1
+$DOTFILES_ROOT_PATH/scripts/projects.sh --project=llvm --skipbuild >dev/null 2>&1
 
 fd -iHx /usr/bin/rm -rf {} \; --changed-before 3d --type directory -- . "/run/user/$(id -u $USER)/runner/baseline"
 
@@ -46,6 +45,6 @@ for elem in ${drivers_tuple[@]}; do
     fi
     test_infos+=("$vendor,$glapi,$testkits")
 done
-tmux send-keys -t runner "bash $HOME/dotfiles/scripts/daily.test.sh '${test_infos[*]}'" ENTER
+tmux send-keys -t runner "bash $DOTFILES_ROOT_PATH/scripts/daily.test.sh '${test_infos[*]}'" ENTER
 
 #systemctl reboot

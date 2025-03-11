@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 
-ROOT_DIR=$HOME/dotfiles
-source $ROOT_DIR/config.d/env
+source $(dirname $0)/common.sh
 
 function deploy_key() {
-    rsync -L $HOME/dotfiles/keys/ssh.tar.zst.ssl $tmpdir
-    bash $ROOT_DIR/scripts/encrypt.sh -d -i ssh.tar.zst.ssl -T $tmpdir
+    rsync -L $DOTFILES_ROOT_PATH/keys/ssh.tar.zst.ssl $tmpdir
+    bash $DOTFILES_ROOT_PATH/scripts/encrypt.sh -d -i ssh.tar.zst.ssl -T $tmpdir
     tar --zstd -xf ssh.tar.zst
     rm -rf ssh.tar.zst{,.ssl}
     rsync --remove-source-files * $HOME/.ssh
@@ -31,9 +30,9 @@ function update_key() {
     done
     chmod a-w *
     tar -cf - * |zstd -z -19 --ultra --quiet -o $FILENAME.tar.zst
-    bash $ROOT_DIR/scripts/encrypt.sh -e -i $FILENAME.tar.zst -T $tmpdir
-    rsync --remove-source-files $FILENAME.tar.zst.ssl $ROOT_DIR/keys
-    cd $ROOT_DIR/keys
+    bash $DOTFILES_ROOT_PATH/scripts/encrypt.sh -e -i $FILENAME.tar.zst -T $tmpdir
+    rsync --remove-source-files $FILENAME.tar.zst.ssl $DOTFILES_ROOT_PATH/keys
+    cd $DOTFILES_ROOT_PATH/keys
     ln -sf $FILENAME.tar.zst.ssl ssh.tar.zst.ssl
 }
 
@@ -57,15 +56,15 @@ if [[ 0 -ne $update ]]; then
     WORK_ORGNAIZATION=$(tr '[:upper:]' '[:lower:]' <<<$WORK_ORGNAIZATION)
 fi
 
-echo $PASSPHRASE >$ROOT_DIR/.kfile
 if [ -z "$tmpdir" ]
 then tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d)
 fi
 cd $tmpdir
 
+echo $PASSPHRASE >$tmpdir/.kfile
 if [[ 0 -ne $update ]]; then
     update_key
 elif [[ 0 -ne $deploy ]]; then
     deploy_key
 fi
-rm $ROOT_DIR/.kfile
+rm $tmpdir/.kfile

@@ -12,8 +12,10 @@ function source-posix
             case ''
                 #echo "empty line skipped"
             case '*'
-                set arr (echo $i |tr = \n)
-                set -gx $arr[1] $arr[2]
+                set -f name (string split -f1 = "$i")
+                set -f name_len (string length "$name")
+                set -f value (string sub -s (math $name_len + 2) "$i" |xargs -I@ echo @)
+                set -gx $name $value
         end
     end
 end
