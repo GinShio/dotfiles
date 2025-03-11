@@ -1,0 +1,23 @@
+# -*- mode: snippet -*-
+# name: godot
+# key: godot
+# expand-env: ((yas-indent-line nil))
+# --
+######################### Godot #########################
+# repo: github/gitignore; pin: a69e6a8a147; file: Godot.gitignore
+# LICENSE: Creative Commons Zero v1.0 Universal
+# Godot 4+ specific ignores
+.godot/
+
+# Godot-specific ignores
+.import/
+export.cfg
+export_credentials.cfg
+
+# Imported translations (automatically generated from CSV files)
+*.translation
+
+# Mono-specific ignores
+.mono/
+data_*/
+mono_crash.*.json

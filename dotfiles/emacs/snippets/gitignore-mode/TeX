@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### TeX #########################
-# repo: github/gitignore; pin: 362abacebe; file: TeX.gitignore
+# repo: github/gitignore; pin: f52d43edda6; file: TeX.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 ## Core latex/pdflatex auxiliary files:
 *.aux
@@ -34,7 +34,9 @@
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
 *.bbl
+*.bbl-SAVE-ERROR
 *.bcf
+*.bcf-SAVE-ERROR
 *.blg
 *-blx.aux
 *-blx.bib
@@ -47,6 +49,8 @@
 *.synctex.gz
 *.synctex.gz(busy)
 *.pdfsync
+*.rubbercache
+rubber.cache
 
 ## Build tool directories for auxiliary files
 # latexrun
@@ -145,6 +149,9 @@ acs-*.bib
 *.lg
 *.trc
 *.xref
+
+# hypdoc
+*.hd
 
 # hyperref
 *.brf

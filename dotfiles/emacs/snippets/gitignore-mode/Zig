@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: zig
+# key: zig
+# expand-env: ((yas-indent-line nil))
+# --
+######################### Zig #########################
+# repo: github/gitignore; pin: 4b771ac75ad; file: Zig.gitignore
+# LICENSE: Creative Commons Zero v1.0 Universal
+.zig-cache/
+zig-out/

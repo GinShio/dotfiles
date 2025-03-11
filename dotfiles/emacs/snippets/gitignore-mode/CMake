@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### CMake #########################
-# repo: github/gitignore; pin: f273474b97; file: CMake.gitignore
+# repo: github/gitignore; pin: a0e05f9d080; file: CMake.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 CMakeLists.txt.user
 CMakeCache.txt
@@ -17,3 +17,4 @@ install_manifest.txt
 compile_commands.json
 CTestTestfile.cmake
 _deps
+CMakeUserPresets.json

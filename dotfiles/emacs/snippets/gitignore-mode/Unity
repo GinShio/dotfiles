@@ -4,12 +4,13 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Unity #########################
-# repo: github/gitignore; pin: eafb2eea79; file: Unity.gitignore
+# repo: github/gitignore; pin: 754920b804f; file: Unity.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # This .gitignore file should be placed at the root of your Unity project directory
 #
 # Get latest from https://github.com/github/gitignore/blob/main/Unity.gitignore
 #
+.utmp/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -67,6 +68,7 @@ sysinfo.txt
 *.apk
 *.aab
 *.unitypackage
+*.unitypackage.meta
 *.app
 
 # Crashlytics generated file

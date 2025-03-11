@@ -4,13 +4,19 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Elisp #########################
-# repo: github/gitignore; pin: 95a405c3ef; file: Elisp.gitignore
+# repo: github/gitignore; pin: 64340cce992; file: Elisp.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Compiled
 *.elc
 
 # Packaging
-.cask
+.cask/
+.eask/
+.eldev/
+.keg/
+
+# Built distribution
+dist/
 
 # Backup files
 *~

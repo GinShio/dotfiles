@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Golang #########################
-# repo: github/gitignore; pin: 29f57d1010; file: Go.gitignore
+# repo: github/gitignore; pin: e95aa3fbbd5; file: Go.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # If you prefer the allow list template instead of the deny list, see community template:
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
@@ -27,3 +27,7 @@
 
 # Go workspace file
 go.work
+go.work.sum
+
+# env file
+.env

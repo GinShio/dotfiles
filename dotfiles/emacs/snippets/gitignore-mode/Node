@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Node #########################
-# repo: github/gitignore; pin: 1d4e709db8; file: Node.gitignore
+# repo: github/gitignore; pin: 3800aff005a; file: Node.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Logs
 logs
@@ -111,6 +111,12 @@ dist
 # vuepress v2.x temp and cache directory
 .temp
 .cache
+
+# vitepress build output
+**/.vitepress/dist
+
+# vitepress cache directory
+**/.vitepress/cache
 
 # Docusaurus cache and generated files
 .docusaurus

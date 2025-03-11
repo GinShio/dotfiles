@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Unreal #########################
-# repo: github/gitignore; pin: fcb1dbf35d; file: UnrealEngine.gitignore
+# repo: github/gitignore; pin: f0fc1da1b36; file: UnrealEngine.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Visual Studio 2015 user specific files
 .vs/
@@ -55,7 +55,7 @@ SourceArt/**/*.tga
 
 # Binary Files
 Binaries/*
-Plugins/*/Binaries/*
+Plugins/**/Binaries/*
 
 # Builds
 Build/*
@@ -76,7 +76,7 @@ Saved/*
 
 # Compiled source files for the engine to use
 Intermediate/*
-Plugins/*/Intermediate/*
+Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
