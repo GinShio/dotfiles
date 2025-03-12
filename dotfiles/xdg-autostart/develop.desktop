@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=development directory settings
-Exec=/usr/bin/bash {{@@ env['HOME'] @@}}/.config/autostart/develop.sh
+Exec=/usr/bin/bash {{@@ _dotfile_abs_dst @@}}/develop.sh
 Type=Application
 Categories=Development;Utility;
 X-KDE-autostart-phase=2
