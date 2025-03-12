@@ -9,12 +9,12 @@ config:
   showdiff: false
   workdir: ~/dotfiles
 dotfiles:
-  d_amdgpu:
-    dst: /etc/modprobe.d/
-    src: amdgpu/
   f_bluetooth:
     dst: /etc/bluetooth/main.conf
     src: bluetooth/main.conf
+  d_modprobe:
+    dst: /etc/modprobe.d/
+    src: modprobe/
   f_ssh:
     dst: /etc/ssh/sshd_config
     src: ssh/sshd_config
@@ -27,9 +27,6 @@ dotfiles:
   d_systemd-logind:
     dst: /etc/systemd/logind.conf.d/
     src: systemd-logind/
-  d_zswap:
-    dst: /etc/modprobe.d/
-    src: zswap/
 profiles:
   ginshio:
     dotfiles:
