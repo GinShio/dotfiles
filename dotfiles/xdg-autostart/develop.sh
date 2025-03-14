@@ -4,6 +4,7 @@ source {{@@ _dotdrop_workdir @@}}/config.d/env
 sudo -Sv <<<$ROOT_PASSPHRASE
 sudo mount --all --fstab $HOME/Public/.config.d/{{@@ profile @@}}.imm.fstab
 sudo bash -c "nohup mount --all --fstab $HOME/Public/.config.d/{{@@ profile @@}}.nohup.fstab &"
+sudo -k
 
 tmux new-session -d -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -s runner -c $XDG_RUNTIME_DIR/runner
 tmux new-session -d -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -s build -c $HOME/Projects

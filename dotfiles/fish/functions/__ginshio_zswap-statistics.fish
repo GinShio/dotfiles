@@ -30,4 +30,5 @@ function zswap-statistics
         echo "0"
     end
     desource-posix {{@@ _dotdrop_workdir @@}}/config.d/env
+    sudo -k
 end
