@@ -30,7 +30,7 @@ dotfiles:
 profiles:
   ginshio:
     dotfiles:
-    - ALL
+      - ALL
   khronos3d:
     dotfiles:
-    - ALL
+      - ALL

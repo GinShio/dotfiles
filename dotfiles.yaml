@@ -106,21 +106,21 @@ dotfiles:
 profiles:
   personal:
     import:
-    - profiles.d/dotfiles_common.yaml
-    - profiles.d/dotfiles_dev.yaml
-    - profiles.d/dotfiles_net.yaml
-    - profiles.d/dotfiles_plasma.yaml
-    - profiles.d/dotfiles_remote.yaml
-    - profiles.d/dotfiles_systemd.yaml
-    - profiles.d/dotfiles_virtualization.yaml
-    - profiles.d/dotfiles_xdg.yaml
+      - profiles.d/dotfiles_common.yaml
+      - profiles.d/dotfiles_dev.yaml
+      - profiles.d/dotfiles_net.yaml
+      - profiles.d/dotfiles_plasma.yaml
+      - profiles.d/dotfiles_remote.yaml
+      - profiles.d/dotfiles_systemd.yaml
+      - profiles.d/dotfiles_virtualization.yaml
+      - profiles.d/dotfiles_xdg.yaml
   khronos3d:
     import:
-    - profiles.d/dotfiles_common.yaml
-    - profiles.d/dotfiles_dev.yaml
-    - profiles.d/dotfiles_khronos3d.yaml
-    - profiles.d/dotfiles_plasma.yaml
-    - profiles.d/dotfiles_remote.yaml
-    - profiles.d/dotfiles_systemd.yaml
-    - profiles.d/dotfiles_virtualization.yaml
-    - profiles.d/dotfiles_xdg.yaml
+      - profiles.d/dotfiles_common.yaml
+      - profiles.d/dotfiles_dev.yaml
+      - profiles.d/dotfiles_khronos3d.yaml
+      - profiles.d/dotfiles_plasma.yaml
+      - profiles.d/dotfiles_remote.yaml
+      - profiles.d/dotfiles_systemd.yaml
+      - profiles.d/dotfiles_virtualization.yaml
+      - profiles.d/dotfiles_xdg.yaml
