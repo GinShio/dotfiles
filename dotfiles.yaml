@@ -1,5 +1,6 @@
 actions:
   emacs-config: emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"~/.config/doom/config.org\"))"
+  histfile-install: grep -r '\bhistory_' {{@@ _dotfile_abs_dst @@}} |cut -d= -f2 |xargs -I@ bash -c 'touch $(eval echo @)'
   ssh-key-install: >-
     bash {{@@ _dotdrop_workdir @@}}/scripts/ssh-key.sh --deploy --tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d);
     find {{@@ _dotfile_abs_dst @@}} -maxdepth 1 -type f -regextype posix-extended ! -regex '.*/{{@@ profile @@}}.*' -regex '.*-(git|ssh).*' -exec rm -rf {{}} \;
@@ -44,6 +45,8 @@ dotfiles:
   d_gdb:
     dst: ~/.config/gdb/
     src: gdb/
+    actions:
+      - histfile-install
   d_git:
     dst: ~/.config/git/
     src: git/
@@ -85,6 +88,8 @@ dotfiles:
   d_systemd-environment:
     dst: ~/.config/environment.d/
     src: systemd-environment/
+    actions:
+      - histfile-install
   d_systemd-tmpfiles:
     dst: ~/.config/user-tmpfiles.d/
     src: systemd-tmpfiles/
@@ -100,6 +105,8 @@ dotfiles:
   f_wget:
     dst: ~/.wgetrc
     src: wgetrc
+    actions:
+      - histfile-install
   d_xdg-autostart:
     dst: ~/.config/autostart/
     src: xdg-autostart/
