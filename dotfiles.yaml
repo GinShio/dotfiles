@@ -17,6 +17,7 @@ config:
   import_variables:
     - config.d/variables.yaml
     - config.d/variables_amdvlk.yaml
+    - config.d/variables_ccache.yaml
     - config.d/variables_samba.yaml
   import_actions:
     - config.d/actions_samba.yaml
@@ -27,6 +28,9 @@ dotfiles:
   d_khronos3d_builder:
     dst: ~/Projects/Builder/
     src: builder/
+  d_ccache:
+    dst: ~/.config/ccache/
+    src: ccache/
   d_emacs:
     dst: ~/.config/doom/
     src: emacs/
