@@ -1,15 +1,18 @@
 #!/usr/bin/env bash
 
-args=`getopt -l "project:,skipbuild" -a -o "p:S" -- $@`
+args=`getopt -l "project:,skipbuild,skippull" -a -o "p:Ss" -- $@`
 eval set -- $args
 while true ; do
     case "$1" in
         -p|--project) project=$2; shift 2;;
+        -s|--skippull) skippull=1; shift;;
         -S|--skipbuild) skipbuild=1; shift;;
         --) shift ; break ;;
         *) echo "Internal error!" ; exit 1 ;;
     esac
 done
+skippull=${skippull:-0}
+skipbuild=${skipbuild:-0}
 
 C_COMPILER=gcc
 CXX_COMPILER=g++
@@ -35,48 +38,59 @@ case $project in
     alive2)
         url='https://github.com/AliveToolkit/alive2.git'
         branch=master
+        builddir=$HOME/Projects/$project/_build
         ;;
     deqp)
         url='https://github.com/KhronosGroup/VK-GL-CTS.git'
         branch=main
+        builddir=$HOME/Projects/$project/_build
         ;;
     llvm)
         url='https://github.com/llvm/llvm-project.git'
         branch=main
+        builddir=$HOME/Projects/$project/_build/_dbg
         ;;
     mesa)
         url='https://gitlab.freedesktop.org/mesa/mesa.git'
         branch=main
+        builddir=$HOME/Projects/$project/_build
         ;;
     piglit)
         url='https://gitlab.freedesktop.org/mesa/piglit.git'
         branch=main
+        builddir=$HOME/Projects/$project/_build
         ;;
     runner)
         url='https://gitlab.freedesktop.org/mesa/deqp-runner.git'
         branch=main
+        builddir=$HOME/Projects/$project/_build
         ;;
     slang)
         url='https://github.com/shader-slang/slang.git'
         branch=master
+        builddir=$HOME/Projects/$project/_build
         ;;
     umr)
         url='https://gitlab.freedesktop.org/tomstdenis/umr.git'
         branch=main
+        builddir=$HOME/Projects/$project/_build
         ;;
     vkd3d)
         url='https://github.com/HansKristian-Work/vkd3d-proton.git'
         branch=master
+        builddir=$HOME/Projects/$project/_build/_rel
         ;;
     *)
         exit 0
         ;;
 esac
 
-if [ -d $HOME/Projects/$project ]; then
+if [[ 0 -eq $skippull ]] && [ -d $HOME/Projects/$project ]; then
     git -C $HOME/Projects/$project fetch origin --prune && git -C $HOME/Projects/$project merge --ff-only origin/$branch
-else
+elif [[ 0 -eq $skippull ]]; then
     git clone --recursive $url $HOME/Projects/$project
+else
+    :
 fi
 status=$?
 if [[ 0 -ne $status ]]; then
@@ -85,44 +99,44 @@ if [[ 0 -ne $status ]]; then
 fi
 
 pushd $HOME/Projects/$project 2>&1 >/dev/null
-if [[ 0 -eq $skipbuild ]] && [ -d $HOME/Projects/$project/_build ]; then
+if [[ 0 -eq $skipbuild ]] && [ -d $builddir ]; then
     case $project in
         alive2|deqp|piglit|slang|umr)
-            cmake --build $HOME/Projects/$project/_build --config Release
+            cmake --build $builddir --config Release
             ;;
         llvm)
-            cmake --build $HOME/Projects/$project/_build/_dbg
+            cmake --build $builddir
             ;;
         mesa)
-            meson compile -C $HOME/Projects/$project/_build/_rel
-            meson install -C $HOME/Projects/$project/_build/_rel
-            meson compile -C $HOME/Projects/$project/_build/_dbg
-            meson install -C $HOME/Projects/$project/_build/_dbg
+            meson compile -C $builddir/_rel
+            meson install -C $builddir/_rel
+            meson compile -C $builddir/_dbg
+            meson install -C $builddir/_dbg
             ;;
         runner)
-            cargo build --release --target-dir $HOME/Projects/runner/_build
+            cargo build --release --target-dir $builddir
             ;;
         umr)
             ;;
         vkd3d)
-            meson compile -C $HOME/Projects/$project/_build/_rel
+            meson compile -C $builddir
             ;;
     esac
-elif ! [ -e $HOME/Projects/$project/_build ]; then
+elif ! [ -e $builddir ]; then
     case $project in
         alive2)
             ( export ALIVE2_HOME=$HOME/Projects; \
               export LLVM2_HOME=$HOME/Projects/llvm; \
               export LLVM2_BUILD=$HOME/Projects/llvm/_build/_dbg; \
-              cmake -S$HOME/Projects/alive2 -B$HOME/Projects/alive2/_build "${CMAKE_OPTIONS[@]}" -DBUILD_TV=1 -DCMAKE_PREFIX_PATH=$LLVM2_BUILD; )
+              cmake -S$HOME/Projects/alive2 -B$builddir "${CMAKE_OPTIONS[@]}" -DBUILD_TV=1 -DCMAKE_PREFIX_PATH=$LLVM2_BUILD; )
             ;;
         deqp)
             python3 external/fetch_sources.py
-            cmake -S$HOME/Projects/deqp -B$HOME/Projects/deqp/_build "${CMAKE_OPTIONS[@]}" -DDEQP_TARGET=default
+            cmake -S$HOME/Projects/deqp -B$builddir "${CMAKE_OPTIONS[@]}" -DDEQP_TARGET=default
             ;;
         llvm)
             llvm_num_link=$(awk '/MemTotal/{targets = int($2 / (16 * 2^20)); print targets<1?1:targets}' /proc/meminfo)
-            cmake -S$HOME/Projects/llvm/llvm -B$HOME/Projects/llvm/_build/_dbg -DCMAKE_BUILD_TYPE=Debug \
+            cmake -S$HOME/Projects/llvm/llvm -B$builddir -DCMAKE_BUILD_TYPE=Debug \
                 -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
                 -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
                 -DBUILD_SHARED_LIBS=ON \
@@ -137,18 +151,20 @@ elif ! [ -e $HOME/Projects/$project/_build ]; then
                 -DLLVM_OPTIMIZED_TABLEGEN=ON \
                 -DLLVM_PARALLEL_LINK_JOBS:STRING=$llvm_num_link \
                 -DLLVM_TARGETS_TO_BUILD='AMDGPU;RISCV;X86' \
+                -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD='DirectX;SPIRV' \
                 -DLLVM_USE_LINKER=$LINKER \
-                -DCLANG_ENABLE_CIR=ON
+                -DCLANG_ENABLE_CIR=ON \
+                -DCLANG_ENABLE_HLSL=ON
             # -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD='DirectX;SPIRV' -DCLANG_ENABLE_HLSL=ON
             ;;
         mesa)
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
-                meson setup $HOME/Projects/mesa $HOME/Projects/mesa/_build/_rel \
+                meson setup $HOME/Projects/mesa $builddir/_rel \
                 --libdir=lib --prefix $HOME/.local -Dbuildtype=release \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
                 -Dgallium-opencl=disabled -Dgallium-rusticl=false
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
-                meson setup $HOME/Projects/mesa $HOME/Projects/mesa/_build/_dbg \
+                meson setup $HOME/Projects/mesa $builddir/_dbg \
                 --libdir=lib --prefix $HOME/Projects/mesa/_build/_dbg -Dbuildtype=debug \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
                 -Dgallium-opencl=disabled -Dgallium-rusticl=false
@@ -164,16 +180,16 @@ elif ! [ -e $HOME/Projects/$project/_build ]; then
             #### If disable radv: VK_LOADER_DRIVERS_DISABLE='radeon*'
             ;;
         piglit)
-            cmake -S$HOME/Projects/piglit -B$HOME/Projects/piglit/_build "${CMAKE_OPTIONS[@]}"
+            cmake -S$HOME/Projects/piglit -B$builddir "${CMAKE_OPTIONS[@]}"
             ;;
         runner)
-            cargo build --release --target-dir $HOME/Projects/runner/_build
+            cargo build --release --target-dir $builddir
             ;;
         slang)
-            cmake -S$HOME/Projects/slang -B$HOME/Projects/slang/_build "${CMAKE_OPTIONS[@]}" -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
+            cmake -S$HOME/Projects/slang -B$builddir "${CMAKE_OPTIONS[@]}" -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
             ;;
         umr)
-            cmake -S$HOME/Projects/umr -B$HOME/Projects/umr/_build "${CMAKE_OPTIONS[@]}" -DUMR_NO_GUI=ON -DUMR_STATIC_EXECUTABLE=ON
+            cmake -S$HOME/Projects/umr -B$builddir "${CMAKE_OPTIONS[@]}" -DUMR_NO_GUI=ON -DUMR_STATIC_EXECUTABLE=ON
             ;;
         vkd3d)
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
