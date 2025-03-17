@@ -1,6 +1,6 @@
 actions:
   emacs-config: emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"~/.config/doom/config.org\"))"
-  histfile-install: grep -r '\bhistory_' {{@@ _dotfile_abs_dst @@}} |cut -d= -f2 |xargs -I@ bash -c 'touch $(eval echo @)'
+  histfile-install: grep -Phor '\bhistory_[\w-]*' {{@@ _dotfile_abs_dst @@}} |xargs -I@ bash -c 'touch ~/.cache/$(eval echo -E @)'
   ssh-key-install: >-
     bash {{@@ _dotdrop_workdir @@}}/scripts/ssh-key.sh --deploy --tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d);
     find {{@@ _dotfile_abs_dst @@}} -maxdepth 1 -type f -regextype posix-extended ! -regex '.*/{{@@ profile @@}}.*' -regex '.*-(git|ssh).*' -exec rm -rf {{}} \;
