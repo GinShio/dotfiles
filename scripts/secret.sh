@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname $0)/common.sh
+source $(dirname $0)/common/common.sh
 
 args=`getopt -l "encrypt,decrypt,profile:,subproject:" -a -o "edp:S:" -- $@`
 eval set -- $args
@@ -23,7 +23,7 @@ function encrypt_secret_file() {
   local relative_dir=$1
   local filename=$2
   mkdir -p $outdir/$relative_dir
-  bash $DOTFILES_ROOT_PATH/scripts/encrypt.sh --$method --tmpdir $tmpdir --input $indir/$relative_dir/$filename --outdir $outdir/$relative_dir
+  bash $DOTFILES_ROOT_PATH/scripts/common/encrypt.sh --$method --tmpdir $tmpdir --input $indir/$relative_dir/$filename --outdir $outdir/$relative_dir
 }
 
 function secret_files_recursively() {

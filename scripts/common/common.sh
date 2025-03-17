@@ -2,7 +2,7 @@
 
 get_dotfiles_path() {
     local script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
-    realpath $script_dir/..
+    realpath $script_dir/../..
 }
 
 export DOTFILES_ROOT_PATH=$(get_dotfiles_path)

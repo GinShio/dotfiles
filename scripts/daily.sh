@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-source $(dirname $0)/common.sh
+source $(dirname $0)/common/common.sh
 sudo -Sv <<<$ROOT_PASSPHRASE
 sudo -E zypper ref
 sudo -Sv <<<$ROOT_PASSPHRASE
 sudo -E zypper dup -y
-bash $DOTFILES_ROOT_PATH/scripts/update-github-hosts.sh
+bash $DOTFILES_ROOT_PATH/scripts/common/update-github-hosts.sh
 
 now_timestamps=$(date +%s)
 
@@ -41,6 +41,6 @@ for elem in ${drivers_tuple[@]}; do
     fi
     test_infos+=("$vendor,$glapi,$testkits")
 done
-tmux send-keys -t runner "bash $DOTFILES_ROOT_PATH/scripts/daily.test.sh '${test_infos[*]}'" ENTER
+tmux send-keys -t runner "bash $DOTFILES_ROOT_PATH/scripts/daily/test.sh '${test_infos[*]}'" ENTER
 
 #systemctl reboot

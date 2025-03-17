@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
-source $(dirname $0)/common.sh
+source $(dirname $0)/common/common.sh
 
 function deploy_key() {
     rsync -L $DOTFILES_ROOT_PATH/keys/ssh.tar.zst.ssl $tmpdir
-    bash $DOTFILES_ROOT_PATH/scripts/encrypt.sh -d -i ssh.tar.zst.ssl -T $tmpdir
+    bash $DOTFILES_ROOT_PATH/scripts/common/encrypt.sh -d -i ssh.tar.zst.ssl -T $tmpdir
     tar --zstd -xf ssh.tar.zst
     rm -rf ssh.tar.zst{,.ssl}
     rsync --remove-source-files * $HOME/.ssh
@@ -30,7 +30,7 @@ function update_key() {
     done
     chmod a-w *
     tar -cf - * |zstd -z -19 --ultra --quiet -o $FILENAME.tar.zst
-    bash $DOTFILES_ROOT_PATH/scripts/encrypt.sh -e -i $FILENAME.tar.zst -T $tmpdir
+    bash $DOTFILES_ROOT_PATH/scripts/common/encrypt.sh -e -i $FILENAME.tar.zst -T $tmpdir
     rsync --remove-source-files $FILENAME.tar.zst.ssl $DOTFILES_ROOT_PATH/keys
     cd $DOTFILES_ROOT_PATH/keys
     ln -sf $FILENAME.tar.zst.ssl ssh.tar.zst.ssl
