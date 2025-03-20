@@ -15,6 +15,4 @@
     path = config.d/global_rebase.conf
     path = config.d/global_urls.conf
     path = config.d/global_user.conf
-{%@@ if profile == "khronos3d" @@%}
-    path = config.d/khronos3d_urls.conf
-{%@@ endif @@%}
+    path = config.d/{{@@ profile @@}}_urls.conf
