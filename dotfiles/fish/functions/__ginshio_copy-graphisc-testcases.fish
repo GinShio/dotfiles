@@ -11,7 +11,6 @@ function copy-graphics-testcase
         rsync -rR --exclude-from=$DEQP_DSTDIR/vk-exclude.txt $DEQP_SRCDIR/external/vulkancts/mustpass/main/./vk-default $DEQP_DSTDIR/mustpass
         rsync $DEQP_SRCDIR/_build/external/openglcts/modules/Release/glcts $DEQP_DSTDIR
         rsync -rR $DEQP_SRCDIR/_build/external/openglcts/modules/./gles{2,3,31}/{data,shaders} $DEQP_DSTDIR
-        rsync -rR $DEQP_SRCDIR/_build/external/openglcts/modules/./gl_cts/data/GTF $DEQP_DSTDIR
         rsync -rR $DEQP_SRCDIR/external/graphicsfuzz/data/./gles3/graphicsfuzz/ $DEQP_DSTDIR
         rsync -rR --exclude='mustpass' $DEQP_SRCDIR/external/openglcts/data/./gl_cts $DEQP_DSTDIR
         rsync -rR --exclude='src' $DEQP_SRCDIR/external/openglcts/data/gl_cts/data/mustpass/./gl/khronos_mustpass{,_single}/main/*.txt $DEQP_DSTDIR/mustpass
