@@ -21,8 +21,8 @@ $DOTFILES_ROOT_PATH/scripts/projects.sh --project=llvm --skipbuild >dev/null 2>&
 
 fd -iHx /usr/bin/rm -rf {} \; --changed-before 3d --type directory -- . "/run/user/$(id -u $USER)/runner/baseline"
 
-# Testing only on Monday or Thursday
-{ date +%A |grep -qi -e Monday -e Thursday; } || exit 0
+# Testing every 3 days
+[[ 0 -eq $(( 10#$(date +%j) % 3 )) ]] || exit 0
 
 drivers_tuple=(
     # vendor,glapi,kits,driver
