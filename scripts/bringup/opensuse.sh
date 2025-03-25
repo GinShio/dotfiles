@@ -17,10 +17,10 @@ sudo -E zypper dup -y --allow-vendor-change
 # Common environment
 sudo -E zypper in -y -t pattern devel_basis
 sudo -E zypper in -y \
-    7zip aspell bat bison cifs-utils curl dash dwarves emacs fd figlet fish flatpak{,-spawn} flex fzf git{,-doc,-lfs} \
-    graphviz hugo ImageMagick inkscape libxslt-tools moreutils Mozilla{Firefox,Thunderbird} mpv neowofetch obs-studio \
-    osdlyrics pandoc-cli phoronix-test-suite privoxy proxychains-ng qbittorrent re2c ripgrep sqlite3 sshpass steam \
-    tmux tree-sitter unzip wget xmlto zip zstd
+    7zip aspell bat bison cifs-utils cpuinfo{,-devel} curl dash dwarves emacs fd figlet fish flatpak{,-spawn} flex fzf \
+    git{,-doc,-lfs} graphviz hugo ImageMagick inkscape libxslt-tools moreutils Mozilla{Firefox,Thunderbird} mpv \
+    neowofetch obs-studio osdlyrics pandoc-cli phoronix-test-suite privoxy proxychains-ng qbittorrent re2c ripgrep \
+    sqlite3 sshpass steam tmux tree-sitter unzip wget xmlto zip zstd
 
 # C++ environment
 sudo -E zypper in -y -t pattern devel_C_C++
@@ -29,17 +29,19 @@ sudo -E zypper in -y \
     clang{,-doc,-extract,-tools,-devel} llvm{,-doc,-opt-viewer,-devel} lldb lld \
     ccache cmake conan doxygen imake kf6-extra-cmake-modules lcov meson mold ninja tree-sitter-c{,pp}
 sudo -E zypper in -y \
-    cli11-devel 'libboost_*-devel' libc++{,abi}-devel libcaca-devel libelf-devel{,-32bit} libexpat-devel{,-32bit} \
-    libopenssl-devel{,-32bit} libpciaccess-devel libstdc++-devel{,-32bit} libunwind-devel libxml2-devel{,-32bit} \
-    libzstd-devel{,-32bit} nanomsg-devel ncurses-devel{,-32bit} poco-devel readline-devel{,-32bit} spdlog-devel \
-    stb-devel tinyobjloader-devel z3-devel zlib-ng-compat-devel
+    cli11-devel eigen3-{devel,doc} 'libboost_*-devel' libc++{,abi}-devel libcaca-devel libelf-devel{,-32bit} \
+    libexpat-devel{,-32bit} libopenssl-devel{,-32bit} libpciaccess-devel libstdc++-devel{,-32bit} libunwind-devel \
+    libxml2-devel{,-32bit} libzstd-devel{,-32bit} nanomsg-devel ncurses-devel{,-32bit} poco-devel \
+    readline-devel{,-32bit} spdlog-devel stb-devel tinyobjloader-devel z3-devel zlib-ng-compat-devel
 
 # Python3 environment
 sudo -E zypper in -y python3 python3-devel python3-doc python3-pipx python3-pylint python3-virtualenv tree-sitter-python
+sudo -E zypper in -y libonnx onnx-devel
 sudo -E zypper in -y \
-    python3-distutils-extra python3-Jinja2 python3-lit python3-lxml python3-lz4 python3-Mako python3-numpy \
-    python3-pybind11{,-devel} python3-pyelftools python3-pytest python3-ruamel.yaml python3-setuptools \
-    python3-u-msgpack-python
+    python3-astunparse python3-distutils-extra python3-filelock python3-fsspec python3-Jinja2 python3-lit python3-lxml \
+    python3-lz4 python3-Mako python3-numpy{,-devel} python3-onnx python3-packaging python3-psutil \
+    python3-pybind11{,-devel} python3-pyelftools python3-pytest python3-PyYAML python3-requests python3-sympy \
+    python3-ruamel.yaml python3-setuptools python3-typing_extensions python3-u-msgpack-python
 
 # Programmings environment
 sudo -E zypper in -y erlang erlang-doc elixir elixir-doc elixir-hex

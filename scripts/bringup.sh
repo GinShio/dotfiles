@@ -61,10 +61,9 @@ sudo -Sv <<<"$ROOT_PASSPHRASE"
 # user group
 sudo usermod -aG kvm,libvirt,render,video $(whoami)
 
-# PipX
-pipx install pyright
-pipx install trash-cli
-pipx install dotdrop
+# applications
+flatpak install flathub com.discordapp.Discord
+pipx install dotdrop iree-base-compiler[onnx] pyright trash-cli
 
 # Directories
 mkdir -p $HOME/Projects
