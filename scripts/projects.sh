@@ -38,57 +38,72 @@ case $project in
     alive2)
         url='https://github.com/AliveToolkit/alive2.git'
         branch=master
-        builddir=$HOME/Projects/$project/_build
+        sourcedir=$HOME/Projects/$project
+        builddir=$sourcedir/_build
         ;;
     deqp)
         url='https://github.com/KhronosGroup/VK-GL-CTS.git'
         branch=main
-        builddir=$HOME/Projects/$project/_build
+        sourcedir=$HOME/Projects/$project
+        builddir=$sourcedir/_build
+        ;;
+    iree)
+        url='https://github.com/iree-org/iree.git'
+        branch=main
+        sourcedir=$HOME/Projects/AI/$project
+        builddir=$sourcedir/_build
         ;;
     llvm)
         url='https://github.com/llvm/llvm-project.git'
         branch=main
-        builddir=$HOME/Projects/$project/_build/_dbg
+        sourcedir=$HOME/Projects/$project
+        builddir=$sourcedir/_build/_dbg
         ;;
     mesa)
         url='https://gitlab.freedesktop.org/mesa/mesa.git'
         branch=main
-        builddir=$HOME/Projects/$project/_build
+        sourcedir=$HOME/Projects/$project
+        builddir=$sourcedir/_build
         ;;
     piglit)
         url='https://gitlab.freedesktop.org/mesa/piglit.git'
         branch=main
-        builddir=$HOME/Projects/$project/_build
+        sourcedir=$HOME/Projects/$project
+        builddir=$sourcedir/_build
         ;;
     runner)
         url='https://gitlab.freedesktop.org/mesa/deqp-runner.git'
         branch=main
-        builddir=$HOME/Projects/$project/_build
+        sourcedir=$HOME/Projects/$project
+        builddir=$sourcedir/_build
         ;;
     slang)
         url='https://github.com/shader-slang/slang.git'
         branch=master
-        builddir=$HOME/Projects/$project/_build
+        sourcedir=$HOME/Projects/$project
+        builddir=$sourcedir/_build
         ;;
     umr)
         url='https://gitlab.freedesktop.org/tomstdenis/umr.git'
         branch=main
-        builddir=$HOME/Projects/$project/_build
+        sourcedir=$HOME/Projects/$project
+        builddir=$sourcedir/_build
         ;;
     vkd3d)
         url='https://github.com/HansKristian-Work/vkd3d-proton.git'
         branch=master
-        builddir=$HOME/Projects/$project/_build/_rel
+        sourcedir=$HOME/Projects/$project
+        builddir=$sourcedir/_build/_rel
         ;;
     *)
         exit 0
         ;;
 esac
 
-if [[ 0 -eq $skippull ]] && [ -d $HOME/Projects/$project ]; then
-    git -C $HOME/Projects/$project fetch origin --prune && git -C $HOME/Projects/$project merge --ff-only origin/$branch
+if [[ 0 -eq $skippull ]] && [ -d $sourcedir ]; then
+    git -C $sourcedir fetch origin --prune && git -C $sourcedir merge --ff-only origin/$branch
 elif [[ 0 -eq $skippull ]]; then
-    git clone --recursive $url $HOME/Projects/$project
+    git clone --recursive $url $sourcedir
 else
     :
 fi
@@ -98,11 +113,14 @@ if [[ 0 -ne $status ]]; then
     exit 1
 fi
 
-pushd $HOME/Projects/$project 2>&1 >/dev/null
+pushd $sourcedir 2>&1 >/dev/null
 if [[ 0 -eq $skipbuild ]] && [ -d $builddir ]; then
     case $project in
         alive2|deqp|piglit|slang|umr)
             cmake --build $builddir --config Release
+            ;;
+        iree)
+            cmake --build $builddir --config Debug
             ;;
         llvm)
             cmake --build $builddir
@@ -128,16 +146,24 @@ elif ! [ -e $builddir ]; then
             ( export ALIVE2_HOME=$HOME/Projects; \
               export LLVM2_HOME=$HOME/Projects/llvm; \
               export LLVM2_BUILD=$HOME/Projects/llvm/_build/_dbg; \
-              cmake -S$HOME/Projects/alive2 -B$builddir "${CMAKE_OPTIONS[@]}" -DBUILD_TV=1 -DCMAKE_PREFIX_PATH=$LLVM2_BUILD; )
+              cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DBUILD_TV=1 -DCMAKE_PREFIX_PATH=$LLVM2_BUILD; )
             ;;
         deqp)
             python3 external/fetch_sources.py
-            cmake -S$HOME/Projects/deqp -B$builddir "${CMAKE_OPTIONS[@]}" -DDEQP_TARGET=default
+            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DDEQP_TARGET=default
+            ;;
+        iree)
+            CMAKE_PREFIX_PATH=$HOME/Projects/llvm/_build/_dbg/lib/cmake \
+            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DIREE_BUILD_BUNDLED_LLVM=OFF \
+                -DIREE_BUILD_COMPILER=ON -DIREE_BUILD_TESTS=ON -DIREE_BUILD_SAMPLES=ON \
+                -DIREE_BUILD_PYTHON_BINDINGS=OFF -DIREE_BUILD_BINDINGS_TFLITE=OFF -DIREE_BUILD_BINDINGS_TFLITE_JAVA=OFF \
+                -DIREE_TARGET_BACKEND_DEFAULTS=OFF -DIREE_TARGET_BACKEND_LLVM_CPU=ON -DIREE_TARGET_BACKEND_VULKAN_SPIRV=ON \
+                -DIREE_HAL_DRIVER_DEFAULTS=OFF -DIREE_HAL_DRIVER_LOCAL_SYNC=ON -DIREE_HAL_DRIVER_LOCAL_TASK=ON -DIREE_HAL_DRIVER_VULKAN=ON \
+                -DIREE_INPUT_STABLEHLO=OFF -DIREE_INPUT_TORCH=ON -DIREE_INPUT_TOSA=OFF
             ;;
         llvm)
             llvm_num_link=$(awk '/MemTotal/{targets = int($2 / (16 * 2^20)); print targets<1?1:targets}' /proc/meminfo)
-            cmake -S$HOME/Projects/llvm/llvm -B$builddir -DCMAKE_BUILD_TYPE=Debug \
-                -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            cmake -S$sourcedir/llvm -B$builddir -DCMAKE_BUILD_TYPE=Debug -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
                 -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
                 -DBUILD_SHARED_LIBS=ON \
                 -DLLVM_ENABLE_ASSERTIONS=ON \
@@ -145,7 +171,7 @@ elif ! [ -e $builddir ]; then
                 -DLLVM_BUILD_TOOLS=ON \
                 -DLLVM_CCACHE_BUILD=ON \
                 -DLLVM_ENABLE_PIC=ON \
-                -DLLVM_ENABLE_PROJECTS='clang;mlir' \
+                -DLLVM_ENABLE_PROJECTS='clang;mlir;lld' \
                 -DLLVM_ENABLE_RTTI=ON \
                 -DLLVM_INCLUDE_TOOLS=ON \
                 -DLLVM_OPTIMIZED_TABLEGEN=ON \
@@ -159,13 +185,13 @@ elif ! [ -e $builddir ]; then
             ;;
         mesa)
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
-                meson setup $HOME/Projects/mesa $builddir/_rel \
+                meson setup $sourcedir $builddir/_rel \
                 --libdir=lib --prefix $HOME/.local -Dbuildtype=release \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
                 -Dgallium-opencl=disabled -Dgallium-rusticl=false
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
-                meson setup $HOME/Projects/mesa $builddir/_dbg \
-                --libdir=lib --prefix $HOME/Projects/mesa/_build/_dbg -Dbuildtype=debug \
+                meson setup $sourcedir $builddir/_dbg \
+                --libdir=lib --prefix $builddir/_dbg -Dbuildtype=debug \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
                 -Dgallium-opencl=disabled -Dgallium-rusticl=false
             # MESA_ROOT=$HOME/.local \
@@ -180,20 +206,20 @@ elif ! [ -e $builddir ]; then
             #### If disable radv: VK_LOADER_DRIVERS_DISABLE='radeon*'
             ;;
         piglit)
-            cmake -S$HOME/Projects/piglit -B$builddir "${CMAKE_OPTIONS[@]}"
+            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}"
             ;;
         runner)
             cargo build --release --target-dir $builddir
             ;;
         slang)
-            cmake -S$HOME/Projects/slang -B$builddir "${CMAKE_OPTIONS[@]}" -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
+            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
             ;;
         umr)
-            cmake -S$HOME/Projects/umr -B$builddir "${CMAKE_OPTIONS[@]}" -DUMR_NO_GUI=ON -DUMR_STATIC_EXECUTABLE=ON
+            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DUMR_NO_GUI=ON -DUMR_STATIC_EXECUTABLE=ON
             ;;
         vkd3d)
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
-                meson setup $HOME/Projects/vkd3d $HOME/Projects/vkd3d/_build/_rel \
+                meson setup $sourcedir $builddir \
                 -Dbuildtype=release -Denable_tests=true -Denable_extras=false
             ;;
     esac
