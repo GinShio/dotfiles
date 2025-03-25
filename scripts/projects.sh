@@ -136,6 +136,7 @@ if [[ 0 -eq $skipbuild ]] && [ -d $builddir ]; then
             ;;
     esac
 elif ! [ -e $builddir ]; then
+    llvm_num_link=$(awk '/MemTotal/{targets = int($2 / (16 * 2^20)); print targets<1?1:targets}' /proc/meminfo)
     case $project in
         alive2)
             ( export ALIVE2_HOME=$HOME/Projects; \
@@ -149,15 +150,15 @@ elif ! [ -e $builddir ]; then
             ;;
         iree)
             # if wants to use the trunk llvm, please use: CMAKE_PREFIX_PATH=$HOME/Projects/llvm/_build/_dbg/lib/cmake
-            cmake -S$sourcedir -B$builddir -DCMAKE_BUILD_TYPE=Debug -GNinja "${CMAKE_OPTIONS[@]}" -DIREE_BUILD_BUNDLED_LLVM=ON \
+            cmake -S$sourcedir -B$builddir -DCMAKE_INSTALL_PREFIX=$sourcedir/_install -DCMAKE_BUILD_TYPE=Debug -GNinja "${CMAKE_OPTIONS[@]}" \
                 -DIREE_BUILD_COMPILER=ON -DIREE_BUILD_TESTS=ON -DIREE_BUILD_SAMPLES=ON \
                 -DIREE_BUILD_PYTHON_BINDINGS=OFF -DIREE_BUILD_BINDINGS_TFLITE=OFF -DIREE_BUILD_BINDINGS_TFLITE_JAVA=OFF \
                 -DIREE_TARGET_BACKEND_DEFAULTS=OFF -DIREE_TARGET_BACKEND_LLVM_CPU=ON -DIREE_TARGET_BACKEND_VULKAN_SPIRV=ON \
                 -DIREE_HAL_DRIVER_DEFAULTS=OFF -DIREE_HAL_DRIVER_LOCAL_SYNC=ON -DIREE_HAL_DRIVER_LOCAL_TASK=ON -DIREE_HAL_DRIVER_VULKAN=ON \
-                -DIREE_INPUT_STABLEHLO=ON -DIREE_INPUT_TORCH=ON -DIREE_INPUT_TOSA=ON
+                -DIREE_INPUT_STABLEHLO=ON -DIREE_INPUT_TORCH=ON -DIREE_INPUT_TOSA=ON \
+                -DIREE_BUILD_BUNDLED_LLVM=ON -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_LINK_JOBS:STRING=$llvm_num_link
             ;;
         llvm)
-            llvm_num_link=$(awk '/MemTotal/{targets = int($2 / (16 * 2^20)); print targets<1?1:targets}' /proc/meminfo)
             cmake -S$sourcedir/llvm -B$builddir -DCMAKE_BUILD_TYPE=Debug -GNinja "${CMAKE_OPTIONS[@]}" \
                 -DBUILD_SHARED_LIBS=ON \
                 -DLLVM_ENABLE_ASSERTIONS=ON \
