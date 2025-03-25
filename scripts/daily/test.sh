@@ -147,6 +147,7 @@ for elem in ${test_infos[@]}; do
                 LD_LIBRARY_PATH=$MESA_ROOT
                 LIBGL_DRIVERS_PATH=$MESA_ROOT/dri
                 MESA_LOADER_DRIVER_OVERRIDE=radeonsi
+                VK_LOADER_DRIVERS_DISABLE='*amdvlk*,*lvp*'
                 RADV_DEBUG=nocache
                 AMD_DEBUG=
                 NIR_DEBUG=
@@ -157,6 +158,7 @@ for elem in ${test_infos[@]}; do
                 VK_ICD_FILENAMES=$AMDVLK_ICD_PATH
                 __GLX_FORCE_VENDOR_LIBRARY_0=amd
                 MESA_LOADER_DRIVER_OVERRIDE=amdgpu
+                VK_LOADER_DRIVERS_DISABLE='*radeon*,*lvp*'
             )
             sed -i -e 's~^EnablePipelineDump.*~EnablePipelineDump,0~' $AMDVLK_CONFIG_DIR/amdVulkanSettings.cfg
             ;;
