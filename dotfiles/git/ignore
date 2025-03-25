@@ -1,5 +1,6 @@
 # Ignore build directory and C/C++ Compilation Database
-/_build
+/_build/
+/_install/
 /compile_commands.json
 
 # be found at https://github.com/github/gitignore/blob/main/Python.gitignore
