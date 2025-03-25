@@ -18,18 +18,16 @@ C_COMPILER=gcc
 CXX_COMPILER=g++
 LINKER=mold
 CMAKE_OPTIONS=(
-  "-GNinja Multi-Config"
-  -DCMAKE_DEFAULT_BUILD_TYPE=Release
   -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=$LINKER
   -DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=$LINKER
   -DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=$LINKER
   -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
   -DCMAKE_C_COMPILER_LAUNCHER=ccache
   -DCMAKE_C_COMPILER=$C_COMPILER
-  -DCMAKE_C_FLAGS_INIT=-fdiagnostics-color=always
+  -DCMAKE_C_FLAGS_INIT=$([[ "$C_COMPILER" = gcc ]] && echo "-fdiagnostics-color=always" || echo "-fcolor-diagnostics")
   -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
   -DCMAKE_CXX_COMPILER=$CXX_COMPILER
-  -DCMAKE_CXX_FLAGS_INIT=-fdiagnostics-color=always
+  -DCMAKE_CXX_FLAGS_INIT=$([[ "$CXX_COMPILER" = g++ ]] && echo "-fdiagnostics-color=always" || echo "-fcolor-diagnostics")
   -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG=OFF
   -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE=ON
 )
@@ -51,7 +49,7 @@ case $project in
         url='https://github.com/iree-org/iree.git'
         branch=main
         sourcedir=$HOME/Projects/AI/$project
-        builddir=$sourcedir/_build
+        builddir=$sourcedir/_build/_dbg
         ;;
     llvm)
         url='https://github.com/llvm/llvm-project.git'
@@ -119,10 +117,7 @@ if [[ 0 -eq $skipbuild ]] && [ -d $builddir ]; then
         alive2|deqp|piglit|slang|umr)
             cmake --build $builddir --config Release
             ;;
-        iree)
-            cmake --build $builddir --config Debug
-            ;;
-        llvm)
+        iree|llvm)
             cmake --build $builddir
             ;;
         mesa)
@@ -146,25 +141,24 @@ elif ! [ -e $builddir ]; then
             ( export ALIVE2_HOME=$HOME/Projects; \
               export LLVM2_HOME=$HOME/Projects/llvm; \
               export LLVM2_BUILD=$HOME/Projects/llvm/_build/_dbg; \
-              cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DBUILD_TV=1 -DCMAKE_PREFIX_PATH=$LLVM2_BUILD; )
+              cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DBUILD_TV=1 -DCMAKE_PREFIX_PATH=$LLVM2_BUILD; )
             ;;
         deqp)
             python3 external/fetch_sources.py
-            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DDEQP_TARGET=default
+            cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DDEQP_TARGET=default
             ;;
         iree)
-            CMAKE_PREFIX_PATH=$HOME/Projects/llvm/_build/_dbg/lib/cmake \
-            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DIREE_BUILD_BUNDLED_LLVM=OFF \
+            # if wants to use the trunk llvm, please use: CMAKE_PREFIX_PATH=$HOME/Projects/llvm/_build/_dbg/lib/cmake
+            cmake -S$sourcedir -B$builddir -DCMAKE_BUILD_TYPE=Debug -GNinja "${CMAKE_OPTIONS[@]}" -DIREE_BUILD_BUNDLED_LLVM=ON \
                 -DIREE_BUILD_COMPILER=ON -DIREE_BUILD_TESTS=ON -DIREE_BUILD_SAMPLES=ON \
                 -DIREE_BUILD_PYTHON_BINDINGS=OFF -DIREE_BUILD_BINDINGS_TFLITE=OFF -DIREE_BUILD_BINDINGS_TFLITE_JAVA=OFF \
                 -DIREE_TARGET_BACKEND_DEFAULTS=OFF -DIREE_TARGET_BACKEND_LLVM_CPU=ON -DIREE_TARGET_BACKEND_VULKAN_SPIRV=ON \
                 -DIREE_HAL_DRIVER_DEFAULTS=OFF -DIREE_HAL_DRIVER_LOCAL_SYNC=ON -DIREE_HAL_DRIVER_LOCAL_TASK=ON -DIREE_HAL_DRIVER_VULKAN=ON \
-                -DIREE_INPUT_STABLEHLO=OFF -DIREE_INPUT_TORCH=ON -DIREE_INPUT_TOSA=OFF
+                -DIREE_INPUT_STABLEHLO=ON -DIREE_INPUT_TORCH=ON -DIREE_INPUT_TOSA=ON
             ;;
         llvm)
             llvm_num_link=$(awk '/MemTotal/{targets = int($2 / (16 * 2^20)); print targets<1?1:targets}' /proc/meminfo)
-            cmake -S$sourcedir/llvm -B$builddir -DCMAKE_BUILD_TYPE=Debug -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-                -DCMAKE_C_COMPILER=$C_COMPILER -DCMAKE_CXX_COMPILER=$CXX_COMPILER \
+            cmake -S$sourcedir/llvm -B$builddir -DCMAKE_BUILD_TYPE=Debug -GNinja "${CMAKE_OPTIONS[@]}" \
                 -DBUILD_SHARED_LIBS=ON \
                 -DLLVM_ENABLE_ASSERTIONS=ON \
                 -DLLVM_BUILD_TESTS=ON \
@@ -181,7 +175,6 @@ elif ! [ -e $builddir ]; then
                 -DLLVM_USE_LINKER=$LINKER \
                 -DCLANG_ENABLE_CIR=ON \
                 -DCLANG_ENABLE_HLSL=ON
-            # -DLLVM_EXPERIMENTAL_TARGETS_TO_BUILD='DirectX;SPIRV' -DCLANG_ENABLE_HLSL=ON
             ;;
         mesa)
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
@@ -203,19 +196,18 @@ elif ! [ -e $builddir ]; then
             #       LP_DEBUG= LP_PERF= \
             #       ACO_DEBUG= NIR_DEBUG= \
             #       dosomething
-            #### If disable radv: VK_LOADER_DRIVERS_DISABLE='radeon*'
             ;;
         piglit)
-            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}"
+            cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}"
             ;;
         runner)
             cargo build --release --target-dir $builddir
             ;;
         slang)
-            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
+            cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
             ;;
         umr)
-            cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" -DUMR_NO_GUI=ON -DUMR_STATIC_EXECUTABLE=ON
+            cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DUMR_NO_GUI=ON -DUMR_STATIC_EXECUTABLE=ON
             ;;
         vkd3d)
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
