@@ -1,0 +1,10 @@
+[Unit]
+Description=Run the script of daily test
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash {{@@ _dotdrop_workdir @@}}/scripts/daily.sh
+Restart=no
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,11 @@
+[Unit]
+Description=Timer of daily test
+
+[Timer]
+OnCalendar=*-*-* 06:00:00
+Persistent=false
+AccuracySec=5s
+Unit=daily-test.service
+
+[Install]
+WantedBy=timers.target
