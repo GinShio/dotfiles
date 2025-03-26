@@ -16,8 +16,8 @@ if [ -e $HOME/Projects/amdvlk ] && [ -e $HOME/Projects/Builder ]; then
         python3 $HOME/Projects/Builder/scripts/main.py --loglevel=info -pxgl build --debug --tool
     fi
 fi
-$DOTFILES_ROOT_PATH/scripts/projects.sh --project=mesa >dev/null 2>&1
-$DOTFILES_ROOT_PATH/scripts/projects.sh --project=llvm --skipbuild >dev/null 2>&1
+bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=mesa >/dev/null 2>&1
+bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=llvm --skipbuild >/dev/null 2>&1
 
 fd -iHx /usr/bin/rm -rf {} \; --changed-before 3d --type directory -- . "/run/user/$(id -u $USER)/runner/baseline"
 
