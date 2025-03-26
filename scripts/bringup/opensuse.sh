@@ -47,6 +47,7 @@ sudo -E zypper in -y \
 sudo -E zypper in -y erlang erlang-doc elixir elixir-doc elixir-hex
 sudo -E zypper in -y java-{17,21}-openjdk{,-devel}
 sudo -E zypper in -y nodejs-common yarn
+sudo -E zypper in -y lua lua-devel
 sudo -E zypper in -y cargo rust rust-bindgen tree-sitter-rust
 sudo -E zypper in -y ghc{,-doc,-manual,-prof} tree-sitter-haskell
 sudo -E zypper in -y zig zig-libs zls tree-sitter-zig

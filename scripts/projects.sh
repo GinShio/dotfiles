@@ -182,12 +182,12 @@ elif ! [ -e $builddir ]; then
                 meson setup $sourcedir $builddir/_rel \
                 --libdir=lib --prefix $HOME/.local -Dbuildtype=release \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
-                -Dgallium-opencl=disabled -Dgallium-rusticl=false
+                -Dgallium-rusticl=true
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
                 meson setup $sourcedir $builddir/_dbg \
                 --libdir=lib --prefix $builddir/_dbg -Dbuildtype=debug \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
-                -Dgallium-opencl=disabled -Dgallium-rusticl=false
+                -Dgallium-rusticl=true
             # MESA_ROOT=$HOME/.local \
             #       LD_LIBRARY_PATH=$MESA_ROOT/lib LIBGL_DRIVERS_PATH=$MESA_ROOT/lib/dri \
             #       VK_DRIVER_FILES=$(eval echo "$MESA_ROOT/share/vulkan/icd.d/{radeon,lvp}_icd.x86_64.json" |tr ' ' ':') \
