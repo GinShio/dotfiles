@@ -135,7 +135,8 @@ if [[ 0 -eq $skipbuild ]] && [ -d $builddir ]; then
             meson compile -C $builddir
             ;;
     esac
-elif ! [ -e $builddir ]; then
+else
+if ! [ -e $builddir ]; then
     llvm_num_link=$(awk '/MemTotal/{targets = int($2 / (16 * 2^20)); print targets<1?1:targets}' /proc/meminfo)
     case $project in
         alive2)
@@ -182,12 +183,12 @@ elif ! [ -e $builddir ]; then
                 meson setup $sourcedir $builddir/_rel \
                 --libdir=lib --prefix $HOME/.local -Dbuildtype=release \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
-                -Dgallium-rusticl=true
+                -Dgallium-rusticl=false
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
                 meson setup $sourcedir $builddir/_dbg \
                 --libdir=lib --prefix $builddir/_dbg -Dbuildtype=debug \
                 -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast \
-                -Dgallium-rusticl=true
+                -Dgallium-rusticl=false
             # MESA_ROOT=$HOME/.local \
             #       LD_LIBRARY_PATH=$MESA_ROOT/lib LIBGL_DRIVERS_PATH=$MESA_ROOT/lib/dri \
             #       VK_DRIVER_FILES=$(eval echo "$MESA_ROOT/share/vulkan/icd.d/{radeon,lvp}_icd.x86_64.json" |tr ' ' ':') \
@@ -216,6 +217,7 @@ elif ! [ -e $builddir ]; then
                 -Dbuildtype=release -Denable_tests=true -Denable_extras=false
             ;;
     esac
+fi
 fi
 status=$?
 popd 2>&1 >/dev/null
