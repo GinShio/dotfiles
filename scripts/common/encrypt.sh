@@ -38,6 +38,7 @@ if [ -z "$tmpdir" ]
 then tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d)
 fi
 echo $PASSPHRASE >$tmpdir/.kfile
+trap "rm $tmpdir/.kfile" EXIT
 
 if [[ "$method" = "encrypt" ]]; then
     if [ -z "$outdir" ]
@@ -56,4 +57,3 @@ elif [[ "$method" = "decrypt" ]]; then
     iv=$(get_decrypt_iv $filename)
     tail -n+2 $filename |openssl enc -aes-256-ctr -d -a -kfile $tmpdir/.kfile -iv $iv -salt -pbkdf2 -iter 100000 -in - -out $output
 fi
-rm $tmpdir/.kfile
