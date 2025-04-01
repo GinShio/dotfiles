@@ -1,7 +1,5 @@
 #!/usr/bin/env fish
 
-source {{@@ _dotfile_abs_dst @@}}/functions/__ginshio_source-posix.fish
-
 function zswap-statistics
     # Copy from https://unix.stackexchange.com/questions/406936/get-current-zswap-memory-usage-and-statistics.
     # Authored-by: Вадим Илларионов
