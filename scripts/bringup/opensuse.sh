@@ -3,7 +3,7 @@
 sudo zypper rr --all
 sudo zypper ar -fcg https://mirrors.nju.edu.cn/opensuse/tumbleweed/repo/oss NJU:oss
 sudo zypper ar -fcg https://mirrors.nju.edu.cn/opensuse/tumbleweed/repo/non-oss NJU:non-oss
-sudo zypper ar -fcg https://mirrors.tuna.tsinghua.edu.cn/packman/suse/openSUSE_Tumbleweed TUNA:packman
+sudo zypper ar -fcg https://mirror.nju.edu.cn/packman/suse/openSUSE_Tumbleweed NJU:packman
 sudo zypper ar -fcg obs://KDE:Extra openSUSE:kDE:Extra
 sudo zypper ar -fcg osb://Virtualization openSUSE:Virtualization
 sudo zypper ar -fcg https://download.opensuse.org/repositories/devel:/tools:/compiler/openSUSE_Factory openSUSE:compiler
