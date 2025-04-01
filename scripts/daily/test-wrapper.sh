@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname $0)/../common/common.sh
+source $(dirname ${BASH_SOURCE[0]})/../common/common.sh
 now_timestamps=$1
 now_timestamps=${now_timestamps:-$(date +%s)}
 

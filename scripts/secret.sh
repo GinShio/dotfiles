@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname $0)/common/common.sh
+source $(dirname ${BASH_SOURCE[0]})/common/common.sh
 
 args=`getopt -l "encrypt,decrypt,profile:,subproject:" -a -o "edp:S:" -- $@`
 eval set -- $args

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname $0)/common/common.sh
+source $(dirname ${BASH_SOURCE[0]})/common/common.sh
 export DISTRO_NAME=$(source /etc/os-release; echo "${NAME:-${DISTRIB_ID}} ${VERSION_ID:-${DISTRIB_RELEASE}}")
 export DISTRO_ID=$(source /etc/os-release; echo "${ID}")
 

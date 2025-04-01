@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname $0)/common/common.sh
+source $(dirname ${BASH_SOURCE[0]})/common/common.sh
 bash $DOTFILES_ROOT_PATH/scripts/daily/update-system.sh
 bash $DOTFILES_ROOT_PATH/scripts/daily/update-hosts.sh
 

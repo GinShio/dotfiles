@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname $0)/common/common.sh
+source $(dirname ${BASH_SOURCE[0]})/common/common.sh
 
 function deploy_key() {
     rsync -L $DOTFILES_ROOT_PATH/keys/ssh.tar.zst.ssl $tmpdir

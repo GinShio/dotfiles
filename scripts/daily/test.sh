@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname $0)/../common/common.sh
+source $(dirname ${BASH_SOURCE[0]})/../common/common.sh
 XDG_RUNTIME_DIR=/run/user/$(id -u $USER)
 RUNNER_DIR=$XDG_RUNTIME_DIR/runner
 
