@@ -1,5 +1,5 @@
 [Unit]
-Description=Run the script of daily test
+Description=Run the script of nightly
 
 [Service]
 Type=oneshot
