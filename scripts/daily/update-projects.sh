@@ -10,4 +10,4 @@ if [ -e $HOME/Projects/amdvlk ] && [ -e $HOME/Projects/Builder ]; then
     fi
 fi
 bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=mesa
-bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=llvm --skipbuild
+bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=llvm
