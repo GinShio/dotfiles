@@ -17,10 +17,10 @@ sudo -E zypper dup -y --allow-vendor-change
 # Common environment
 sudo -E zypper in -y -t pattern devel_basis
 sudo -E zypper in -y \
-    7zip aspell bat bison cifs-utils cpuinfo{,-devel} curl dash dwarves emacs fd figlet fish flatpak{,-spawn} flex fzf \
-    git{,-doc,-lfs} graphviz hugo ImageMagick inkscape libxslt-tools moreutils Mozilla{Firefox,Thunderbird} mpv \
-    neowofetch obs-studio osdlyrics pandoc-cli phoronix-test-suite privoxy proxychains-ng qbittorrent re2c ripgrep \
-    sqlite3 sshpass steam tmux tree-sitter unzip wget xmlto zip zstd
+    7zip aspell bat bison chrpath cifs-utils cpuinfo{,-devel} curl dash dwarves emacs fd figlet fish flatpak{,-spawn} \
+    flex fzf git{,-doc,-lfs} graphviz hugo ImageMagick inkscape libxslt-tools moreutils Mozilla{Firefox,Thunderbird} \
+    mpv neowofetch obs-studio osdlyrics pandoc-cli patchelf phoronix-test-suite privoxy proxychains-ng qbittorrent re2c \
+    ripgrep sqlite3 sshpass steam tmux tree-sitter unzip wget xmlto zip zstd
 
 # C++ environment
 sudo -E zypper in -y -t pattern devel_C_C++
