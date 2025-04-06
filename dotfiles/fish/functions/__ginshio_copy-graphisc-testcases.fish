@@ -6,6 +6,15 @@ function copy-graphics-testcase
     if set -ql _flag_deqp
         set -lx DEQP_SRCDIR $PROJECT_DIR/deqp
         set -lx DEQP_DSTDIR $RUNNER_DIR/deqp
+        set -lx DEQP_EXCLUDE $DEQP_DSTDIR/vk-exclude.txt
+        if not test -e $DEQP_EXCLUDE
+            echo "api.txt
+image/swapchain-mutable.txt
+info.txt
+query-pool.txt
+video.txt
+wsi.txt" >$DEQP_EXCLUDE
+        end
         rsync $DEQP_SRCDIR/_build/external/vulkancts/modules/vulkan/Release/deqp-vk $DEQP_DSTDIR
         rsync -rR $DEQP_SRCDIR/external/vulkancts/data/./vulkan $DEQP_DSTDIR
         rsync -rR --exclude-from=$DEQP_DSTDIR/vk-exclude.txt $DEQP_SRCDIR/external/vulkancts/mustpass/main/./vk-default $DEQP_DSTDIR/mustpass
@@ -28,7 +37,10 @@ function copy-graphics-testcase
         rsync -rR $PIGLIT_SRCDIR/_build/./tests/*.xml.gz $PIGLIT_DSTDIR
         rsync -mrR -f'- *.[chao]' -f'- *.[ch]pp' -f'- *[Cc][Mm]ake*' $PIGLIT_SRCDIR/./tests $PIGLIT_DSTDIR
         rsync -rR $PIGLIT_SRCDIR/./generated_tests/**/*.inc $PIGLIT_DSTDIR
-        rsync -mrR -f'- *.[chao]' -f'- *.[ch]pp' -f'- *[Cc][Mm]ake*' $PIGLIT_SRCDIR/_build/./generated_tests $PIGLIT_DSTDIR
+        rsync -mrR -f'- *.[chao]' -f'- *.[ch]pp' -f'- *[Cc][Mm]ake*' -f'- *.list' $PIGLIT_SRCDIR/_build/./generated_tests $PIGLIT_DSTDIR
+        for elf in $PIGLIT_DSTDIR/bin/* $PIGLIT_DSTDIR/lib/*.so
+            patchelf --set-rpath "$PIGLIT_DSTDIR/lib" $elf
+        end
     end
 
     if set -ql _flag_tool
