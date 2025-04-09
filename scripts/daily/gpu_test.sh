@@ -185,5 +185,6 @@ for elem in ${test_infos[@]}; do
         output_dir=$RUNNER_DIR/baseline/${vendor}_${testkit}-${glapi}${SUFFIX}
         test_kits_$testkit
         rsync --remove-source-files $output_dir/${tarball_name}.tar.zst $TEST_RESULT_DIR/$vendor
+        sleep 10m
     done # test kits loop end
 done # test infos loop end
