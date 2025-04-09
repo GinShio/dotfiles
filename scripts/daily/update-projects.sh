@@ -10,4 +10,6 @@ if [ -e $HOME/Projects/amdvlk ] && [ -e $HOME/Projects/Builder ]; then
     fi
 fi
 bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=mesa
+trap "source $(dirname ${BASH_SOURCE[0]})/../common/unproxy.sh" EXIT
+source $(dirname ${BASH_SOURCE[0]})/../common/proxy.sh
 bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=llvm
