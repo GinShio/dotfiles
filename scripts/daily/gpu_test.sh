@@ -3,9 +3,13 @@
 source $(dirname ${BASH_SOURCE[0]})/../common/common.sh
 XDG_RUNTIME_DIR=/run/user/$(id -u $USER)
 RUNNER_DIR=$XDG_RUNTIME_DIR/runner
+if [ -z $TEST_RESULT_DIR ]
+then TEST_RESULT_DIR=$RUNNER_DIR/baseline
+fi
+TEST_RESULT_DIR=$(eval echo $TEST_RESULT_DIR)
+AMDVLK_CONFIG_DIR=$(eval echo $AMDVLK_CONFIG_DIR)
 
 SUFFIX=_$(date "+%Y-%m-%d")
-DEVICE_ID=$(vulkaninfo 2>/dev/null |awk '/deviceID[[:blank:]]*=/ {print $NF; exit}')
 AVAILABLE_CPUS_CNT=$(cnt=$(bc <<<"($(lscpu -e |wc -l) - 1) * 0.75 / 1"); echo $(($cnt > 0 ? $cnt : 1)))
 
 function get_repo_sha1() {
@@ -135,8 +139,6 @@ function test_kits_vkd3d() {
 } # test_kits_vkd3d function end
 
 declare -a test_infos=$1
-TEST_RESULT_DIR=$(eval echo $TEST_RESULT_DIR)
-AMDVLK_CONFIG_DIR=$(eval echo $AMDVLK_CONFIG_DIR)
 for elem in ${test_infos[@]}; do
     IFS=',' read vendor glapi testkits <<< "${elem}"
     case $vendor in
@@ -179,13 +181,9 @@ for elem in ${test_infos[@]}; do
             ;;
     esac
     for testkit in $(tr ':' '\t' <<<$testkits); do
-        tarball_name=${testkit}-${glapi}_${DEVICE_ID}${SUFFIX}
+        tarball_name=${testkit}-${glapi}_${GPU_DEVICE_ID}${SUFFIX}
         output_dir=$RUNNER_DIR/baseline/${vendor}_${testkit}-${glapi}${SUFFIX}
         test_kits_$testkit
-        if [ -z $TEST_RESULT_DIR ]
-        then result_dir=$output_dir
-        else result_dir=$TEST_RESULT_DIR
-        fi
-        rsync --remove-source-files $output_dir/${tarball_name}.tar.zst $result_dir/$vendor
+        rsync --remove-source-files $output_dir/${tarball_name}.tar.zst $TEST_RESULT_DIR/$vendor
     done # test kits loop end
 done # test infos loop end
