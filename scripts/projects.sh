@@ -14,8 +14,8 @@ done
 skippull=${skippull:-0}
 skipbuild=${skipbuild:-0}
 
-C_COMPILER=gcc
-CXX_COMPILER=g++
+C_COMPILER=clang
+CXX_COMPILER=clang++
 LINKER=mold
 CMAKE_OPTIONS=(
   -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=$LINKER
@@ -147,7 +147,9 @@ if ! [ -e $builddir ]; then
             ;;
         deqp)
             python3 external/fetch_sources.py
-            cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DDEQP_TARGET=default
+            if [ 0 -eq $? ]; then
+                cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release -DCMAKE_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DDEQP_TARGET=default
+            fi
             ;;
         iree)
             # if wants to use the trunk llvm, please use: CMAKE_PREFIX_PATH=$HOME/Projects/llvm/_build/_dbg/lib/cmake
