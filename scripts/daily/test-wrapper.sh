@@ -21,7 +21,7 @@ drivers_tuple=(
 declare -a test_infos=()
 for elem in ${drivers_tuple[@]}; do
     IFS=',' read vendor glapi testkits driver <<< "${elem}"
-    if ! [ -e $driver ] || [ $now_timestamps -ge $(stat -c "%Y" "$driver") ]; then
+    if [[ ! -e $driver || $now_timestamps -ge $(stat -c "%Y" "$driver") ]]; then
         continue
     fi
     test_infos+=("$vendor,$glapi,$testkits")
