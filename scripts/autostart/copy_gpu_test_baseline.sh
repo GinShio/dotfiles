@@ -14,7 +14,7 @@ for DV in ${DEVICE_VENDORS[@]}; do
     if [[ ! -e $TEST_RESULT_DIR || ! -e $TEST_RESULT_DIR/$DV ]]; then
         continue
     fi
-    fd -iHx /usr/bin/echo {} \; --regex "${GPU_TESTKIT_REGEXP}_${GPU_DEVICE_ID}_${DATA_REGEXP}.tar.zst" --changed-within 10d -- $TEST_RESULT_DIR/$DV | \
+    find $TEST_RESULT_DIR/$DV -maxdepth 1 -type f -regextype posix-extended -regex ".*${GPU_TESTKIT_REGEXP}_${GPU_DEVICE_ID}_${DATA_REGEXP}\.tar\.zst" -mtime -10 -print | \
         xargs -I@ bash -c "
             NAME=\$(basename -- @ .tar.zst |awk -F_ -vVENDOR=$DV '{print VENDOR\"_\"\$1\"_\"\$3}');
             mkdir -p $BASELINE_DIR/\$NAME && tar --zstd -xf @ -C \$_;
