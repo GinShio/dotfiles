@@ -47,12 +47,12 @@ function test_kits_deqp() {
                 #$RUNNER_DIR/deqp/mustpass/vk-default/geometry.txt
                 #$RUNNER_DIR/deqp/mustpass/vk-default/{clipping,transform-feedback}.txt
                 $RUNNER_DIR/deqp/mustpass/vk-default/mesh-shader.txt
-                #$RUNNER_DIR/deqp/mustpass/vk-default/{depth,fragment-*}.txt
+                $RUNNER_DIR/deqp/mustpass/vk-default/{depth,fragment-*}.txt
                 $RUNNER_DIR/deqp/mustpass/vk-default/{ray-tracing-pipeline,ray-query}.txt
-                $RUNNER_DIR/deqp/mustpass/vk-default/pipeline/*.txt
+                $RUNNER_DIR/deqp/mustpass/vk-default/{pipeline,shader-object}/*.txt
                 #$RUNNER_DIR/deqp/mustpass/vk-default/{conditional-rendering,dynamic-rendering,renderpass{,2}}.txt
                 $RUNNER_DIR/deqp/mustpass/vk-default/{reconvergence,subgroups}.txt
-                #$RUNNER_DIR/deqp/mustpass/vk-default/dgc.txt
+                $RUNNER_DIR/deqp/mustpass/vk-default/dgc.txt
             )
             ext_files=(dEQP-VK.info.device)
             runner_options=(
