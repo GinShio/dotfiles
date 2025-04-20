@@ -5,4 +5,4 @@ tmux new-session -d -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -s build -c $HOME/Projec
 tmux new-session -d -e XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR -s emacs -c $HOME
 
 tmux send-keys -t runner "copy-graphics-testcase --deqp --piglit --tool --vkd3d" ENTER
-tmux send-keys -t emacs "emacs -nw" ENTER
+tmux send-keys -t emacs "emacsclient -nw --eval '(doom/load-session \"$HOME/.config/emacs/.local/etc/workspaces/projs\")'" ENTER
