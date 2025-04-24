@@ -151,7 +151,7 @@ for elem in ${test_infos[@]}; do
                 MESA_LOADER_DRIVER_OVERRIDE=radeonsi
                 VK_LOADER_DRIVERS_DISABLE='*amdvlk*,*lvp*'
                 RADV_DEBUG=nocache
-                AMD_DEBUG=
+                AMD_DEBUG=useaco
                 NIR_DEBUG=
                 ACO_DEBUG=
             )

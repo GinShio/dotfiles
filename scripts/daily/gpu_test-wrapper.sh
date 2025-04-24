@@ -15,7 +15,7 @@ drivers_tuple=(
     llpc,zink,"deqp",$ZINK_PATH:$AMDVLK_PATH
     mesa,zink,"deqp",$ZINK_PATH:$RADV_PATH
     #swrast,zink,"deqp",$ZINK_PATH:$LVP_PATH
-    #mesa,gl,"deqp:piglit",$RADEONSI_PATH
+    mesa,gl,"deqp",$RADEONSI_PATH
     #llpc,vkcl,"cts",$RUSTICL_PATH:$ZINK_PATH:$AMDVLK_PATH
     #mesa,vkcl,"cts",$RUSTICL_PATH:$ZINK_PATH:$RADV_PATH
     #swrast,vkcl,"cts",$RUSTICL_PATH:$ZINK_PATH:$LVP_PATH
