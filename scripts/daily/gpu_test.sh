@@ -16,14 +16,14 @@ function get_repo_sha1() {
     touch git-sha1.txt
     if [ "$vendor" = "llpc" ] && [ -e $HOME/Projects/Builder ]; then
         case $glapi in
-            vk|zink)
+            vk|zink|vkcl)
                 driver_name=xgl;;
             gl)
                 exit 1;;
         esac
         { python3 $HOME/Projects/Builder/scripts/main.py -p$driver_name info 2>&1; } >>git-sha1.txt
     fi
-    if [ "$glapi" = "zink" ] || [ "$vendor" = "mesa" ]
+    if [ "$glapi" = "zink" ] || [ "$glapi" = "vkcl" ] || [ "$vendor" = "mesa" ] || [ "$vendor" = "swrast" ]
     then echo " + mesa: $(git -C $HOME/Projects/mesa rev-parse --short=11 HEAD)" >>git-sha1.txt
     fi
     echo " + $testkit: $(git -C $HOME/Projects/$testkit rev-parse --short=11 HEAD)" >>git-sha1.txt
@@ -153,6 +153,21 @@ for elem in ${test_infos[@]}; do
                 RADV_DEBUG=nocache
                 AMD_DEBUG=
                 NIR_DEBUG=
+                ACO_DEBUG=
+            )
+            ;;
+        swrast)
+            env_lists=(
+                VK_ICD_FILENAMES=$LVP_ICD_PATH
+                __GLX_FORCE_VENDOR_LIBRARY_0=mesa
+                LD_LIBRARY_PATH=$MESA_ROOT
+                LIBGL_DRIVERS_PATH=$MESA_ROOT/dri
+                MESA_LOADER_DRIVER_OVERRIDE=swrast
+                LIBGL_ALWAYS_SOFTWARE=1
+                VK_LOADER_DRIVERS_DISABLE='*amdvlk*,*radeon*'
+                LP_DEBUG=
+                LP_PERF=
+                NIR_DEBUG=
             )
             ;;
         llpc)
@@ -160,7 +175,7 @@ for elem in ${test_infos[@]}; do
                 VK_ICD_FILENAMES=$AMDVLK_ICD_PATH
                 __GLX_FORCE_VENDOR_LIBRARY_0=amd
                 MESA_LOADER_DRIVER_OVERRIDE=amdgpu
-                VK_LOADER_DRIVERS_DISABLE='*radeon*,*lvp*'
+                VK_LOADER_DRIVERS_DISABLE='*lvp*,*radeon*'
             )
             sed -i -e 's~^EnablePipelineDump.*~EnablePipelineDump,0~' $AMDVLK_CONFIG_DIR/amdVulkanSettings.cfg
             ;;
@@ -169,6 +184,13 @@ for elem in ${test_infos[@]}; do
             ;;
     esac
     case $glapi in
+        vkcl)
+            env_lists+=(
+                OCL_ICD_FILENAMES=$RUSTICL_PATH
+                RUSTICL_ENABLE=zink
+                RUSTICL_DEBUG=
+            )
+            ;&
         zink)
             env_lists+=(
                 __GLX_FORCE_VENDOR_LIBRARY_0=mesa

@@ -72,8 +72,8 @@ sudo -E zypper in -y \
 sudo -E zypper in -y \
     clinfo glslang-devel glm-devel Mesa-demo-egl{,-32bit} Mesa-demo-es{,-32bit} Mesa-demo-x{,-32bit} \
     Mesa-dri{,-32bit,-devel} Mesa-libGL-devel{,-32bit} Mesa-libEGL-devel{,-32bit} Mesa-libRusticlOpenCL \
-    Mesa-vulkan-device-select{,-32bit} Mesa-vulkan-overlay{,-32bit} piglit shaderc spirv-{cross,tools} \
-    spirv-tools-devel{,-32bit} tree-sitter-{glsl,hlsl} vulkan-{tools,devel}{,-32bit} \
+    Mesa-vulkan-device-select{,-32bit} Mesa-vulkan-overlay{,-32bit} ocl-icd-devel opencl-headers piglit shaderc \
+    spirv-{cross,tools} spirv-tools-devel{,-32bit} tree-sitter-{glsl,hlsl} vulkan-{tools,devel}{,-32bit} \
     vulkan-{utility-libraries,volk}-devel
 
 # kDE environment

@@ -184,18 +184,18 @@ if ! [ -e $builddir ]; then
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
                 meson setup $sourcedir $builddir/_rel \
                 --libdir=lib --prefix $HOME/.local -Dbuildtype=release \
-                -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast -Dgallium-rusticl=false
+                -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast -Dgallium-rusticl=true
             CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
                 meson setup $sourcedir $builddir/_dbg \
                 --libdir=lib --prefix $builddir/_dbg -Dbuildtype=debug \
-                -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast -Dgallium-rusticl=false
+                -Dgallium-drivers=radeonsi,zink,llvmpipe -Dvulkan-drivers=amd,swrast -Dgallium-rusticl=true
             # MESA_ROOT=$HOME/.local \
             #       LD_LIBRARY_PATH=$MESA_ROOT/lib LIBGL_DRIVERS_PATH=$MESA_ROOT/lib/dri \
-            #       VK_DRIVER_FILES=$(eval echo "$MESA_ROOT/share/vulkan/icd.d/{radeon,lvp}_icd.x86_64.json" |tr ' ' ':') \
-            #       MESA_SHADER_CACHE_DISABLE=true MESA_LOADER_DRIVER_OVERRIDE=radeonsi LIBGL_ALWAYS_SOFTWARE= VK_LOADER_DRIVERS_DISABLE= \
-            #       RADV_DEBUG=nocache RADV_PERFTEST= \
-            #       AMD_DEBUG= \
-            #       LP_DEBUG= LP_PERF= \
+            #       VK_DRIVER_FILES=$(eval echo "$MESA_ROOT/share/vulkan/icd.d/{radeon,lvp}_icd.x86_64.json" |tr ' ' ':') VK_LOADER_DRIVERS_DISABLE= \
+            #       OCL_ICD_FILENAMES=$MESA_ROOT/lib/libRusticlOpenCL.so RUSTICL_ENABLE=zink \
+            #       MESA_SHADER_CACHE_DISABLE=true MESA_LOADER_DRIVER_OVERRIDE=radeonsi LIBGL_ALWAYS_SOFTWARE= \
+            #       RADV_DEBUG=nocache RADV_PERFTEST= AMD_DEBUG= \
+            #       LP_DEBUG= LP_PERF= RUSTICL_DEBUG= \
             #       ACO_DEBUG= NIR_DEBUG= \
             #       dosomething
             ;;
