@@ -22,20 +22,23 @@ drivers_tuple=(
 ) # drivers tuple declare end
 
 function check_driver() {
-    local driver=$1
-    local driver_built_time=$(stat -c "%Y" "$driver")
-    if [[ ! -e $driver || $now_timestamps -ge $driver_built_time ]]; then
-        return 1
-    fi
+    local drivers_str=$1
+    IFS=':'; local drivers=($drivers_str); IFS="$old_ifs"
+    local delimiters=$(tr -dc ':'<<<"$drivers_str")
+    local cnt=${#delimiters}
+    for (( idx=0; idx<=cnt; idx++ )); do
+        local driver=${drivers[idx]}
+        ([[ ! -z "$driver" ]] && [[ -e "$driver" ]] && [[ $now_timestamps -lt $(stat -c "%Y" "$driver") ]]) || return 1
+    done
     return 0
 }
 
 declare -a test_infos=()
 for elem in ${drivers_tuple[@]}; do
     IFS=',' read vendor glapi testkits drivers <<< "${elem}"
-    for driver in $(tr ':' '\t' <<<"$drivers"); do
-        check_driver "$driver" || continue
-    done
+    check_driver "$drivers" || continue
     test_infos+=("$vendor,$glapi,$testkits")
 done
-tmux send-keys -t runner "bash $DOTFILES_ROOT_PATH/scripts/daily/gpu_test.sh '${test_infos[*]}'" ENTER
+
+cmd="bash $DOTFILES_ROOT_PATH/scripts/daily/gpu_test.sh '${test_infos[@]}'"
+tmux send-keys -t runner "$cmd" ENTER

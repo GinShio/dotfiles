@@ -202,6 +202,7 @@ for elem in ${test_infos[@]}; do
         *)
             ;;
     esac
+    mkdir -p $TEST_RESULT_DIR/$vendor
     for testkit in $(tr ':' '\t' <<<$testkits); do
         tarball_name=${testkit}-${glapi}_${GPU_DEVICE_ID}${SUFFIX}
         output_dir=$RUNNER_DIR/baseline/${vendor}_${testkit}-${glapi}${SUFFIX}
