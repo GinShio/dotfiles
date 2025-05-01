@@ -102,6 +102,7 @@ if [[ 0 -eq $skippull ]] && [ -d $sourcedir ]; then
     git -C $sourcedir fetch origin --prune && git -C $sourcedir merge --ff-only origin/$branch
 elif [[ 0 -eq $skippull ]]; then
     git clone --recursive $url $sourcedir
+    fish -c "set-git-urls --path=$sourcedir --contribute"
 else
     :
 fi
