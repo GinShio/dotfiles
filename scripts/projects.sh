@@ -36,25 +36,25 @@ case $project in
     alive2)
         url='https://github.com/AliveToolkit/alive2.git'
         branch=master
-        sourcedir=$HOME/Projects/$project
+        sourcedir=$HOME/Projects/compiler/$project
         builddir=$sourcedir/_build
         ;;
     deqp)
         url='https://github.com/KhronosGroup/VK-GL-CTS.git'
         branch=main
-        sourcedir=$HOME/Projects/$project
+        sourcedir=$HOME/Projects/khronos3d/$project
         builddir=$sourcedir/_build
         ;;
     iree)
         url='https://github.com/iree-org/iree.git'
         branch=main
-        sourcedir=$HOME/Projects/AI/$project
+        sourcedir=$HOME/Projects/compiler/$project
         builddir=$sourcedir/_build/_dbg
         ;;
     llvm)
         url='https://github.com/llvm/llvm-project.git'
         branch=main
-        sourcedir=$HOME/Projects/$project
+        sourcedir=$HOME/Projects/compiler/$project
         builddir=$sourcedir/_build/_dbg
         ;;
     mesa)
@@ -66,31 +66,31 @@ case $project in
     piglit)
         url='https://gitlab.freedesktop.org/mesa/piglit.git'
         branch=main
-        sourcedir=$HOME/Projects/$project
+        sourcedir=$HOME/Projects/khronos3d/$project
         builddir=$sourcedir/_build
         ;;
     runner)
         url='https://gitlab.freedesktop.org/mesa/deqp-runner.git'
         branch=main
-        sourcedir=$HOME/Projects/$project
+        sourcedir=$HOME/Projects/khronos3d/$project
         builddir=$sourcedir/_build
         ;;
     slang)
         url='https://github.com/shader-slang/slang.git'
         branch=master
-        sourcedir=$HOME/Projects/$project
+        sourcedir=$HOME/Projects/compiler/$project
         builddir=$sourcedir/_build
         ;;
     umr)
         url='https://gitlab.freedesktop.org/tomstdenis/umr.git'
         branch=main
-        sourcedir=$HOME/Projects/$project
+        sourcedir=$HOME/Projects/khronos3d/$project
         builddir=$sourcedir/_build
         ;;
     vkd3d)
         url='https://github.com/HansKristian-Work/vkd3d-proton.git'
         branch=master
-        sourcedir=$HOME/Projects/$project
+        sourcedir=$HOME/Projects/khronos3d/$project
         builddir=$sourcedir/_build/_rel
         ;;
     *)
@@ -140,9 +140,9 @@ if ! [ -e $builddir ]; then
     llvm_num_link=$(awk '/MemTotal/{targets = int($2 / (16 * 2^20)); print targets<1?1:targets}' /proc/meminfo)
     case $project in
         alive2)
-            ( export ALIVE2_HOME=$HOME/Projects; \
-              export LLVM2_HOME=$HOME/Projects/llvm; \
-              export LLVM2_BUILD=$HOME/Projects/llvm/_build/_dbg; \
+            ( export ALIVE2_HOME=$HOME/Projects/compiler; \
+              export LLVM2_HOME=$ALIVE2_HOME/llvm; \
+              export LLVM2_BUILD=$LLVM2_HOME/_build/_dbg; \
               cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DBUILD_TV=1 -DCMAKE_PREFIX_PATH=$LLVM2_BUILD; )
             ;;
         deqp)

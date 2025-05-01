@@ -20,3 +20,5 @@ for DV in ${DEVICE_VENDORS[@]}; do
             mkdir -p $BASELINE_DIR/\$NAME && tar --zstd -xf @ -C \$_;
         "
 done
+
+fish -c 'copy-graphics-testcase --deqp --piglit --tool'

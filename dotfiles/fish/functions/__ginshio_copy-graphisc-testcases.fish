@@ -1,9 +1,11 @@
 function copy-graphics-testcase
     argparse deqp piglit tool vkd3d -- $argv
     or return
-    set -fx PROJECT_DIR $HOME/Projects
+    set -fx PROJECT_DIR $HOME/Projects/khronos3d
     set -fx RUNNER_DIR $XDG_RUNTIME_DIR/runner
+
     if set -ql _flag_deqp
+        and test -e $PROJECT_DIR/deqp
         set -lx DEQP_SRCDIR $PROJECT_DIR/deqp
         set -lx DEQP_DSTDIR $RUNNER_DIR/deqp
         set -lx DEQP_EXCLUDE $DEQP_DSTDIR/vk-exclude.txt
@@ -29,6 +31,7 @@ wsi.txt" >$DEQP_EXCLUDE
     end
 
     if set -ql _flag_piglit
+        and test -e $PROJECT_DIR/piglit
         set -lx PIGLIT_SRCDIR $PROJECT_DIR/piglit
         set -lx PIGLIT_DSTDIR $RUNNER_DIR/piglit
         rsync -rR $PIGLIT_SRCDIR/_build/./bin $PIGLIT_DSTDIR
@@ -44,10 +47,12 @@ wsi.txt" >$DEQP_EXCLUDE
     end
 
     if set -ql _flag_tool
+        and test -e $PROJECT_DIR/runner
         rsync $PROJECT_DIR/runner/_build/release/{deqp,piglit}-runner $RUNNER_DIR
     end
 
     if set -ql _flag_vkd3d
+        and test -e $PROJECT_DIR/vkd3d
         set -lx VKD3D_SRCDIR $PROJECT_DIR/vkd3d
         set -lx VKD3D_DSTDIR $RUNNER_DIR/vkd3d
         rsync -f'- */' -f'- *.a' $VKD3D_SRCDIR/_build/_rel/tests/* $VKD3D_DSTDIR/bin
