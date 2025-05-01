@@ -17,21 +17,6 @@ skipbuild=${skipbuild:-0}
 C_COMPILER=clang
 CXX_COMPILER=clang++
 LINKER=mold
-CMAKE_OPTIONS=(
-  -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=$LINKER
-  -DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=$LINKER
-  -DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=$LINKER
-  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-  -DCMAKE_C_COMPILER_LAUNCHER=ccache
-  -DCMAKE_C_COMPILER=$C_COMPILER
-  -DCMAKE_C_FLAGS_INIT=$([[ "$C_COMPILER" = gcc ]] && echo "-fdiagnostics-color=always" || echo "-fcolor-diagnostics")
-  -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-  -DCMAKE_CXX_COMPILER=$CXX_COMPILER
-  -DCMAKE_CXX_FLAGS_INIT=$([[ "$CXX_COMPILER" = g++ ]] && echo "-fdiagnostics-color=always" || echo "-fcolor-diagnostics")
-  -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG=OFF
-  -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE=ON
-)
-
 case $project in
     alive2)
         declare -A project_info0=(
@@ -72,6 +57,28 @@ case $project in
             [sourcedir]=$HOME/Projects/$project
         )
         project_info0[builddir]=${project_info0[sourcedir]}/_build
+        ;;
+    ocl-cts)
+        C_COMPILER=gcc
+        CXX_COMPILER=g++
+        LINKER=gold
+        declare -A project_info0=(
+            [url]='https://github.com/KhronosGroup/OpenCL-Headers.git'
+            [branch]=main
+            [sourcedir]=$HOME/Projects/khronos3d/ocl-headers
+        )
+        declare -A project_info1=(
+            [url]='https://github.com/KhronosGroup/OpenCL-ICD-Loader.git'
+            [branch]=main
+            [sourcedir]=$HOME/Projects/khronos3d/ocl-icd
+        )
+        project_info1[builddir]=${project_info1[sourcedir]}/_build
+        declare -A project_info2=(
+            [url]='https://github.com/KhronosGroup/OpenCL-CTS.git'
+            [branch]=main
+            [sourcedir]=$HOME/Projects/khronos3d/$project
+        )
+        project_info2[builddir]=${project_info2[sourcedir]}/_build/_rel
         ;;
     piglit)
         declare -A project_info0=(
@@ -130,6 +137,20 @@ case $project in
         exit 0
         ;;
 esac
+CMAKE_OPTIONS=(
+  -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=$LINKER
+  -DCMAKE_SHARED_LINKER_FLAGS=-fuse-ld=$LINKER
+  -DCMAKE_MODULE_LINKER_FLAGS=-fuse-ld=$LINKER
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+  -DCMAKE_C_COMPILER_LAUNCHER=ccache
+  -DCMAKE_C_COMPILER=$C_COMPILER
+  -DCMAKE_C_FLAGS_INIT=$([[ "$C_COMPILER" = gcc ]] && echo "-fdiagnostics-color=always" || echo "-fcolor-diagnostics")
+  -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  -DCMAKE_CXX_COMPILER=$CXX_COMPILER
+  -DCMAKE_CXX_FLAGS_INIT=$([[ "$CXX_COMPILER" = g++ ]] && echo "-fdiagnostics-color=always" || echo "-fcolor-diagnostics")
+  -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_DEBUG=OFF
+  -DCMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE=ON
+)
 declare -n project_info
 
 for project_info in ${!project_info@}; do
@@ -148,7 +169,7 @@ for project_info in ${!project_info@}; do
         exit 1
     fi
 
-    if [ -z "$builddir" ]; then
+    if [ -z "$builddir" ] || [ ! -e $sourcedir ]; then
         continue
     fi
     pushd $sourcedir 2>&1 >/dev/null
@@ -157,7 +178,7 @@ for project_info in ${!project_info@}; do
             alive2|deqp|piglit|slang|spirv-tools|umr)
                 cmake --build $builddir --config Release
                 ;;
-            iree|llvm)
+            iree|llvm|ocl-cts)
                 cmake --build $builddir
                 ;;
             mesa)
@@ -238,6 +259,14 @@ for project_info in ${!project_info@}; do
                 #       LP_DEBUG= LP_PERF= RUSTICL_DEBUG= \
                 #       ACO_DEBUG= NIR_DEBUG= \
                 #       dosomething
+                ;;
+            ocl-cts)
+                if [ "$project" = $(basename $sourcedir) ]; then
+                    cmake -S$sourcedir -B$builddir -GNinja -DCMAKE_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" \
+                        -DCL_INCLUDE_DIR=$sourcedir/../ocl-headers -DCL_LIB_DIR=$sourcedir/../ocl-icd/_build -DOPENCL_LIBRARIES=OpenCL
+                else
+                    cmake -S$sourcedir -B$builddir -GNinja -DCMAKE_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DOPENCL_ICD_LOADER_HEADERS_DIR=$sourcedir/../ocl-headers
+                fi
                 ;;
             piglit)
                 cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}"
