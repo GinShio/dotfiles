@@ -133,6 +133,14 @@ case $project in
         )
         project_info0[builddir]=${project_info0[sourcedir]}/_build/_rel
         ;;
+    vulkan-samples)
+        declare -A project_info0=(
+            [url]='https://github.com/KhronosGroup/Vulkan-Samples.git'
+            [branch]=main
+            [sourcedir]=$HOME/Projects/khronos3d/$project
+        )
+        project_info0[builddir]=${project_info0[sourcedir]}/_build
+        ;;
     *)
         exit 0
         ;;
@@ -175,7 +183,7 @@ for project_info in ${!project_info@}; do
     pushd $sourcedir 2>&1 >/dev/null
     if [[ 0 -eq $skipbuild ]] && [ -d $builddir ]; then
         case $project in
-            alive2|deqp|piglit|slang|spirv-tools|umr)
+            alive2|deqp|piglit|slang|spirv-tools|umr|vulkan-samples)
                 cmake --build $builddir --config Release
                 ;;
             iree|llvm|ocl-cts)
@@ -287,6 +295,10 @@ for project_info in ${!project_info@}; do
                 CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
                     meson setup $sourcedir $builddir \
                     -Dbuildtype=release -Denable_tests=true -Denable_extras=false
+                ;;
+            vulkan-samples)
+                cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" \
+                    -DVKB_VALIDATION_LAYERS=ON -DVKB_WSI_SELECTION=WAYLAND
                 ;;
         esac
     fi
