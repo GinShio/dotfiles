@@ -34,6 +34,14 @@ case $project in
         )
         project_info0[builddir]=${project_info0[sourcedir]}/_build
         ;;
+    dxc)
+        declare -A project_info0=(
+            [url]='https://github.com/microsoft/DirectXShaderCompiler.git'
+            [branch]=main
+            [sourcedir]=$HOME/Projects/compiler/$project
+        )
+        project_info0[builddir]=${project_info0[sourcedir]}/_build
+        ;;
     iree)
         declare -A project_info0=(
             [url]='https://github.com/iree-org/iree.git'
@@ -183,7 +191,7 @@ for project_info in ${!project_info@}; do
     pushd $sourcedir 2>&1 >/dev/null
     if [[ 0 -eq $skipbuild ]] && [ -d $builddir ]; then
         case $project in
-            alive2|deqp|piglit|slang|spirv-tools|umr|vulkan-samples)
+            alive2|deqp|dxc|piglit|slang|spirv-tools|umr|vulkan-samples)
                 cmake --build $builddir --config Release
                 ;;
             iree|llvm|ocl-cts)
@@ -219,6 +227,11 @@ for project_info in ${!project_info@}; do
                 if [ 0 -eq $? ]; then
                     cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release -DCMAKE_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DDEQP_TARGET=default
                 fi
+                ;;
+            dxc)
+                cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release -DCMAKE_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" \
+                    -DENABLE_SPIRV_CODEGEN=ON -DSPIRV_BUILD_TESTS=ON -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_PARALLEL_LINK_JOBS:STRING=$llvm_num_link \
+                    -C$sourcedir/cmake/caches/PredefinedParams.cmake
                 ;;
             iree)
                 # if wants to use the trunk llvm, please use: CMAKE_PREFIX_PATH=$HOME/Projects/llvm/_build/_dbg/lib/cmake
