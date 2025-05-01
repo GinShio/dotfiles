@@ -97,6 +97,19 @@ case $project in
         )
         project_info0[builddir]=${project_info0[sourcedir]}/_build
         ;;
+    spirv-tools)
+        declare -A project_info0=(
+            [url]='https://github.com/KhronosGroup/SPIRV-Tools.git'
+            [branch]=main
+            [sourcedir]=$HOME/Projects/khronos3d/$project
+        )
+        project_info0[builddir]=${project_info0[sourcedir]}/_build
+        declare -A project_info1=(
+            [url]='https://github.com/KhronosGroup/SPIRV-Headers.git'
+            [branch]=main
+            [sourcedir]=${project_info0[sourcedir]}/external/spirv-headers
+        )
+        ;;
     umr)
         declare -A project_info0=(
             [url]='https://gitlab.freedesktop.org/tomstdenis/umr.git'
@@ -125,8 +138,7 @@ for project_info in ${!project_info@}; do
     if [[ 0 -eq $skippull ]] && [ -d $sourcedir ]; then
         git -C $sourcedir fetch origin --prune && git -C $sourcedir merge --ff-only origin/${project_info[branch]}
     elif [[ 0 -eq $skippull ]]; then
-        git clone --recursive ${project_info[url]} $sourcedir
-        fish -c "set-git-urls --path=$sourcedir --contribute"
+        git clone --recursive ${project_info[url]} $sourcedir && fish -c "set-git-urls --path=$sourcedir --contribute"
     else
         :
     fi
@@ -142,7 +154,7 @@ for project_info in ${!project_info@}; do
     pushd $sourcedir 2>&1 >/dev/null
     if [[ 0 -eq $skipbuild ]] && [ -d $builddir ]; then
         case $project in
-            alive2|deqp|piglit|slang|umr)
+            alive2|deqp|piglit|slang|spirv-tools|umr)
                 cmake --build $builddir --config Release
                 ;;
             iree|llvm)
@@ -235,6 +247,9 @@ for project_info in ${!project_info@}; do
                 ;;
             slang)
                 cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
+                ;;
+            spirv-tools)
+                cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DSPIRV_COLOR_TERMINAL=ON
                 ;;
             umr)
                 cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DUMR_NO_GUI=ON -DUMR_STATIC_EXECUTABLE=ON
