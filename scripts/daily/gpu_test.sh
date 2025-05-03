@@ -26,7 +26,7 @@ function get_repo_sha1() {
     if [ "$glapi" = "zink" ] || [ "$glapi" = "vkcl" ] || [ "$vendor" = "mesa" ] || [ "$vendor" = "swrast" ]
     then echo " + mesa: $(git -C $HOME/Projects/mesa rev-parse --short=11 HEAD)" >>git-sha1.txt
     fi
-    echo " + $testkit: $(git -C $HOME/Projects/$testkit rev-parse --short=11 HEAD)" >>git-sha1.txt
+    echo " + $testkit: $(git -C $HOME/Projects/khronos3d/$testkit rev-parse --short=11 HEAD)" >>git-sha1.txt
 }
 
 function test_kits_deqp() {
