@@ -109,7 +109,7 @@ update-desktop-database $HOME/.local/share/applications
 
 #bash $DOTFILES_ROOT_PATH/scripts/bringup/beautify.sh
 
-declare -a projects=(alive2 deqp llvm mesa runner spirv-tools piglit vkd3d)
-for project in ${projects[@]}; do
-    bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project $project --skipbuild
-done
+#declare -a projects=(alive2 deqp llvm mesa runner spirv-tools piglit vkd3d)
+#for project in ${projects[@]}; do
+#    bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project $project --skipbuild
+#done
