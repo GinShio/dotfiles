@@ -2,7 +2,7 @@
 
 source $(dirname ${BASH_SOURCE[0]})/common/common.sh
 
-args=`getopt -l "encrypt,decrypt,profile:,subproject:" -a -o "edp:S:" -- $@`
+args=`getopt -l "encrypt,decrypt,profile:,subproject:,file:" -a -o "edp:S:f:" -- $@`
 eval set -- $args
 while true ; do
     case "$1" in
@@ -10,6 +10,7 @@ while true ; do
         -d|--decrypt) method="decrypt"; regexp=".*\.ssl$"; shift;;
         -p|--profile) profile="$2"; shift 2;;
         -S|--subproject) subproject="$2"; shift 2;;
+        -f|--file) filename="$2"; shift 2;;
         --) shift ; break ;;
         *) echo "Internal error!" ; exit 1 ;;
     esac
@@ -54,4 +55,21 @@ if ! [ -z $subproject ]; then
 fi
 mkdir -p $outdir
 mkdir -p $indir
-secret_files_recursively $indir
+if ! [ -z "$filename" ]; then
+    declare -a fullpath_filenames=(
+        $filename
+        $profile/$filename
+        $profile/$subproject/$filename
+        $indir/$filename
+        $indir/$profile/$filename
+        $indir/$profile/$subproject/$filename
+    )
+    for correct_filename in ${fullpath_filenames[@]}; do
+        if ! [ -e $correct_filename ]; then continue; fi
+        relative_path=$(realpath $correct_filename --relative-to $indir)
+        encrypt_secret_file "$(dirname $relative_path)" "$(basename $relative_path)"
+        break
+    done
+else
+    secret_files_recursively $indir
+fi
