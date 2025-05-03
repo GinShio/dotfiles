@@ -18,6 +18,7 @@ config:
     - config.d/variables.yaml
     - config.d/variables_amdvlk.yaml
     - config.d/variables_ccache.yaml
+    - config.d/variables_git.yaml
     - config.d/variables_samba.yaml
   import_actions:
     - config.d/actions_samba.yaml

@@ -1,0 +1,5 @@
+dynvariables:
+  git_personal_username: "source {{@@ _dotdrop_workdir @@}}/config.d/env && eval echo $PERSONAL_USERNAME"
+  git_personal_email: "source {{@@ _dotdrop_workdir @@}}/config.d/env && eval echo $PERSONAL_EMAIL"
+  git_work_username: "source {{@@ _dotdrop_workdir @@}}/config.d/env && eval echo $WORK_USERNAME"
+  git_work_email: "source {{@@ _dotdrop_workdir @@}}/config.d/env && eval echo $WORK_EMAIL"

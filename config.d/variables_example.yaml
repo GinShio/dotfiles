@@ -1,7 +1,4 @@
 variables:
-  git:
-    user: "example"
-    email: "i@example.com"
   samba:
     username: "example"
     password: "examplePassword"

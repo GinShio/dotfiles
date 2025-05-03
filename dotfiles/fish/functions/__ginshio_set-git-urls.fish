@@ -6,7 +6,10 @@ function set-git-urls
     if not set -ql _flag_repo
         set -fx _flag_repo (basename $_flag_path)
     end
-    set -fx username (git config --get user.name)
+    set -fx username (git -C $_flag_path config get --local user.name)
+    if test -z "$username"
+        set -fx username (git config get user.name)
+    end
     if set -ql _flag_contribute
         git -C $_flag_path remote remove contribute >/dev/null 2>&1
         set -lx upstream_url (git -C $_flag_path remote get-url origin 2>/dev/null)

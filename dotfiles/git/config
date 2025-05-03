@@ -17,3 +17,4 @@
     path = config.d/global_urls.conf
     path = config.d/global_user.conf
     path = config.d/{{@@ profile @@}}_urls.conf
+    path = config.d/{{@@ profile @@}}_user.conf
