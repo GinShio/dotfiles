@@ -8,7 +8,7 @@ function set-git-urls
     end
     set -fx username (git -C $_flag_path config get --local user.name)
     if test -z "$username"
-        set -fx username (git config get user.name)
+        set -fx username (git -C $_flag_path config get user.name)
     end
     if set -ql _flag_contribute
         git -C $_flag_path remote remove contribute >/dev/null 2>&1
