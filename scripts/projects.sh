@@ -119,11 +119,6 @@ case $project in
             [sourcedir]=$HOME/Projects/khronos3d/$project
         )
         project_info0[builddir]=${project_info0[sourcedir]}/_build
-        declare -A project_info1=(
-            [url]='https://github.com/KhronosGroup/SPIRV-Headers.git'
-            [branch]=main
-            [sourcedir]=${project_info0[sourcedir]}/external/spirv-headers
-        )
         ;;
     umr)
         declare -A project_info0=(
@@ -185,16 +180,16 @@ for project_info in ${!project_info@}; do
         exit 1
     fi
 
-    if [ -z "$builddir" ] || [ ! -e $sourcedir ]; then
+    if [ -z "$builddir" ] || [ ! -e $sourcedir ] || [[ 0 -ne $skipbuild ]]; then
         continue
     fi
     pushd $sourcedir 2>&1 >/dev/null
-    if [[ 0 -eq $skipbuild ]] && [ -d $builddir ]; then
+    if [ -d $builddir ]; then
         case $project in
-            alive2|deqp|dxc|piglit|slang|spirv-tools|umr|vulkan-samples)
+            alive2|deqp|dxc|piglit|slang|umr|vulkan-samples)
                 cmake --build $builddir --config Release
                 ;;
-            iree|llvm|ocl-cts)
+            iree|llvm|ocl-cts|spirv-tools)
                 cmake --build $builddir
                 ;;
             mesa)
@@ -212,8 +207,7 @@ for project_info in ${!project_info@}; do
                 meson compile -C $builddir
                 ;;
         esac
-    else
-    if ! [ -e $builddir ]; then
+    elif ! [ -e $builddir ]; then
         llvm_num_link=$(awk '/MemTotal/{targets = int($2 / (16 * 2^20)); print targets<1?1:targets}' /proc/meminfo)
         case $project in
             alive2)
@@ -299,7 +293,10 @@ for project_info in ${!project_info@}; do
                 cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
                 ;;
             spirv-tools)
-                cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DSPIRV_COLOR_TERMINAL=ON
+                python3 utils/git-sync-deps --treeless
+                if [ 0 -eq $? ]; then
+                    cmake -S$sourcedir -B$builddir -GNinja -DCMAKE_BUILD_TYPE=Debug "${CMAKE_OPTIONS[@]}" -DSPIRV_COLOR_TERMINAL=ON -DSPIRV_BUILD_FUZZER=ON
+                fi
                 ;;
             umr)
                 cmake -S$sourcedir -B$builddir -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release "${CMAKE_OPTIONS[@]}" -DUMR_NO_GUI=ON -DUMR_STATIC_EXECUTABLE=ON
@@ -314,7 +311,6 @@ for project_info in ${!project_info@}; do
                     -DVKB_VALIDATION_LAYERS=ON -DVKB_WSI_SELECTION=WAYLAND
                 ;;
         esac
-    fi
     fi
     status=$?
     popd 2>&1 >/dev/null
