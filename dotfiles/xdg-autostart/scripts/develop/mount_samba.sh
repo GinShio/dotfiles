@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname ${BASH_SOURCE[0]})/../common/common.sh
+source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
 trap "sudo -k" EXIT
 
 sudo -Sv <<<$ROOT_PASSPHRASE
