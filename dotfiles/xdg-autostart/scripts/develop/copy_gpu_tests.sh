@@ -4,7 +4,7 @@ DATA_REGEXP='[1-9][0-9]{3}-(0[1-9]|1[0-2])-([1-2][0-9]|0[1-9]|3[0-1])'
 BASELINE_DIR=$XDG_RUNTIME_DIR/runner/baseline
 DEVICE_VENDORS=(llpc mesa)
 
-source source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
+source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
 if [ -z $TEST_RESULT_DIR ]
 then TEST_RESULT_DIR=$BASELINE_DIR
 fi
