@@ -10,13 +10,12 @@ if [ -e $HOME/Projects/amdvlk ] && [ -e $HOME/Projects/Builder ]; then
     fi
 fi
 
+source $(dirname ${BASH_SOURCE[0]})/../common/proxy.sh
+trap "source $(dirname ${BASH_SOURCE[0]})/../common/unproxy.sh" EXIT
 project_list=(mesa llvm)
 for project in ${project_list[@]}; do
-    source $(dirname ${BASH_SOURCE[0]})/../common/proxy.sh
     bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=$project --skipbuild
-    status=$?
-    source $(dirname ${BASH_SOURCE[0]})/../common/unproxy.sh
-    if [ $status -eq 0 ]; then
+    if [ $? -eq 0 ]; then
         bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=$project --skippull
     fi
 done
