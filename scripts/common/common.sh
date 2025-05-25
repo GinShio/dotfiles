@@ -5,6 +5,12 @@ get_dotfiles_path() {
     realpath $script_dir/../..
 }
 
+get_power_AC() {
+    local online=$(upower -d |awk '/power_AC/ {print $NF}' |xargs -I@ upower -i @ |awk '/online:/ {print $NF}')
+    echo $online
+}
+export -f get_power_AC
+
 export DOTFILES_ROOT_PATH=$(get_dotfiles_path)
 set -o allexport
 source $DOTFILES_ROOT_PATH/config.d/env

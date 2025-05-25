@@ -6,6 +6,7 @@ now_timestamps=${now_timestamps:-$(date +%s)}
 
 # Testing every 3 days
 [[ 0 -eq $(( 10#$(date +%j) % 3 )) ]] || exit 0
+[[ "yes" = $(get_power_AC) ]] || exit 0
 
 drivers_tuple=(
     # vendor,glapi,kits,driver
@@ -40,5 +41,6 @@ for elem in ${drivers_tuple[@]}; do
     test_infos+=("$vendor,$glapi,$testkits")
 done
 
-cmd="bash $DOTFILES_ROOT_PATH/scripts/daily/gpu_test.sh '${test_infos[@]}'"
+bash $DOTFILES_ROOT_PATH/scripts/common/amdgpu-profile.sh 'high'
+cmd="bash $DOTFILES_ROOT_PATH/scripts/daily/gpu_test.sh '${test_infos[@]}'; bash $DOTFILES_ROOT_PATH/scripts/common/amdgpu-profile.sh 'auto'"
 tmux send-keys -t runner "$cmd" ENTER
