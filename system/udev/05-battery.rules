@@ -1,2 +1,4 @@
+# Battery charging start 60%, NOTE that `asus-nb-wmi` doesn't support start_threshold
+SUBSYSTEM=="power_supply", ATTR{type}=="Battery", ATTR{charge_control_start_threshold}="60"
 # Battery charging limit to 80%
 SUBSYSTEM=="power_supply", ATTR{type}=="Battery", ATTR{charge_control_end_threshold}="80"
