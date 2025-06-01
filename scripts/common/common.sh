@@ -7,7 +7,11 @@ get_dotfiles_path() {
 
 get_power_AC() {
     local online=$(upower -d |awk '/power_AC/ {print $NF}' |xargs -I@ upower -i @ |awk '/online:/ {print $NF}')
-    echo $online
+    if [ -z "$online" ]; then
+        echo "yes"
+    else
+        echo $online
+    fi
 }
 export -f get_power_AC
 
