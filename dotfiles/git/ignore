@@ -2,6 +2,7 @@
 /_build/
 /_install/
 /compile_commands.json
+/.cache/
 
 # be found at https://github.com/github/gitignore/blob/main/Python.gitignore
 # Ignore Python - Byte-compiled / optimized / DLL files
