@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
 
+# git config --local hooks.clangformat.enabled 1
+ENABLE=$(git config --get hooks.clangformat.enabled)
+if [ -z $ENABLE ] || [ $ENABLE -eq 0 ]; then
+    exit
+fi
+find-program clang-format
+# git config --local hooks.clangformat.style llvm
+STYLE=$(git config --get hooks.clangformat.style)
+STYLEARG=""
+if [ -e $GIT_TOPLEVEL_DIR/.clang-format ]; then
+    :
+elif [ -n "${STYLE}" ] ; then
+    STYLEARG="-style=${STYLE}"
+else
+    exit
+fi
+
 function clang-format-formatting() {
-    # git config --local hooks.clangformat.enabled 1
-    local ENABLE=$(git config --get hooks.clangformat.enabled)
-    if [ -z $ENABLE ] || [ $ENABLE -eq 0 ]; then
-        return 0
-    fi
-    find-program clang-format
-    # git config --local hooks.clangformat.style llvm
-    local STYLE=$(git config --get hooks.clangformat.style)
-    local STYLEARG=""
-    if [ -e $GIT_TOPLEVEL_DIR/.clang-format ]; then
-        :
-    elif [ -n "${STYLE}" ] ; then
-        local STYLEARG="-style=${STYLE}"
-    else
-        return 0
-    fi
     local file="$1"
     case "${file##*.}" in
         c|h|inc)           ;& # C files
