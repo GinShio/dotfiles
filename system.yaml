@@ -24,6 +24,9 @@ dotfiles:
   d_sysctl:
     dst: /etc/sysctl.d/
     src: sysctl
+  d_systemd:
+    dst: /etc/systemd/system/
+    src: systemd/
   d_systemd-logind:
     dst: /etc/systemd/logind.conf.d/
     src: systemd-logind/

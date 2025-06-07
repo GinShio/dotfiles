@@ -31,9 +31,6 @@ done
 export SETUP_SWAPSIZE=${SETUP_SWAPSIZE:-$(echo $(( $(grep MemTotal /proc/meminfo |awk '{print $2}') / 1024 ** 2 * 2 )))}
 export SETUP_HOSTNAME=${SETUP_HOSTNAME:-$([[ $SETUP_WORKING -ne 0 ]] && echo "$WORK_ORGNAIZATION-")$USER-$(echo $DISTRO_NAME |awk '{ print $1 }')}
 
-set -o allexport
-source $DOTFILES_ROOT_PATH/config.d/env
-set +o allexport
 if [[ $SETUP_WORKING -ne 0 ]]; then
     export WORK_ORGNAIZATION=$(tr '[:upper:]' '[:lower:]' <<<$WORK_ORGNAIZATION)
 else
@@ -92,6 +89,7 @@ if ! [ -z $SETUP_HOSTNAME ]; then
 fi
 
 # Service
+sudo systemctl daemon-reload
 sudo systemctl enable --now libvirtd
 sudo virsh net-autostart default
 sudo systemctl enable --now podman
