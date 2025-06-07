@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source $(dirname ${BASH_SOURCE[0]})/../common/common.sh
+source {{@@ _dotdrop_workdir @@}}/common/common.sh
 if [ -z $TEST_RESULT_DIR ]
 then TEST_RESULT_DIR=$XDG_RUNTIME_DIR/runner/baseline
 fi

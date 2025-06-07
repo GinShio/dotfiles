@@ -112,9 +112,6 @@ dotfiles:
     src: wgetrc
     actions:
       - histfile-install
-  d_xdg-autostart:
-    dst: ~/.config/autostart/
-    src: xdg-autostart/
 profiles:
   personal:
     import:

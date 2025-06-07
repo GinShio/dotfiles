@@ -98,6 +98,10 @@ sudo systemctl enable --now podman
 sudo systemctl enable --now sshd.service
 sudo systemctl enable --now systemd-tmpfiles-clean
 
+systemctl enable --now nightly-script.timer
+systemctl enable --now emacs.service
+systemctl enable develop-autostart.service
+
 # Fish
 cd $(mktemp -d)
 curl -o fisher.fish -SL https://github.com/jorgebucaran/fisher/raw/main/functions/fisher.fish
