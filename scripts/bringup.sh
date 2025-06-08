@@ -28,8 +28,8 @@ while true; do
     esac
 done
 
-export SETUP_SWAPSIZE=${SETUP_SWAPSIZE:-$(echo $(( $(grep MemTotal /proc/meminfo |awk '{print $2}') / 1024 ** 2 * 2 )))}
-export SETUP_HOSTNAME=${SETUP_HOSTNAME:-$([[ $SETUP_WORKING -ne 0 ]] && echo "$WORK_ORGNAIZATION-")$USER-$(echo $DISTRO_NAME |awk '{ print $1 }')}
+export SETUP_SWAPSIZE=${SETUP_SWAPSIZE:-$(awk '/MemTotal/{print int($2 / 2^20 * 2)}' /proc/meminfo)}
+export SETUP_HOSTNAME=${SETUP_HOSTNAME:-$([[ $SETUP_WORKING -ne 0 ]] && echo "$WORK_ORGNAIZATION-")$USER-$(awk '{ print $1 }' <<<"$DISTRO_NAME")}
 
 if [[ $SETUP_WORKING -ne 0 ]]; then
     export WORK_ORGNAIZATION=$(tr '[:upper:]' '[:lower:]' <<<$WORK_ORGNAIZATION)

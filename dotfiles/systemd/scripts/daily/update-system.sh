@@ -6,6 +6,6 @@ source {{@@ _dotdrop_workdir @@}}/scripts/common/proxy.sh
 sudo -Sv <<<$ROOT_PASSPHRASE
 sudo -E zypper ref
 sudo -Sv <<<$ROOT_PASSPHRASE
-zypper lr |sed '1,4d' |awk '{print $3}' |grep 'openSUSE:' |xargs -I@ sudo -E zypper up -y --repo @
+zypper lr |awk 'NR > 4 && $3~/openSUSE:/ {print $3}' |xargs -I@ sudo -E zypper up -y --repo @
 sudo -Sv <<<$ROOT_PASSPHRASE
-sudo zypper up -y
+sudo zypper up -y --allow-vendor-change
