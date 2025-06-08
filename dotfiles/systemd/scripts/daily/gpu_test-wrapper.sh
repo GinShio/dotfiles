@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source {{@@ _dotdrop_workdir @@}}/common/common.sh
+source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
 now_timestamps=$1
 now_timestamps=${now_timestamps:-$(date +%s)}
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-source {{@@ _dotdrop_workdir @@}}/common/common.sh
+source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
 
 if [ -e $HOME/Projects/amdvlk ] && [ -e $HOME/Projects/Builder ]; then
     python3 $HOME/Projects/Builder/scripts/main.py --loglevel=info -pxgl monorepo
@@ -10,8 +10,8 @@ if [ -e $HOME/Projects/amdvlk ] && [ -e $HOME/Projects/Builder ]; then
     fi
 fi
 
-source {{@@ _dotdrop_workdir @@}}/common/proxy.sh
-trap "source {{@@ _dotdrop_workdir @@}}/common/unproxy.sh" EXIT
+source {{@@ _dotdrop_workdir @@}}/scripts/common/proxy.sh
+trap "source {{@@ _dotdrop_workdir @@}}/scripts/common/unproxy.sh" EXIT
 project_list=(mesa llvm)
 for project in ${project_list[@]}; do
     bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project=$project --skipbuild
