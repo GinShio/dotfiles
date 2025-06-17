@@ -12,7 +12,12 @@ declare_slang() {
 config_slang() {
     cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" \
         -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release \
-        -DSLANG_SLANG_LLVM_FLAVOR=DISABLE
+        -DSLANG_SLANG_LLVM_FLAVOR=DISABLE \
+        -DSLANG_ENABLE_CUDA=OFF \
+        -DSLANG_ENABLE_OPTIX=OFF \
+        -DSLANG_ENABLE_DX_ON_VK=OFF \
+        -DSLANG_ENABLE_DXIL=ON \
+        -DSLANG_USE_SYSTEM_LZ4=ON
     return $?
 }
 

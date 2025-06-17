@@ -13,7 +13,7 @@ config_deqp() {
     python3 external/fetch_sources.py
     if [ 0 -eq $? ]; then
         cmake -S$sourcedir -B$builddir "${CMAKE_OPTIONS[@]}" \
-            -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release \
+            -G"Ninja Multi-Config" -DCMAKE_DEFAULT_BUILD_TYPE=Release -DCMAKE_BUILD_TYPE=Release \
             -DDEQP_TARGET=default
     fi
     return $?
