@@ -42,5 +42,5 @@ for elem in ${drivers_tuple[@]}; do
 done
 
 bash $DOTFILES_ROOT_PATH/scripts/common/amdgpu-profile.sh 'high'
-cmd="bash $DOTFILES_ROOT_PATH/scripts/daily/gpu_test.sh '${test_infos[@]}'; bash $DOTFILES_ROOT_PATH/scripts/common/amdgpu-profile.sh 'auto'"
+cmd="bash {{@@ _dotfile_abs_dst @@}}/scripts/daily/gpu_test.sh '${test_infos[@]}'; bash $DOTFILES_ROOT_PATH/scripts/common/amdgpu-profile.sh 'auto'"
 tmux send-keys -t runner "$cmd" ENTER
