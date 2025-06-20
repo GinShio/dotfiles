@@ -15,7 +15,7 @@ config_mesa() {
         --libdir=lib --prefix $HOME/.local -Dbuildtype=release \
         -Dgallium-drivers=radeonsi,zink,llvmpipe \
         -Dvulkan-drivers=amd,swrast \
-        -Dgallium-rusticl=true
+        -Dgallium-rusticl=false
     local rel_status=$?
     if [ $rel_status -ne 0 ]; then return $rel_status; fi
     CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
@@ -23,7 +23,7 @@ config_mesa() {
         --libdir=lib --prefix $builddir/_dbg -Dbuildtype=debug \
         -Dgallium-drivers=radeonsi,zink,llvmpipe \
         -Dvulkan-drivers=amd,swrast \
-        -Dgallium-rusticl=true
+        -Dgallium-rusticl=false
     return $?
     # MESA_ROOT=$HOME/.local \
     #       LD_LIBRARY_PATH=$MESA_ROOT/lib LIBGL_DRIVERS_PATH=$MESA_ROOT/lib/dri \
@@ -38,6 +38,7 @@ config_mesa() {
 
 build_mesa() {
     meson compile -C $builddir/_rel && meson install -C $builddir/_rel
+    local rel_status=$?
     if [ $rel_status -ne 0 ]; then return $rel_status; fi
     meson compile -C $builddir/_dbg && meson install -C $builddir/_dbg
     return $?
