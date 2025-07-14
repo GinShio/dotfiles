@@ -307,14 +307,14 @@ syntax              ; tasing you for every semicolon you forget
 ;;ansible
 biblio              ; Writes a PhD for you (citation needed)
 ;;collab            ; buffers with friends
-(debugger +lsp)     ; FIXME stepping through code, to help you add bugs
+;;(debugger +lsp)   ; FIXME stepping through code, to help you add bugs
 ;;direnv
 ;;docker
 editorconfig        ; let someone else argue about tabs vs spaces
 ;;ein               ; tame Jupyter notebooks with emacs
 (eval +overlay)     ; run code, run (also, repls)
 lookup              ; helps you navigate your code and documentation
-(lsp +peek)         ; M-x vscode
+(lsp +eglot +peek)  ; M-x vscode
 (magit              ; a git porcelain for Emacs
  +forge)            ; interface with git forges
 make                ; run make tasks from Emacs
@@ -960,26 +960,10 @@ cargo install git-delta
 悉配置、操作的问题。
 
 #+begin_src emacs-lisp
-(after! lsp-ui
-  (setq lsp-ui-sideline-enable t
-        lsp-ui-sideline-show-diagnostics t
-        lsp-ui-sideline-show-hover nil
-        lsp-ui-sideline-show-code-actions t
-        lsp-ui-sideline-update-mode 'line
-
-        lsp-ui-peek-enable t
-        lsp-ui-peek-always-show t
-
-        lsp-ui-doc-enable t
-        lsp-ui-doc-use-childframe t
-        lsp-ui-doc-position 'at-point
-        lsp-ui-doc-delay 0.5
-        ))
-#+end_src
-
-由于使用 tree-sitter 进行上色，那我们就不再需要 lsp 进行代码上色了
-#+begin_src emacs-lisp
-(setq! lsp-enable-semantic-highlighting t)
+;(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
+(after! eglot
+  (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
+  )
 #+end_src
 
 *** Tree sitter
