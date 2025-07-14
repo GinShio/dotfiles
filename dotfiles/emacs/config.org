@@ -247,7 +247,7 @@ ophints             ; highlight the region an operation acts on
 ;; +all             ; catch all popups that start with an asterix
 ;; +defaults)       ; default popup rules
 ;;tabs              ; a tab bar for Emacs
-treemacs            ; a project drawer, like neotree but cooler
+;;treemacs          ; a project drawer, like neotree but cooler
 ;;unicode           ; extended unicode support for various languages
 (vc-gutter +pretty) ; vcs diff in the fringe
 vi-tilde-fringe     ; fringe tildes to mark beyond EOB
@@ -1263,34 +1263,6 @@ Theme Magic 提供了一个数字界面，尝试从饱和度、色彩差异来�
   (when-let ((matlab-icon (assoc "matlab" nerd-icons-extension-icon-alist)))
     (setcdr (assoc "m" nerd-icons-extension-icon-alist)
             (cdr matlab-icon))))
-#+end_src
-
-*** Treemacs
-
-#+begin_comment
-来自 =:ui treemacs= 模块
-#+end_comment
-
-开启 =git-mode=​、​=follow-mode= 和 =indent-guide-mode=​，体验还是不错
-#+begin_src emacs-lisp
-(after! treemacs
-  (setq! doom-themes-treemacs-theme               "doom-colors"
-         treemacs-deferred-git-apply-delay        0.5
-         treemacs-directory-name-transformer      #'identity
-         treemacs-display-in-side-window          t
-         treemacs-file-event-delay                1000
-         treemacs-file-follow-delay               0.1
-         treemacs-file-name-transformer           #'identity
-         treemacs-hide-dot-git-directory          t
-         treemacs-indent-guide-style              'block
-         treemacs-show-hidden-files               t)
-  (treemacs-indent-guide-mode t)
-  (treemacs-follow-mode t)
-  (treemacs-filewatch-mode t)
-  (treemacs-fringe-indicator-mode 'always)
-  (treemacs-git-mode 'deferred)
-  (treemacs-hide-gitignored-files-mode t)
-  )
 #+end_src
 
 *** hl todo
