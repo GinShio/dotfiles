@@ -251,7 +251,8 @@ treemacs            ; a project drawer, like neotree but cooler
 ;;unicode           ; extended unicode support for various languages
 (vc-gutter +pretty) ; vcs diff in the fringe
 vi-tilde-fringe     ; fringe tildes to mark beyond EOB
-;;window-selec      ; visually switch windows
+(window-select      ; visually switch windows
+ +numbers)          ; Enable numbered windows and window selection
 workspaces          ; tab emulation, persistence & separate workspaces
 ;; zen              ; distraction-free coding or writing
   #+end_src
@@ -276,7 +277,8 @@ snippets            ; my elves. They type so I don't have to
 - Emacs :: 增强一下吧，不然真的是笔记本了 (其实不是
   #+name: doom-emacs
   #+begin_src emacs-lisp
-(dired +icons)      ; making dired pretty [functional]
+(dired              ; making dired pretty [functional]
+ +icons)
 electric            ; smarter, keyword-based electric-indent
 ;;eww               ; the internet is gross
 (ibuffer +icons)    ; interactive buffer management
@@ -313,14 +315,14 @@ biblio              ; Writes a PhD for you (citation needed)
 editorconfig        ; let someone else argue about tabs vs spaces
 ;;ein               ; tame Jupyter notebooks with emacs
 (eval +overlay)     ; run code, run (also, repls)
+;;llm               ; when I said you needed friends, I didn't mean...
 lookup              ; helps you navigate your code and documentation
-(lsp +eglot +peek)  ; M-x vscode
+(lsp +eglot)        ; M-x vscode
 (magit              ; a git porcelain for Emacs
  +forge)            ; interface with git forges
 make                ; run make tasks from Emacs
 ;;pass              ; password manager for nerds
 ;;pdf               ; pdf enhancements
-;;prodigy           ; FIXME managing external services & code builders
 ;;terraform         ; infrastructure as code
 ;;tmux              ; an API for interacting with tmux
 tree-sitter         ; syntax and parsing, sitting in a tree...
@@ -370,12 +372,12 @@ emacs-lisp            ; drown in parentheses
 ;;hy                  ; readability of scheme w/ speed of python
 ;;idris               ; a language you can depend on
 ;;json                ; At least it ain't XML
+;;janet               ; Fun fact: Janet is me!
 ;;(java +lsp)         ; the poster child for carpal tunnel syndrome
 ;;(javascript +lsp)   ; all(hope(abandon(ye(who(enter(here))))))
 ;;julia               ; a better, faster MATLAB
 ;;kotlin              ; a better, slicker Java(Script)
 (latex                ; writing papers in Emacs has never been so fun
- +latexmk             ; what else would you use?
  +cdlatex             ; quick maths symbols
  +fold)               ; fold the clutter away nicities
 ;;lean                ; for folks with too much to prove
@@ -386,6 +388,7 @@ markdown              ; writing docs for people to ignore
 ;;nix                 ; I hereby declare "nix geht mehr!"
 ;;ocaml               ; an objective camel
 (org                  ; organize your plain life in plain text
+ +crypt               ;
  +dragndrop           ; drag & drop files/images into org buffers
  +hugo                ; use Emacs for hugo blogging
  +pandoc)             ; export-with-pandoc support
@@ -486,9 +489,11 @@ Unicode 字体为什么不试试 'JuliaMono' 呢？
 
 当然你不喜欢这样，可以直接指定一款。另外，你可以采用快捷键 =C-h t= 来预览并选择
 各个主题（当然是一次性的）。
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (setq doom-theme 'doom-vibrant)
 #+end_src
+
+Timothy 有一个相当有趣的做法，根据系统主题选择对应的主题。当然，从环境变量 =DOOM_THEME= 中去读也是相当棒的。
 
 设置一下 modeline，比如说图标、文件名称以及彩虹猫 (Nyan cat)！
 #+begin_src emacs-lisp
@@ -960,10 +965,10 @@ cargo install git-delta
 悉配置、操作的问题。
 
 #+begin_src emacs-lisp
-;(add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
 (after! eglot
-  (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1)))
-  )
+  (setq! eglot-code-action-indications nil
+         eglot-autoshutdown t)
+  (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1))))
 #+end_src
 
 *** Tree sitter
@@ -1034,6 +1039,12 @@ VTerm 的安装相对麻烦一些，需要编译一些依赖。当然对于 Unix
 #+begin_comment
 来自 =:editor snippets= 模块
 #+end_comment
+
+关掉 doomemacs 自带的模板。
+
+#+begin_src emacs-lisp :tangle packages.el
+(package! doom-snippets :ignore t)
+#+end_src
 
 snippets 套娃谁用谁知道！
 #+begin_src emacs-lisp
@@ -1249,8 +1260,9 @@ Theme Magic 提供了一个数字界面，尝试从饱和度、色彩差异来�
 
 #+begin_src emacs-lisp :tangle no
 (after! nerd-icons
-  (setcdr (assoc "m" nerd-icons-extension-icon-alist)
-          (cdr (assoc "matlab" nerd-icons-extension-icon-alist))))
+  (when-let ((matlab-icon (assoc "matlab" nerd-icons-extension-icon-alist)))
+    (setcdr (assoc "m" nerd-icons-extension-icon-alist)
+            (cdr matlab-icon))))
 #+end_src
 
 *** Treemacs
