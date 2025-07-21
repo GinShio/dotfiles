@@ -965,10 +965,33 @@ cargo install git-delta
 悉配置、操作的问题。
 
 #+begin_src emacs-lisp
-(after! eglot
+(use-package! eglot
+  :init
   (setq! eglot-code-action-indications nil
-         eglot-autoshutdown t)
-  (add-hook 'eglot-managed-mode-hook (lambda () (eglot-inlay-hints-mode -1))))
+         eglot-autoshutdown t
+         ; Performance issue: https://github.com/joaotavora/eglot/discussions/993
+         eldoc-idle-delay 0.75
+         company-idle-delay 0.75
+         flymake-no-changes-timeout 0.5
+         ; Copy from https://andreyor.st/posts/2023-09-09-migrating-from-lsp-mode-to-eglot/
+         eglot-ignored-server-capabilities '(:colorProvider
+                                             :documentFormattingProvider
+                                             :documentLinkProvider
+                                             :documentOnTypeFormattingProvider
+                                             :documentRangeFormattingProvider
+                                             :foldingRangeProvider
+                                             :inlayHintProvider)
+         eglot-stay-out-of '(yasnippet)
+         eglot-events-buffer-size 0
+         eglot-extend-to-xref nil)
+  :config
+  (add-hook 'eglot-managed-mode-hook (lambda () (setq-local eldoc-documentation-strategy
+                                                            #'eldoc-documentation-compose)))
+  (advice-add 'jsonrpc--log-event :override #'ignore)
+  (add-to-list 'eglot-server-programs
+               '((cc-mode c++-mode c-mode) . ("clangd" "-j=2" "--clang-tidy" "--header-insertion=never" "--header-insertion-decorators=0")))
+  :hook
+  ((cc-mode c++-mode c-mode) . eglot-ensure))
 #+end_src
 
 *** Tree sitter
@@ -1039,12 +1062,6 @@ VTerm 的安装相对麻烦一些，需要编译一些依赖。当然对于 Unix
 #+begin_comment
 来自 =:editor snippets= 模块
 #+end_comment
-
-关掉 doomemacs 自带的模板。
-
-#+begin_src emacs-lisp :tangle packages.el
-(package! doom-snippets :ignore t)
-#+end_src
 
 snippets 套娃谁用谁知道！
 #+begin_src emacs-lisp
@@ -3966,7 +3983,7 @@ tcc 也是 C++
   ;;; Keep the current line in sync with the point and in the center of the
   ;;; buffer. Otherwise the current line may disappear from the buffer as you step
   ;;; into the code. I don't know why this is not the default.
-  (defadvice gud-display-line (after gud-display-line-centered activate)
+  (advice-add gud-display-line (after gud-display-line-centered activate)
     "Center the current line in the source code window"
     (when (and gud-overlay-arrow-position gdb-source-window)
       (with-selected-window gdb-source-window
