@@ -9,6 +9,7 @@ sudo zypper ar -fcg osb://Virtualization openSUSE:Virtualization
 sudo zypper ar -fcg https://download.opensuse.org/repositories/devel:/tools:/compiler/openSUSE_Factory openSUSE:compiler
 #sudo zypper ar -fcg https://download.opensuse.org/repositories/server:/messaging/openSUSE_Factory openSUSE:messaging
 #sudo zypper ar -fcg https://download.opensuse.org/repositories/utilities/openSUSE_Factory openSUSE:Utilities
+sudo zypper ar -fcg obs://science:GPU:ROCm openSUSE:ROCm
 sudo -E zypper ref
 sudo zypper remove -u valkey mariadb mariadb-client akonadi
 sudo -E zypper al cmake-gui git-gui akonadi
@@ -18,9 +19,9 @@ sudo -E zypper dup -y --allow-vendor-change
 sudo -E zypper in -y -t pattern devel_basis
 sudo -E zypper in -y \
     7zip aspell bat bison chrpath cifs-utils cpuinfo{,-devel} curl dash dwarves emacs fd figlet fish flatpak{,-spawn} \
-    flex fzf git{,-doc,-lfs} graphviz hugo ImageMagick inkscape libxslt-tools moreutils Mozilla{Firefox,Thunderbird} \
-    mpv neowofetch obs-studio osdlyrics pandoc-cli patchelf phoronix-test-suite privoxy proxychains-ng qbittorrent re2c \
-    ripgrep sqlite3 sshpass steam tmux tree-sitter unzip wget xmlto zip zstd
+    flex fzf git{,-doc,-delta,-lfs} graphviz hugo ImageMagick inkscape libxslt-tools moreutils \
+    Mozilla{Firefox,Thunderbird} mpv neowofetch obs-studio osdlyrics pandoc-cli patchelf phoronix-test-suite privoxy \
+    proxychains-ng qbittorrent re2c ripgrep sqlite3 sshpass steam tmux tree-sitter unzip wget xmlto zip zstd
 
 # C++ environment
 sudo -E zypper in -y -t pattern devel_C_C++
@@ -52,7 +53,7 @@ sudo -E zypper in -y cargo rust rust-bindgen tree-sitter-rust
 sudo -E zypper in -y ghc{,-doc,-manual,-prof} tree-sitter-haskell
 sudo -E zypper in -y zig zig-libs zls tree-sitter-zig
 
-# Graphics
+# GPGPU
 sudo -E zypper in -y -t pattern devel_vulkan
 sudo -E zypper in -y \
     cairo-devel{,-32bit} freeglut-devel{,-32bit} libclc libdmx-devel libdrm-devel{,-32bit} libfontenc-devel{,-32bit} \
@@ -75,6 +76,10 @@ sudo -E zypper in -y \
     Mesa-vulkan-device-select{,-32bit} Mesa-vulkan-overlay{,-32bit} ocl-icd-devel opencl-headers piglit shaderc \
     spirv-{cross,tools} spirv-tools-devel{,-32bit} tree-sitter-{glsl,hlsl} vulkan-{tools,devel}{,-32bit} \
     vulkan-{utility-libraries,volk}-devel
+sudo -E zypper in -y amdsmi hipcc 'libhip*' 'librocalution*-devel' 'librocblas*-devel' 'librocfft*-devel' \
+    'librocm-core*-devel' rocm-clang rocm-clang-devel rocm-clang-libs rocm-clang-runtime-devel rocm-cmake \
+    rocm-compilersupport-macros rocm-device-libs rocm-hip{,-devel} rocminfo rocm-libc++-devel rocm-lld rocm-llvm \
+    rocm-llvm-devel rocm-llvm-libs rocm-llvm-static rocm-smi roctracer
 
 # kDE environment
 #sudo -E zypper in -y libplasma6-devel
