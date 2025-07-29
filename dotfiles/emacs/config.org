@@ -63,7 +63,7 @@ source /etc/os-release
        gc-cons-threshold 1073741824
        read-process-output-max 1048576
        which-func-unknown ""
-       auth-sources `(,(expand-file-name "doom/.authinfo" (getenv "XDG_CONFIG_HOME")))
+       auth-sources `(,(expand-file-name "git/.authinfo" (getenv "XDG_CONFIG_HOME")))
        )
 
 (remove-hook! text-mode #'visual-line-mode)
