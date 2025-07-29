@@ -4,7 +4,7 @@ declare_dxc() {
     project_info0=(
         [url]='https://github.com/microsoft/DirectXShaderCompiler.git'
         [branch]=main
-        [sourcedir]=$HOME/Projects/compiler/$project
+        [sourcedir]=$HOME/Projects/khronos3d/$project
     )
     project_info0[builddir]=${project_info0[sourcedir]}/_build
 }
