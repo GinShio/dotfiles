@@ -11,17 +11,18 @@ sudo zypper ar -fcg https://download.opensuse.org/repositories/devel:/tools:/com
 #sudo zypper ar -fcg https://download.opensuse.org/repositories/utilities/openSUSE_Factory openSUSE:Utilities
 sudo zypper ar -fcg obs://science:GPU:ROCm openSUSE:ROCm
 sudo -E zypper ref
-sudo zypper remove -u valkey mariadb mariadb-client akonadi
-sudo -E zypper al cmake-gui git-gui akonadi
+sudo zypper remove -u valkey mariadb mariadb-client akonadi gitk
+sudo -E zypper al cmake-gui git-gui akonadi gitk
 sudo -E zypper dup -y --allow-vendor-change
 
 # Common environment
 sudo -E zypper in -y -t pattern devel_basis
 sudo -E zypper in -y \
     7zip aspell bat bison chrpath cifs-utils cpuinfo{,-devel} curl dash dwarves emacs fd figlet fish flatpak{,-spawn} \
-    flex fzf git{,-doc,-delta,-lfs} graphviz hugo ImageMagick inkscape libxslt-tools moreutils \
-    Mozilla{Firefox,Thunderbird} mpv neowofetch obs-studio osdlyrics pandoc-cli patchelf phoronix-test-suite privoxy \
-    proxychains-ng qbittorrent re2c ripgrep sqlite3 sshpass steam tmux tree-sitter unzip wget xmlto zip zstd
+    flex fzf graphviz hugo ImageMagick inkscape libxslt-tools moreutils Mozilla{Firefox,Thunderbird} mpv neowofetch \
+    obs-studio osdlyrics pandoc-cli patchelf phoronix-test-suite privoxy proxychains-ng qbittorrent re2c ripgrep \
+    sqlite3 sshpass steam tmux tree-sitter unzip wget xmlto zip zstd
+sudo -E zypper in -y git git-doc git-delta git-lfs
 
 # C++ environment
 sudo -E zypper in -y -t pattern devel_C_C++
