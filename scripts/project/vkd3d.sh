@@ -10,7 +10,7 @@ declare_vkd3d() {
 }
 
 config_vkd3d() {
-    CC="ccache $C_COMPILER" CXX="ccache $CXX_COMPILER" LDFLAGS="-fuse-ld=$LINKER" \
+    CC="ccache $C_COMPILER" CC_LD=$LINKER CXX="ccache $CXX_COMPILER" CXX_LD=$LINKER \
         meson setup $sourcedir $builddir -Dbuildtype=release \
         -Denable_tests=true \
         -Denable_extras=false
