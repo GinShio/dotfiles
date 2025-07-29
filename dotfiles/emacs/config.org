@@ -63,6 +63,7 @@ source /etc/os-release
        gc-cons-threshold 1073741824
        read-process-output-max 1048576
        which-func-unknown ""
+       auth-sources `(,(expand-file-name "doom/.authinfo" (getenv "XDG_CONFIG_HOME")))
        )
 
 (remove-hook! text-mode #'visual-line-mode)
@@ -100,16 +101,6 @@ source /etc/os-release
 #+begin_src emacs-lisp
 (setq-default custom-file (expand-file-name ".custom.el" doom-user-dir))
 (when (file-exists-p custom-file) (load custom-file))
-#+end_src
-
-设置一个方便的在 window 之间进行切换的快捷键，我选择与 kDE 的 konsole 保持一致。
-#+begin_src emacs-lisp
-(map! :map override-global-map
-      "C-S-<left>"   #'windmove-left
-      "C-S-<down>"   #'windmove-down
-      "C-S-<up>"     #'windmove-up
-      "C-S-<right>"  #'windmove-right
-      )
 #+end_src
 
 ** Doom 配置
@@ -682,10 +673,6 @@ noweb =<<replacement>>= 表单，但该表单无法使用字符串转义。
 
 There we go, that's all it takes! This can be used via the form =<<grab("block-name")>>=.
 
-*** 守护进程
-
-守护进程是个好东西，但我不太会用，不过 [[https://www.emacswiki.org/emacs/EmacsAsDaemon][EmacsWiki]] 中还是列出了各种方法
-
 
 
 * 包
@@ -866,39 +853,56 @@ see: https://www.emacswiki.org/emacs/DiredOmitMode"
 
 这应该是 Emacs 的杀手应用之一了，感谢 [[https://github.com/tarsius][Jonas]] 及其他贡献者。
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb no-export :tangle yes :noweb-prefix no :noweb-ref nil
 (after! magit
-  <<magit-tweaks>>)
+  <<magit-tweaks>>
+  )
 #+end_src
 
 **** Delta
 
 [[https://github.com/dandavison/delta/][Delta]] 是用 rust 实现的 git diff 语法高亮的工具。该作者还将其挂接到了 magit 的
 diff 视图上 (默认不会有语法高亮)。不过这需要 =delta= 二进制文件，在 cargo 安装
-显得简单些，不过你也可以选择 [[https://github.com/dandavison/delta/releases/latest][GitHub Release]]。
+显得简单些，不过你也可以选择 [[https://github.com/dandavison/delta/releases/latest][GitHub Release]]。当然，我在用 openSUSE tumbleweed，
+可以从软件源中下载
 
 #+begin_src shell :tangle no
 cargo install git-delta
+sudo zypper install git-delta
 #+end_src
 
 简单地配置它就行
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp :noweb-ref none :tangle packages.el
 (package! magit-delta :recipe (:host github :repo "dandavison/magit-delta"))
 #+end_src
 
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 (use-package! magit-delta
   :after magit
   :hook (magit-mode . magit-delta-mode))
 #+end_src
 
-但是它现在似乎不太好用。
+**** Code Review
+
+Github / Gitlab 上去还是有点麻烦了，在本地直接访问、操作还是很不错的。Magit 提供
+了 forge 来实现在 emacs 中 code review！
+
+#+begin_src emacs-lisp :noweb-ref none :tangle packages.el
+(package! forge :recipe (:host github :repo "magit/forge"))
+#+end_src
+
+#+begin_src emacs-lisp
+(use-package! forge
+  :after magit)
+#+end_src
 
 **** 冲突
 
-在 Emacs 中处理冲突也是不错的体验，或许可以尝试自己制造一点
+在 Emacs 中处理冲突也是不错的体验，或许可以尝试自己制造一点。当然，ediff 相当好
+用。
+emmm... 之前为什么要用 smerge 来着。应该是不想离开 emacs 环境。
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 (defun smerge-repeatedly ()
   "Perform smerge actions again and again"
   (interactive)
