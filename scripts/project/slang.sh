@@ -4,7 +4,7 @@ declare_slang() {
     project_info0=(
         [url]='https://github.com/shader-slang/slang.git'
         [branch]=master
-        [sourcedir]=$HOME/Projects/compiler/$project
+        [sourcedir]=$HOME/Projects/khronos3d/$project
     )
     project_info0[builddir]=${project_info0[sourcedir]}/_build
 }
@@ -16,8 +16,7 @@ config_slang() {
         -DSLANG_ENABLE_CUDA=OFF \
         -DSLANG_ENABLE_OPTIX=OFF \
         -DSLANG_ENABLE_DX_ON_VK=OFF \
-        -DSLANG_ENABLE_DXIL=ON \
-        -DSLANG_USE_SYSTEM_LZ4=ON
+        -DSLANG_ENABLE_DXIL=ON
     return $?
 }
 
