@@ -10,7 +10,7 @@ if [[ $ENABLE -ne 0 ]]; then
 fi
 
 find-program perl
-commands=(encoding.pl format.sh)
+commands=(encoding.pl format.sh crypt.sh)
 for subcommand in ${commands[@]}; do
     "$GIT_COMMON_DIR/hooks/pre-commit.d/$subcommand"
     check-result $?
