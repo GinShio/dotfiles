@@ -1,2 +1,3 @@
 keys/**/* filter=crypt diff=crypt merge=crypt
 secret/personal/**/* filter=crypt diff=crypt merge=crypt
+secret/khronos3d/**/* filter=crypt-khronos3d diff=crypt-khronos3d merge=crypt-khronos3d
