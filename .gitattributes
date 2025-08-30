@@ -1,1 +1,2 @@
 keys/**/* filter=crypt diff=crypt merge=crypt
+secret/personal/**/* filter=crypt diff=crypt merge=crypt
