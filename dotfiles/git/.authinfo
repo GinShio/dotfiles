@@ -1,7 +1,0 @@
-{%@@ if profile == "personal" @@%}
-{%@@ include _dotdrop_workdir + '/secret_plain/personal/emacs/magit-forge.authinfo.txt' @@%}
-{%@@ endif @@%}
-
-{%@@ if profile == "khronos3d" @@%}
-{%@@ include _dotdrop_workdir + '/secret_plain/khronos3d/emacs/magit-forge.authinfo.txt' @@%}
-{%@@ endif @@%}
