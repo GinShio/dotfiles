@@ -29,7 +29,8 @@ sudo -E zypper in -y -t pattern devel_C_C++
 sudo -E zypper in -y \
     binutils-gold gcc{,-32bit} gcc-c++{,-32bit} gcc-info gcovr gdb \
     clang{,-doc,-extract,-tools,-devel} llvm{,-doc,-opt-viewer,-devel} lldb lld \
-    ccache cmake conan doxygen imake kf6-extra-cmake-modules lcov meson mold ninja tree-sitter-c{,pp}
+    ccache cmake conan doxygen imake include-what-you-use kf6-extra-cmake-modules lcov meson mold ninja \
+    tree-sitter-c{,pp}
 sudo -E zypper in -y \
     cli11-devel eigen3-{devel,doc} 'libboost_*-devel' libc++{,abi}-devel libcaca-devel libelf-devel{,-32bit} \
     libexpat-devel{,-32bit} libopenssl-devel{,-32bit} libpciaccess-devel libstdc++-devel{,-32bit} libunwind-devel \
