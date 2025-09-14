@@ -41,6 +41,5 @@ for elem in ${drivers_tuple[@]}; do
     test_infos+=("$vendor,$glapi,$testkits")
 done
 
-bash $DOTFILES_ROOT_PATH/scripts/common/amdgpu-profile.sh 'high'
-cmd="bash {{@@ _dotfile_abs_dst @@}}/scripts/daily/gpu_test.sh '${test_infos[@]}'; bash $DOTFILES_ROOT_PATH/scripts/common/amdgpu-profile.sh 'auto'"
+cmd="bash {{@@ _dotfile_abs_dst @@}}/scripts/daily/gpu_test.sh '${test_infos[@]}'"
 tmux send-keys -t runner "$cmd" ENTER
