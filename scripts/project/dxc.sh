@@ -15,7 +15,6 @@ config_dxc() {
         -C$sourcedir/cmake/caches/PredefinedParams.cmake \
         -DENABLE_SPIRV_CODEGEN=ON \
         -DSPIRV_BUILD_TESTS=ON \
-        -DLLVM_OPTIMIZED_TABLEGEN=ON \
         -DLLVM_PARALLEL_LINK_JOBS:STRING=$llvm_num_link
     return $?
 }
