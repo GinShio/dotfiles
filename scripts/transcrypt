@@ -39,6 +39,10 @@ GREP_OPTIONS=""
 # the release version of this script
 readonly VERSION='3.0.0-pre'
 
+# Requires OpenSSL 3.0 or newer for deterministic salt handling.
+
+readonly YES_REGEX='^[Yy]$'
+
 # the default cipher to utilize
 readonly DEFAULT_CIPHER='aes-256-cbc'
 readonly DEFAULT_DIGEST='sha256'
@@ -194,22 +198,16 @@ _openssl_decrypt()
 }
 
 _openssl_list(){
-    # Args: the openssl commands to list
-    __doc__='
-        source ~/code/transcrypt/bash_helpers.sh
-        arg=digest-commands
-        _openssl_list digest-commands
-        _openssl_list cipher-commands
-    '
-    openssl_path=openssl
-    arg=$1
-	if "${openssl_path}  list-$arg" &>/dev/null; then
-		# OpenSSL < v1.1.0
-		"${openssl_path}" "list-$arg"
-	else
-		# OpenSSL >= v1.1.0
-		"${openssl_path}" "list" "-$arg"
-	fi
+	# Args: the openssl commands to list
+	__doc__='
+		source ~/code/transcrypt/bash_helpers.sh
+		arg=digest-commands
+		_openssl_list digest-commands
+		_openssl_list cipher-commands
+	'
+	local arg=$1
+	local bin=${openssl_path:-openssl}
+	"$bin" list "-$arg"
 }
 
 
@@ -449,6 +447,34 @@ _load_config_var(){
 	fi
 }
 
+prompt_yes_no() {
+	local prompt=$1
+	local default=${2:-'y'}
+	local silent=${3:-}
+	local non_interactive=${4:-$default}
+	local answer=
+
+	if [[ $interactive ]]; then
+		printf '%s' "$prompt"
+		if [[ $silent ]]; then
+			read -r -n 1 -s answer
+			printf '\n'
+		else
+			read -r answer
+			printf '\n'
+		fi
+	else
+		answer=$non_interactive
+	fi
+
+	[[ ! $answer ]] && answer=$default
+
+	if [[ $answer =~ $YES_REGEX ]]; then
+		return 0
+	fi
+	return 1
+}
+
 # shellcheck disable=SC2155
 _load_transcrypt_config_vars(){
 	local context_config_group=${1:-}
@@ -544,6 +570,21 @@ derive_context_config_group() {
 	fi
 }
 
+# Multi-context support, triggered by optional --context / -C command line option
+set_context_globals() {
+	if [[ "$context" ]] && [[ ! "$context" = 'default' ]]; then
+		CONTEXT="$context"
+		CONTEXT_CONFIG_GROUP=".${CONTEXT}" # Note leading period
+		CONTEXT_CRYPT_SUFFIX="-${CONTEXT}" # Note leading dash
+		CONTEXT_DESCRIPTION=" for context '$CONTEXT'"
+	else
+		CONTEXT='default'
+		CONTEXT_CONFIG_GROUP=""
+		CONTEXT_CRYPT_SUFFIX=""
+		CONTEXT_DESCRIPTION=""
+	fi
+}
+
 # Internal function that returns a list of filenames for encrypted files in the
 # repo, where the filenames are verbatim and not quoted in any way even if they
 # contain unusual characters like double-quotes, backslash and control
@@ -572,26 +613,6 @@ _list_encrypted_files() {
 		} |
 		sed "s|: filter: crypt${CONTEXT_CRYPT_SUFFIX:-}.*||" |
 		while read -r file; do eval "echo $file"; done
-}
-
-# Detect OpenSSL major version 3 or later which requires a compatibility
-# work-around to include the prefix 'Salted__' and salt value when encrypting.
-#
-# Note that the LibreSSL project's version of the openssl command does NOT
-# require this work-around for major version 3.
-#
-# See #133 #147
-is_salt_prefix_workaround_required() {
-	openssl_path=$(git config --get --local transcrypt.openssl-path 2>/dev/null || printf '%s' "$openssl_path")
-
-	openssl_project=$($openssl_path version | cut -d' ' -f1)
-	openssl_major_version=$($openssl_path version | cut -d' ' -f2 | cut -d'.' -f1)
-
-	if [ "$openssl_project" == "OpenSSL" ] && [ "$openssl_major_version" -ge "3" ]; then
-		echo 'true'
-	else
-		echo ''
-	fi
 }
 
 # The `decryption -> encryption` process on an unchanged file must be
@@ -832,14 +853,12 @@ run_safety_checks() {
 	fi
 
 	# check for dependencies
-	for cmd in {column,grep,mktemp,"${openssl_path}",sed,tee}; do
+	for cmd in column grep mktemp xxd "$openssl_path" sed tee; do
 		command -v "$cmd" >/dev/null || die 'required command "%s" was not found' "$cmd"
 	done
 
-	# check for a working method to convert a hex string to binary data
-	if [ "$(is_salt_prefix_workaround_required)" == "true" ]; then
-		echo -n "41" | xxd -r -p >/dev/null
-	fi
+	# verify hex-to-binary conversion (required for OpenSSL 3 salt prefix handling)
+	echo -n "41" | xxd -r -p >/dev/null
 
 	# ensure the repository is clean (if it has a HEAD revision) so we can force
 	# checkout files without the destruction of uncommitted changes
@@ -899,16 +918,7 @@ get_use_pbkdf2() {
 # ensure we have a password to encrypt with
 get_password() {
 	while [[ ! $password ]]; do
-		local answer=
-		if [[ $interactive ]]; then
-			printf 'Generate a random password? [Y/n] '
-			read -r -n 1 -s answer
-			printf '\n'
-		fi
-
-		# generate a random password if the user answered yes;
-		# otherwise prompt the user for a password
-		if [[ $answer =~ $YES_REGEX ]] || [[ ! $answer ]]; then
+		if prompt_yes_no 'Generate a random password? [Y/n] ' 'y' 'silent'; then
 			local password_length=30
 			local random_base64
 			random_base64=$(${openssl_path} rand -base64 $password_length)
@@ -923,37 +933,24 @@ get_password() {
 
 # confirm the transcrypt configuration
 confirm_configuration() {
-	local answer=
-
 	_display_git_configuration
 	printf 'The following configuration will be saved:\n\n'
 	_display_runtime_configuration "$CONTEXT"
-	printf 'Does this look correct? [Y/n] '
-	read -r -n 1 -s answer
-
-	# exit if the user did not confirm
-	if [[ $answer =~ $YES_REGEX ]] || [[ ! $answer ]]; then
-		printf '\n\n'
-	else
+	if prompt_yes_no 'Does this look correct? [Y/n] ' 'y' 'silent'; then
 		printf '\n'
+	else
 		die 1 'configuration has been aborted'
 	fi
 }
 
 # confirm the rekey configuration
 confirm_rekey() {
-	local answer=
-
 	_display_git_configuration
 	printf 'The following configuration will be saved:\n\n'
 	_display_runtime_configuration "$CONTEXT"
 	printf 'You are about to re-encrypt all encrypted files using new credentials.\n'
 	printf 'Once you do this, their historical diffs will no longer display in plain text.\n\n'
-	printf 'Proceed with rekey? [y/N] '
-	read -r answer
-
-	# only rekey if the user explicitly confirmed
-	if [[ $answer =~ $YES_REGEX ]]; then
+	if prompt_yes_no 'Proceed with rekey? [y/N] ' 'n'; then
 		printf '\n'
 	else
 		die 1 'rekeying has been aborted'
@@ -1198,22 +1195,13 @@ force_checkout() {
 # remove the locally cached encryption credentials and
 # re-encrypt any files that had been previously decrypted
 flush_credentials() {
-	local answer=
-
 	if [[ $interactive ]]; then
 		printf 'You are about to flush the local credentials; make sure you have saved them elsewhere.\n'
 		printf 'All previously decrypted files will revert to their encrypted form, and your\n'
 		printf 'repo will be garbage collected to remove any cached plaintext of secret files.\n\n'
-		printf 'Proceed with credential flush? [y/N] '
-		read -r answer
-		printf '\n'
-	else
-		# although destructive, we should support the --yes option
-		answer='y'
 	fi
 
-	# only flush if the user explicitly confirmed
-	if [[ $answer =~ $YES_REGEX ]]; then
+	if prompt_yes_no 'Proceed with credential flush? [y/N] ' 'n' '' 'y'; then
 		clean_gitconfig
 
 		remove_cached_plaintext
@@ -1238,26 +1226,18 @@ flush_credentials() {
 
 # remove all transcrypt configuration from the repository
 uninstall_transcrypt() {
-	local answer=
-
+	local uninstall_prompt='Proceed with uninstall? [y/N] '
 	if [[ $interactive ]]; then
 		printf 'You are about to remove all transcrypt configuration from your repository.\n'
 		printf 'All previously encrypted files will remain decrypted in this working copy, but your\n'
 		printf 'repo will be garbage collected to remove any cached plaintext of secret files.\n\n'
 		if [[ $(count_items_in_list "$CONFIGURED_CONTEXTS") -gt "1" ]]; then
-			printf 'Proceed with uninstall of all contexts (%s)? [y/N] ' "$CONFIGURED_CONTEXTS"
-		else
-			printf 'Proceed with uninstall? [y/N] '
+			uninstall_prompt=$(printf 'Proceed with uninstall of all contexts (%s)? [y/N] ' "$CONFIGURED_CONTEXTS")
 		fi
-		read -r answer
-		printf '\n'
-	else
-		# although destructive, we should support the --yes option
-		answer='y'
 	fi
 
 	# only uninstall if the user explicitly confirmed
-	if [[ $answer =~ $YES_REGEX ]]; then
+	if prompt_yes_no "$uninstall_prompt" 'n' '' 'y'; then
 		clean_gitconfig
 
 		if [[ ! $upgrade ]]; then
@@ -1365,16 +1345,9 @@ upgrade_transcrypt() {
 		printf 'Your configuration settings will not be changed.\n\n'
 		printf ' Current version: %s\n' "$INSTALLED_VERSION"
 		printf 'Upgraded version: %s\n\n' "$VERSION"
-		printf 'Proceed with upgrade? [y/N] '
-		read -r answer
-		printf '\n'
-
-		if [[ $answer =~ $YES_REGEX ]]; then
-			# User confirmed, don't prompt again
+		if prompt_yes_no 'Proceed with upgrade? [y/N] ' 'n'; then
 			interactive=''
 		else
-			# User did not confirm, exit
-			# Exit if user did not confirm
 			die 1 'upgrade has been aborted'
 		fi
 	fi
@@ -1443,6 +1416,10 @@ list_files() {
 			_list_encrypted_files true
 		fi
 	fi
+}
+
+count_dirty_files() {
+	{ git diff-index --name-status HEAD -- || git diff-index --stat HEAD -- || git diff-index HEAD -- || true; } 2>/dev/null | grep $'\n' -c
 }
 
 # show the raw file as stored in the git commit object
@@ -1798,306 +1775,317 @@ help() {
 
 ##### MAIN
 
-# reset all variables that might be set
-context=''
-cipher=''
-display_config=''
-add_pattern=''
-list_contexts_command=''
-flush_creds=''
-gpg_import_file=''
-gpg_recipient=''
-interactive='true'
-list=''
-password=''
-rekey=''
-show_file=''
-uninstall=''
-upgrade=''
-openssl_path='openssl'
-use_pbkdf2=''
-digest=''
 
-# used to bypass certain safety checks
-requires_existing_config=''
-requires_clean_repo='true'
+declare -a HOOK_ARGS=()
 
-# parse command line options
-while [[ "${1:-}" != '' ]]; do
-	case $1 in
-	clean)
+init_state() {
+	context=''
+	cipher=''
+	display_config=''
+	add_pattern=''
+	list_contexts_command=''
+	flush_creds=''
+	gpg_import_file=''
+	gpg_recipient=''
+	interactive='true'
+	list=''
+	password=''
+	rekey=''
+	show_file=''
+	uninstall=''
+	upgrade=''
+	openssl_path='openssl'
+	use_pbkdf2=''
+	digest=''
+	requires_existing_config=''
+	requires_clean_repo='true'
+	HOOK_MODE=''
+	HOOK_ARGS=()
+	immediate_action=''
+}
+
+require_cli_value() {
+	local flag=$1
+	local value=${2-}
+	if [[ -z ${value:-} ]]; then
+		die 1 'option "%s" requires a value' "$flag"
+	fi
+}
+
+parse_cli() {
+	while [[ ${1:-} ]]; do
+		case $1 in
+		clean|smudge|textconv|merge|pre_commit)
+			HOOK_MODE=$1
+			shift
+			HOOK_ARGS=($@)
+			return 0
+			;;
+		-c|--cipher)
+			require_cli_value "$1" "${2-}"
+			cipher=$2
+			shift
+			;;
+		--cipher=*)
+			cipher=${1#*=}
+			;;
+		-md|--digest)
+			require_cli_value "$1" "${2-}"
+			digest=$2
+			shift
+			;;
+		--digest=*)
+			digest=${1#*=}
+			;;
+		-pbkdf2)
+			use_pbkdf2=1
+			;;
+		--use-pbkdf2)
+			require_cli_value "$1" "${2-}"
+			use_pbkdf2=$2
+			shift
+			;;
+		--use-pbkdf2=*)
+			use_pbkdf2=${1#*=}
+			;;
+		-p|--password)
+			require_cli_value "$1" "${2-}"
+			password=$2
+			shift
+			;;
+		--password=*)
+			password=${1#*=}
+			;;
+		--add)
+			add_pattern=${2:-1}
+			[[ $add_pattern ]] || die 1 'empty pattern'
+			requires_clean_repo=''
+			shift
+			;;
+		--add=*)
+			add_pattern=${1#*=}
+			[[ $add_pattern ]] || die 1 'empty pattern'
+			requires_clean_repo=''
+			;;
+		-C|--context)
+			require_cli_value "$1" "${2-}"
+			context=$2
+			shift
+			;;
+		--context=*)
+			context=${1#*=}
+			;;
+		--set-openssl-path=*)
+			openssl_path=${1#*=}
+			git config transcrypt.openssl-path "$openssl_path"
+			;;
+		-y|--yes)
+			interactive=''
+			;;
+		-d|--display)
+			display_config='true'
+			requires_existing_config='true'
+			requires_clean_repo=''
+			;;
+		-r|--rekey)
+			rekey='true'
+			requires_existing_config='true'
+			;;
+		-f|--flush-credentials)
+			flush_creds='true'
+			requires_existing_config='true'
+			;;
+		-F|--force)
+			requires_clean_repo=''
+			;;
+		-u|--uninstall)
+			uninstall='true'
+			requires_existing_config='true'
+			requires_clean_repo=''
+			;;
+		--upgrade)
+			upgrade='true'
+			requires_existing_config='true'
+			requires_clean_repo=''
+			;;
+		-l|--list)
+			list='true'
+			requires_clean_repo=''
+			;;
+		--list-contexts)
+			list_contexts_command='true'
+			requires_clean_repo=''
+			;;
+		-s|--show-raw)
+			require_cli_value "$1" "${2-}"
+			show_file=$2
+			immediate_action='show_raw'
+			shift
+			;;
+		--show-raw=*)
+			show_file=${1#*=}
+			immediate_action='show_raw'
+			;;
+		-e|--export-gpg)
+			require_cli_value "$1" "${2-}"
+			gpg_recipient=$2
+			requires_existing_config='true'
+			requires_clean_repo=''
+			shift
+			;;
+		--export-gpg=*)
+			gpg_recipient=${1#*=}
+			requires_existing_config='true'
+			requires_clean_repo=''
+			;;
+		-i|--import-gpg)
+			require_cli_value "$1" "${2-}"
+			gpg_import_file=$2
+			shift
+			;;
+		--import-gpg=*)
+			gpg_import_file=${1#*=}
+			;;
+		-v|--version)
+			printf 'transcrypt %s\n' "$VERSION"
+			exit 0
+			;;
+		-h|--help|-\?)
+			help
+			exit 0
+			;;
+		--*)
+			warn 'unknown option -- %s' "${1#--}"
+			usage
+			exit 1
+			;;
+		*)
+			warn 'unknown option -- %s' "${1#-}"
+			usage
+			exit 1
+			;;
+		esac
 		shift
-		git_clean "$@"
-		exit $?
+	done
+}
+
+dispatch_hook() {
+	case $HOOK_MODE in
+	clean)
+		git_clean "${HOOK_ARGS[@]}"
 		;;
 	smudge)
-		shift
-		git_smudge "$@"
-		exit $?
+		git_smudge "${HOOK_ARGS[@]}"
 		;;
 	textconv)
-		shift
-		git_textconv "$@"
-		exit $?
+		git_textconv "${HOOK_ARGS[@]}"
 		;;
 	merge)
-		shift
-		git_merge "$@"
-		exit $?
+		git_merge "${HOOK_ARGS[@]}"
 		;;
 	pre_commit)
-		shift
-		git_pre_commit "$@"
-		exit $?
-		;;
-	-c | --cipher)
-		cipher=${2:-}
-		[[ $cipher ]] || die 1 'empty cipher'
-		shift
-		;;
-	--cipher=*)
-		cipher=${1#*=}
-		;;
-	-md | --digest)
-		digest=$2
-		shift
-		;;
-	--digest=*)
-		digest=${1#*=}
-		;;
-	-pbkdf2)
-		use_pbkdf2=1
-		;;
-	--use-pbkdf2)
-		use_pbkdf2=${2}
-		shift
-		;;
-	--use-pbkdf2=*)
-		use_pbkdf2=${1#*=}
-		;;
-	-p | --password)
-		password=${2:-}
-		[[ $password ]] || die 1 'empty password'
-		shift
-		;;
-	--password=*)
-		password=${1#*=}
-		[[ $password ]] || die 1 'empty password'
-		;;
-	--add)
-		add_pattern=${2:-1}
-		[[ $add_pattern ]] || die 1 'empty pattern'
-		requires_clean_repo=''
-		shift
-		;;
-	--add=*)
-		add_pattern=${1#*=}
-		[[ $add_pattern ]] || die 1 'empty pattern'
-		requires_clean_repo=''
-		;;
-	-C | --context)
-		context=${2:-}
-		[[ $context ]] || die 1 'empty context'
-		shift
-		;;
-	--context=*)
-		context=${1#*=}
-		;;
-	--set-openssl-path=*)
-		openssl_path=${1#*=}
-		# Immediately apply config setting
-		git config transcrypt.openssl-path "$openssl_path"
-		;;
-	-y | --yes)
-		interactive=''
-		;;
-	-d | --display)
-		display_config='true'
-		requires_existing_config='true'
-		requires_clean_repo=''
-		;;
-	-r | --rekey)
-		rekey='true'
-		requires_existing_config='true'
-		;;
-	-f | --flush-credentials)
-		flush_creds='true'
-		requires_existing_config='true'
-		;;
-	-F | --force)
-		requires_clean_repo=''
-		;;
-	-u | --uninstall)
-		uninstall='true'
-		requires_existing_config='true'
-		requires_clean_repo=''
-		;;
-	--upgrade)
-		upgrade='true'
-		requires_existing_config='true'
-		requires_clean_repo=''
-		;;
-	-l | --list)
-		list='true'
-		requires_clean_repo=''
-		;;
-	--list-contexts)
-		list_contexts_command='true'
-		requires_clean_repo=''
-		;;
-	-s | --show-raw)
-		show_file=${2:-}
-		[[ $show_file ]] || die 1 'empty file path'
-		show_raw_file
-		exit 0
-		;;
-	--show-raw=*)
-		show_file=${1#*=}
-		show_raw_file
-		exit 0
-		;;
-	-e | --export-gpg)
-		gpg_recipient=${2:-}
-		[[ $gpg_recipient ]] || die 1 'empty recipient'
-		requires_existing_config='true'
-		requires_clean_repo=''
-		shift
-		;;
-	--export-gpg=*)
-		gpg_recipient=${1#*=}
-		requires_existing_config='true'
-		requires_clean_repo=''
-		;;
-	-i | --import-gpg)
-		gpg_import_file=${2:-}
-		[[ $gpg_import_file ]] || die 1 'empty import file'
-		shift
-		;;
-	--import-gpg=*)
-		gpg_import_file=${1#*=}
-		;;
-	-v | --version)
-		printf 'transcrypt %s\n' "$VERSION"
-		exit 0
-		;;
-	-h | --help | -\?)
-		help
-		exit 0
-		;;
-	--*)
-		warn 'unknown option -- %s' "${1#--}"
-		usage
-		exit 1
+		git_pre_commit "${HOOK_ARGS[@]}"
 		;;
 	*)
-		warn 'unknown option -- %s' "${1#-}"
-		usage
-		exit 1
+		die 1 'unhandled hook command: %s' "$HOOK_MODE"
 		;;
 	esac
-	shift
-done
+	exit $?
+}
 
-# Multi-context support, triggered by optional --context / -C command line option
-set_context_globals() {
-	if [[ "$context" ]] && [[ ! "$context" = 'default' ]]; then
-		CONTEXT="$context"
-		CONTEXT_CONFIG_GROUP=".${CONTEXT}" # Note leading period
-		CONTEXT_CRYPT_SUFFIX="-${CONTEXT}" # Note leading dash
-		CONTEXT_DESCRIPTION=" for context '$CONTEXT'"
+handle_early_actions() {
+	if [[ $list ]]; then
+		list_files
+		exit 0
+	fi
+	if [[ $uninstall ]]; then
+		uninstall_transcrypt
+		exit 0
+	fi
+	if [[ $add_pattern ]]; then
+		add_pattern "$add_pattern"
+		exit 0
+	fi
+	if [[ $upgrade ]]; then
+		upgrade_transcrypt
+		exit 0
+	fi
+	if [[ $display_config ]] && [[ $flush_creds ]]; then
+		display_configuration
+		printf '\n'
+		flush_credentials
+		exit 0
+	fi
+	if [[ $display_config ]]; then
+		display_configuration
+		exit 0
+	fi
+	if [[ $list_contexts_command ]]; then
+		list_contexts
+		exit 0
+	fi
+	if [[ $flush_creds ]]; then
+		flush_credentials
+		exit 0
+	fi
+	if [[ $gpg_recipient ]]; then
+		export_gpg
+		exit 0
+	fi
+}
+
+main() {
+	init_state
+	parse_cli "$@"
+	if [[ $HOOK_MODE ]]; then
+		dispatch_hook
+	fi
+	set_context_globals
+	gather_repo_metadata
+	if [[ $immediate_action == 'show_raw' ]]; then
+		show_raw_file
+		exit 0
+	fi
+	run_safety_checks
+	handle_early_actions
+	if [[ $gpg_import_file ]]; then
+		import_gpg
+	elif [[ $cipher ]]; then
+		validate_cipher
+	fi
+
+	readonly GIT_DIRTY_FILES_BEFORE_INIT="$(count_dirty_files)"
+
+	get_cipher
+	get_digest
+	get_use_pbkdf2
+	get_password
+
+	if [[ $rekey ]] && [[ $interactive ]]; then
+		confirm_rekey
+	elif [[ $interactive ]]; then
+		confirm_configuration
+	fi
+
+	save_configuration
+
+	if [[ $rekey ]]; then
+		stage_rekeyed_files
 	else
-		CONTEXT='default'
-		# Empty values for default/unset context
-		CONTEXT_CONFIG_GROUP=""
-		CONTEXT_CRYPT_SUFFIX=""
-		CONTEXT_DESCRIPTION=""
+		force_checkout
+		if [[ ${GIT_DIRTY_FILES_BEFORE_INIT} -lt $(count_dirty_files) ]]; then
+			die 1 'Unexpected new dirty files in the repository when configured by transcrypt%s, please check your password.\n' "$CONTEXT_DESCRIPTION"
+		fi
 	fi
-}
-set_context_globals
 
-gather_repo_metadata
+	if [[ ! -f $GIT_ATTRIBUTES ]]; then
+		mkdir -p "${GIT_ATTRIBUTES%/*}"
+		printf '#pattern  filter=crypt diff=crypt merge=crypt\n' >"$GIT_ATTRIBUTES"
+	fi
 
-# always run our safety checks
-run_safety_checks
-
-# regular expression used to test user input
-readonly YES_REGEX='^[Yy]$'
-
-# in order to keep behavior consistent no matter what order the options were
-# specified in, we must run these here rather than in the case statement above
-if [[ $list ]]; then
-	list_files
-	exit 0
-elif [[ $uninstall ]]; then
-	uninstall_transcrypt
-	exit 0
-elif [[ $add_pattern ]]; then
-	add_pattern "$add_pattern"
-	exit 0
-elif [[ $upgrade ]]; then
-	upgrade_transcrypt
-	exit 0
-elif [[ $display_config ]] && [[ $flush_creds ]]; then
-	display_configuration
-	printf '\n'
-	flush_credentials
-	exit 0
-elif [[ $display_config ]]; then
-	display_configuration
-	exit 0
-elif [[ $list_contexts_command ]]; then
-	list_contexts
-	exit 0
-elif [[ $flush_creds ]]; then
-	flush_credentials
-	exit 0
-elif [[ $gpg_recipient ]]; then
-	export_gpg
-	exit 0
-elif [[ $gpg_import_file ]]; then
-	import_gpg
-elif [[ $cipher ]]; then
-	validate_cipher
-fi
-
-count_dirty_files() {
-	{ git diff-index --name-status HEAD -- || git diff-index --stat HEAD -- || git diff-index HEAD -- || true; } 2>/dev/null | grep $'\n' -c
+	printf 'The repository has been successfully configured by transcrypt%s.\n' "$CONTEXT_DESCRIPTION"
 }
 
-# shellcheck disable=SC2155
-readonly GIT_DIRTY_FILES_BEFORE_INIT="$(count_dirty_files)"
-
-# perform function calls to configure transcrypt
-get_cipher
-get_digest
-get_use_pbkdf2
-get_password
-
-if [[ $rekey ]] && [[ $interactive ]]; then
-	confirm_rekey
-elif [[ $interactive ]]; then
-	confirm_configuration
-fi
-
-save_configuration
-
-if [[ $rekey ]]; then
-	stage_rekeyed_files
-else
-	force_checkout
-	# check for newly modified (dirty) files after transcrypt configuration which could
-	# indicate an incorrect password
-	if [[ ${GIT_DIRTY_FILES_BEFORE_INIT} -lt $(count_dirty_files) ]]; then
-		die 1 'Unexpected new dirty files in the repository when configured by transcrypt%s, please check your password.\n' "$CONTEXT_DESCRIPTION"
-	fi
-fi
-
-# ensure the git attributes file exists
-if [[ ! -f $GIT_ATTRIBUTES ]]; then
-	mkdir -p "${GIT_ATTRIBUTES%/*}"
-	printf '#pattern  filter=crypt diff=crypt merge=crypt\n' >"$GIT_ATTRIBUTES"
-fi
-
-printf 'The repository has been successfully configured by transcrypt%s.\n' "$CONTEXT_DESCRIPTION"
+main "$@"
 
 exit 0
