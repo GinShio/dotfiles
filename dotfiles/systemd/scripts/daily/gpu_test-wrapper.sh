@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 
 source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
-now_timestamps=$1
-now_timestamps=${now_timestamps:-$(date +%s)}
+now_timestamps=${1:-${NIGHTLY_TIMESTAMP:-$(date +%s)}}
 
 # Testing every 3 days
 [[ 0 -eq $(( 10#$(date +%j) % 3 )) ]] || exit 0
