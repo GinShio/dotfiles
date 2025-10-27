@@ -2,13 +2,12 @@
 
 PROFILE=${1:-auto}
 
-source $(dirname ${BASH_SOURCE[0]})/common.sh
 trap "sudo -k" EXIT
-sudo -Sv <<<$ROOT_PASSPHRASE
+export SUDO_ASKPASS=$(dirname ${BASH_SOURCE[0]})/common/get-root-passphrase.sh
 
 for device in $(ls -1 -d /sys/module/amdgpu/drivers/pci:amdgpu/*/); do
     if ! [ -e $device/device ]; then
         continue
     fi
-    echo $PROFILE |sudo tee $device/power_dpm_force_performance_level
+    echo $PROFILE |sudo -A -- tee $device/power_dpm_force_performance_level
 done
