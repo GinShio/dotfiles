@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
-source /home/ginshio/dotfiles/scripts/common/common.sh
+
+source $(dirname ${BASH_SOURCE[0]})/common.sh
 echo $ROOT_PASSPHRASE
