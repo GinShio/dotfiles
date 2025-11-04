@@ -6,9 +6,6 @@ set history filename ~/.cache/history_gdb
 set history size 4096
 
 {%@@ if profile == "personal" @@%}
-set env LD_LIBRARY_PATH {{@@ env['HOME'] @@}}/Projects/mesa/_build/_dbg/lib
-set env LIBGL_DRIVERS_PATH {{@@ env['HOME'] @@}}/Projects/mesa/_build/_dbg/lib/dri
-set env VK_DRIVER_FILES {{@@ env['HOME'] @@}}/Projects/mesa/_build/_dbg/share/vulkan/icd.d/radeon_icd.x86_64.json
 set env MESA_SHADER_CACHE_DISABLE true
 set env MESA_LOADER_DRIVER_OVERRIDE radeonsi
 set env RADV_DEBUG nocache

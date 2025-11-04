@@ -26,9 +26,6 @@ dotfiles:
   d_containers:
     dst: ~/.config/containers/
     src: containers/
-  d_khronos3d_builder:
-    dst: ~/Projects/Builder/
-    src: builder/
   d_ccache:
     dst: ~/.config/ccache/
     src: ccache/
@@ -127,7 +124,6 @@ profiles:
     import:
       - profiles.d/dotfiles_common.yaml
       - profiles.d/dotfiles_dev.yaml
-      - profiles.d/dotfiles_khronos3d.yaml
       - profiles.d/dotfiles_net.yaml
       - profiles.d/dotfiles_plasma.yaml
       - profiles.d/dotfiles_remote.yaml
