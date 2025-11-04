@@ -2,16 +2,8 @@
 export HOOK_NAME=pre-commit
 source $(git rev-parse --git-common-dir)/hooks/common.sh
 
-# git config --local hooks.protected.enabled 1
-ENABLE=$(git config --get hooks.protected.enabled)
-if [[ $ENABLE -ne 0 ]]; then
-    $GIT_COMMON_DIR/hooks/pre-commit.d/warn-protected.sh
-    check-result $?
+HOOKDIR="$GIT_COMMON_DIR/hooks/$HOOK_NAME.d"
+if [[ -d "$HOOKDIR" ]]; then
+  set -o pipefail
+  find -L "$HOOKDIR" -maxdepth 1 -type f -print0 |xargs -0 -I @ bash -c "$HOOKDIR/@"
 fi
-
-find-program perl
-commands=(encoding.pl format.sh crypt.sh)
-for subcommand in ${commands[@]}; do
-    "$GIT_COMMON_DIR/hooks/pre-commit.d/$subcommand"
-    check-result $?
-done

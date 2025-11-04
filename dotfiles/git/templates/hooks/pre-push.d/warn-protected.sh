@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+# git config --local hooks.protected.enabled 1
+ENABLE=$(git config --get hooks.protected.enabled)
+if [ -z $ENABLE ] || [ $ENABLE -eq 0 ]; then
+    exit
+fi
+
 if [[ "$push_command" =~ ":" ]]; then
   LOCAL_BRANCH=${push_command%:*}
   export LOCAL_BRANCH=${LOCAL_BRANCH##* }

@@ -1,8 +1,7 @@
 # Ignore build directory and C/C++ Compilation Database
-/_build/
-/_install/
-/compile_commands.json
-/.cache/
+_build/
+compile_commands.json
+.cache/
 
 # be found at https://github.com/github/gitignore/blob/main/Python.gitignore
 # Ignore Python - Byte-compiled / optimized / DLL files
