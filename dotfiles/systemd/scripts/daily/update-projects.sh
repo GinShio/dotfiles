@@ -16,6 +16,7 @@ build_projects() {
         python3 $BUILDER_SCRIPT_DIR/builder.py update $project
         if [ $? -eq 0 ]; then
             eval "python3 $BUILDER_SCRIPT_DIR/builder.py build $project --build-type Release ${extra_args[@]}"
+            eval "python3 $BUILDER_SCRIPT_DIR/builder.py build $project --build-type Debug"
         fi
     done
 }
@@ -31,5 +32,5 @@ installable_projects=(mesa spirv-tools slang)
 build_projects installable_extra_args installable_projects
 
 common_extra_args=()
-common_projects=(dxc llvm)
+common_projects=(llvm)
 build_projects common_extra_args common_projects
