@@ -1,0 +1,27 @@
+[presets."base.windows"]
+org = "llvm"
+condition = "[[ {{system.os}} == 'windows' ]]"
+
+[presets."base.windows".definitions]
+LLVM_CCACHE_BUILD = false
+LLVM_ENABLE_ZSTD = "OFF"
+
+[presets."base.unix"]
+org = "llvm"
+condition = "[[ {{system.os}} != 'windows' ]]"
+
+[presets."base.unix".definitions]
+LLVM_CCACHE_BUILD = true
+LLVM_ENABLE_ZSTD = "FORCE_ON"
+LLVM_USE_LINKER = "{{user.linker}}"
+LLVM_PARALLEL_LINK_JOBS = "[[ str({{system.memory.total_gb}} // 16) ]]"
+
+[presets."common"]
+org = "llvm"
+extends = [
+  "llvm/base.windows",
+  "llvm/base.unix",
+]
+
+[presets."common".definitions]
+LLVM_OPTIMIZED_TABLEGEN = true

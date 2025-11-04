@@ -1,0 +1,9 @@
+[project]
+org = "khronos"
+name = "spirv-headers"
+source_dir = "{{env.HOME}}/Projects/{{project.org}}/{{project.name}}"
+
+[git]
+url = "https://github.com/KhronosGroup/SPIRV-Headers.git"
+main_branch = "main"
+auto_stash = true

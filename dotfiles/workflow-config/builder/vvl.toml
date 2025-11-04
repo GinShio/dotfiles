@@ -1,0 +1,35 @@
+[project]
+org = "khronos"
+name = "vvl"
+source_dir = "{{env.HOME}}/Projects/{{project.org}}/{{project.name}}"
+build_dir = "_build/{{user.branch}}"
+build_system = "cmake"
+generator = "Ninja Multi-Config"
+toolchain = "clang"
+
+[git]
+url = "https://github.com/KhronosGroup/Vulkan-ValidationLayers.git"
+main_branch = "main"
+auto_stash = true
+
+[presets."common.linux"]
+condition = "[[ {{system.os}} == 'linux' ]]"
+
+[presets."common.linux".definitions]
+BUILD_WSI_XCB_SUPPORT = false
+BUILD_WSI_XLIB_SUPPORT = false
+BUILD_WSI_WAYLAND_SUPPORT = true
+
+[presets.common]
+extends = ["common.linux"]
+
+[presets.common.definitions]
+UPDATE_DEPS = true
+BUILD_WERROR = true
+BUILD_TESTS = true
+
+[presets."configs.debug"]
+extends = ["common"]
+
+[presets."configs.release"]
+extends = ["common"]

@@ -1,0 +1,9 @@
+[toolchains.clang]
+description = "LLVM Clang"
+linker = "mold"
+launcher = "ccache"
+
+[toolchains.gcc]
+description = "GNU Compiler Collection"
+linker = "mold"
+launcher = "ccache"

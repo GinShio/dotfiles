@@ -1,0 +1,23 @@
+[project]
+org = "khronos"
+name = "vulkan-samples"
+source_dir = "{{env.HOME}}/Projects/{{project.org}}/{{project.name}}"
+build_dir = "_build/{{user.branch}}"
+build_system = "cmake"
+generator = "Ninja Multi-Config"
+toolchain = "clang"
+
+[git]
+url = "https://github.com/KhronosGroup/Vulkan-Samples.git"
+main_branch = "main"
+auto_stash = true
+
+[presets.common.definitions]
+VKB_VALIDATION_LAYERS = true
+VKB_WSI_SELECTION = 'WAYLAND'
+
+[presets."configs.debug"]
+extends = ["common"]
+
+[presets."configs.release"]
+extends = ["common"]

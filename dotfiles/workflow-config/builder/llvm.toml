@@ -1,0 +1,41 @@
+[project]
+name = "llvm"
+source_dir = "{{env.HOME}}/Projects/compiler/{{project.name}}"
+component_dir = "llvm"
+build_dir = "_build/{{user.branch}}-{{user.build_type}}"
+install_dir = "{{project.build_dir}}"
+build_system = "cmake"
+generator = "Ninja"
+toolchain = "clang"
+source_at_root = false
+built_at_root = true
+
+[git]
+url = "https://github.com/llvm/llvm-project.git"
+main_branch = "main"
+auto_stash = true
+
+[presets.common]
+extends = ["llvm/common"]
+
+[presets.common.definitions]
+BUILD_SHARED_LIBS = true
+LLVM_ENABLE_ASSERTIONS = true
+LLVM_BUILD_TESTS = true
+LLVM_BUILD_TOOLS = true
+LLVM_ENABLE_PIC = true
+LLVM_ENABLE_PROJECTS = 'clang;mlir;lld'
+LLVM_ENABLE_RTTI = false
+LLVM_INCLUDE_TOOLS = true
+LLVM_TARGETS_TO_BUILD = 'AMDGPU;RISCV;X86'
+CLANG_ENABLE_CIR = true
+
+[presets."configs.debug"]
+extends = ["common"]
+
+[presets."configs.release"]
+extends = ["common"]
+
+[presets.experimental.definitions]
+LLVM_EXPERIMENTAL_TARGETS_TO_BUILD = 'DirectX;SPIRV'
+CLANG_ENABLE_HLSL = true

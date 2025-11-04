@@ -1,0 +1,35 @@
+[project]
+org = "fd.o"
+name = "mesa"
+source_dir = "{{env.HOME}}/Projects/{{project.org}}/{{project.name}}"
+build_dir = "_build/{{user.branch}}-{{user.build_type}}"
+install_dir = "{{project.build_dir}}"
+build_system = "meson"
+generator = "ninja"
+toolchain = "clang"
+
+[git]
+url = "https://gitlab.freedesktop.org/mesa/mesa.git"
+main_branch = "main"
+auto_stash = true
+
+[presets.common.definitions]
+gallium-drivers = 'radeonsi,zink,llvmpipe'
+vulkan-drivers = 'amd,swrast'
+gallium-rusticl = true
+
+[presets."configs.debug"]
+extends = ["common"]
+
+[presets."configs.release"]
+extends = ["common"]
+
+# MESA_ROOT=$INSTALL_DIR \
+#       LD_LIBRARY_PATH=$MESA_ROOT/lib LIBGL_DRIVERS_PATH=$MESA_ROOT/lib/dri \
+#       VK_DRIVER_FILES=$(eval echo "$MESA_ROOT/share/vulkan/icd.d/{radeon,lvp}_icd.x86_64.json" |tr ' ' ':') VK_LOADER_DRIVERS_DISABLE= \
+#       OCL_ICD_FILENAMES=$MESA_ROOT/lib/libRusticlOpenCL.so RUSTICL_ENABLE=zink \
+#       MESA_SHADER_CACHE_DISABLE=true MESA_LOADER_DRIVER_OVERRIDE=radeonsi LIBGL_ALWAYS_SOFTWARE= \
+#       RADV_DEBUG=nocache RADV_PERFTEST= AMD_DEBUG= \
+#       LP_DEBUG= LP_PERF= RUSTICL_DEBUG= \
+#       ACO_DEBUG= NIR_DEBUG= \
+#       dosomething

@@ -1,0 +1,12 @@
+[project]
+org = "fd.o"
+name = "runner"
+source_dir = "{{env.HOME}}/Projects/{{project.org}}/{{project.name}}"
+build_dir = "_build/{{user.branch}}"
+build_system = "cargo"
+toolchain = "rustc"
+
+[git]
+url = "https://gitlab.freedesktop.org/mesa/deqp-runner.git"
+main_branch = "main"
+auto_stash = true

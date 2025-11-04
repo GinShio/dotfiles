@@ -109,6 +109,9 @@ dotfiles:
     src: wgetrc
     actions:
       - histfile-install
+  d_workflow-config:
+    dst: ~/.config/workflow/
+    src: workflow-config/
 profiles:
   personal:
     import:
@@ -119,6 +122,7 @@ profiles:
       - profiles.d/dotfiles_remote.yaml
       - profiles.d/dotfiles_systemd.yaml
       - profiles.d/dotfiles_virtualization.yaml
+      - profiles.d/dotfiles_workflow.yaml
       - profiles.d/dotfiles_xdg.yaml
   khronos3d:
     import:
@@ -129,4 +133,5 @@ profiles:
       - profiles.d/dotfiles_remote.yaml
       - profiles.d/dotfiles_systemd.yaml
       - profiles.d/dotfiles_virtualization.yaml
+      - profiles.d/dotfiles_workflow.yaml
       - profiles.d/dotfiles_xdg.yaml

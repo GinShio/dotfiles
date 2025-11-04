@@ -1,0 +1,26 @@
+[project]
+org = "khronos"
+name = "deqp"
+source_dir = "{{env.HOME}}/Projects/{{project.org}}/{{project.name}}"
+build_dir = "_build/{{user.branch}}"
+install_dir = "_build/{{user.branch}}"
+build_system = "cmake"
+generator = "Ninja Multi-Config"
+toolchain = "clang"
+
+[git]
+url = "https://github.com/KhronosGroup/VK-GL-CTS.git"
+main_branch = "main"
+auto_stash = true
+
+[presets.common.definitions]
+DEQP_TARGET = 'default'
+
+[presets."configs.debug"]
+extends = ["common"]
+
+[presets."configs.release"]
+extends = ["common"]
+
+# dependences
+# python3 external/fetch_sources.py

@@ -1,0 +1,31 @@
+[project]
+name = "alive2"
+source_dir = "{{env.HOME}}/Projects/compiler/{{project.name}}"
+build_dir = "_build/{{user.branch}}"
+install_dir = "{{project.build_dir}}"
+build_system = "cmake"
+generator = "Ninja Multi-Config"
+toolchain = "clang"
+
+[project.environment]
+ALIVE2_HOME = "{{project.source_dir}}/.."
+LLVM2_HOME = "{{project.environment.ALIVE2_HOME}}/llvm"
+LLVM2_BUILD = "{{project.environment.LLVM2_HOME}}/_build/main-Debug"
+
+[git]
+url = "https://github.com/AliveToolkit/alive2.git"
+main_branch = "master"
+auto_stash = true
+
+[presets.common]
+extends = ["llvm/common"]
+
+[presets.common.definitions]
+BUILD_TV = true
+CMAKE_PREFIX_PATH = "{{project.environment.LLVM2_BUILD}}"
+
+[presets."configs.debug"]
+extends = ["common"]
+
+[presets."configs.release"]
+extends = ["common"]

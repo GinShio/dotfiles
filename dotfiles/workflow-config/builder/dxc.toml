@@ -1,0 +1,29 @@
+[project]
+org = "khronos"
+name = "dxc"
+source_dir = "{{env.HOME}}/Projects/{{project.org}}/{{project.name}}"
+build_dir = "_build/{{user.branch}}"
+install_dir = "_build/{{user.branch}}"
+build_system = "cmake"
+generator = "Ninja Multi-Config"
+toolchain = "clang"
+
+[git]
+url = "https://github.com/microsoft/DirectXShaderCompiler.git"
+main_branch = "main"
+auto_stash = true
+
+[presets.common]
+extra_config_args = ["-C{{project.source_dir}}/cmake/caches/PredefinedParams.cmake"]
+
+[presets.common.definitions]
+ENABLE_SPIRV_CODEGEN = true
+SPIRV_BUILD_TESTS = true
+SPIRV_TOOLS_USE_MIMALLOC = true
+SPIRV_TOOLS_USE_MIMALLOC_IN_STATIC_BUILD = true
+
+[presets."configs.debug"]
+extends = ["common"]
+
+[presets."configs.release"]
+extends = ["common"]
