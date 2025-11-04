@@ -9,8 +9,8 @@ PubkeyAuthentication yes
 PermitRootLogin no
 PasswordAuthentication no
 KbdInteractiveAuthentication no
-
 X11Forwarding no
+UsePAM yes
 
 # https://unix.stackexchange.com/questions/333728/how-to-disable-weak-ciphers-in-ssh
 MACs hmac-sha2-512,hmac-sha2-256,hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com

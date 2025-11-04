@@ -109,9 +109,6 @@ fish -c "tide configure --auto --style=Rainbow --prompt_colors='True color' --sh
 # Update desktop database
 update-desktop-database $HOME/.local/share/applications
 
-#bash $DOTFILES_ROOT_PATH/scripts/bringup/beautify.sh
+loginctl enable-linger $(whoami)
 
-#declare -a projects=(alive2 deqp llvm mesa runner spirv-tools piglit vkd3d)
-#for project in ${projects[@]}; do
-#    bash $DOTFILES_ROOT_PATH/scripts/projects.sh --project $project --skipbuild
-#done
+#bash $DOTFILES_ROOT_PATH/scripts/bringup/beautify.sh
