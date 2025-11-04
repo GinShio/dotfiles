@@ -111,4 +111,26 @@ update-desktop-database $HOME/.local/share/applications
 
 loginctl enable-linger $(whoami)
 
+# Bootloader
+cat <<-EOF |sudo -A -- tee -a /etc/default/grub
+# Safe include of /etc/default/grub.d/*.conf: only accept simple VAR=VALUE lines (uppercase VAR)
+if [ -d /etc/default/grub.d ]; then
+  for _f in /etc/default/grub.d/*.conf; do
+    [ -r "\$_f" ] || continue
+    # Extract only lines that look like: NAME=... where NAME starts with uppercase or underscore and contains only A-Z0-9_
+    # Writes to a temp file then source it to avoid executing arbitrary code from the drop-in.
+    _tmp=\$(mktemp /tmp/grub-dropin.XXXXXX) || continue
+    # Keep comments and blank lines out; only simple assignments allowed
+    awk '/^[A-Z_][A-Z0-9_]*[[:space:]]*=/{print}' "\$_f" > "\$_tmp"
+    # Ensure file is non-empty before sourcing
+    if [ -s "\$_tmp" ]; then
+      # shellcheck disable=SC1090
+      . "\$_tmp"
+    fi
+    rm -f "\$_tmp"
+  done
+  unset _f _tmp
+fi
+EOF
+
 #bash $DOTFILES_ROOT_PATH/scripts/bringup/beautify.sh
