@@ -1,0 +1,4 @@
+dynvariables:
+    ccache_max_size: "df -h / |tail -n1 |awk '{print $2*0.2 substr($2,length($2),1) \"i\"}'"
+    ccache_remotedir: "echo /run/user/$(id -u $USER)/ccache-remote"
+    ccache_tmpdir: "echo /run/user/$(id -u $USER)/ccache-tmp"

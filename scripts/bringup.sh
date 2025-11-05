@@ -6,10 +6,9 @@ export DISTRO_NAME=$(source /etc/os-release; echo "${NAME:-${DISTRIB_ID}} ${VERS
 export DISTRO_ID=$(source /etc/os-release; echo "${ID}")
 trap "sudo -k" EXIT
 
-TEMP=`getopt -o h --long help,swapsize:,hostname:,tidever:,working -- "$@"`
+TEMP=`getopt -o h --long help,swapsize:,hostname:,tidever:,profile: -- "$@"`
 eval set -- "$TEMP"
 
-SETUP_WORKING=0
 while true; do
     case "$1" in
         -h|--help)
@@ -20,9 +19,9 @@ while true; do
         --hostname)
             SETUP_HOSTNAME=$2
             shift 2;;
-        --working)
-            SETUP_WORKING=1
-            shift;;
+        --profile)
+            SETUP_PROFILE=$2
+            shift 2;;
         --)
             shift 2; break;;
         *)
@@ -30,14 +29,10 @@ while true; do
     esac
 done
 
+export SETUP_PROFILE=${SETUP_PROFILE:-personal}
 export SETUP_SWAPSIZE=${SETUP_SWAPSIZE:-$(awk '/MemTotal/{print int($2 / 2^20 * 2)}' /proc/meminfo)}
-export SETUP_HOSTNAME=${SETUP_HOSTNAME:-$([[ $SETUP_WORKING -ne 0 ]] && echo "$WORK_ORGNAIZATION-")$USER-$(awk '{ print $1 }' <<<"$DISTRO_NAME")}
-
-if [[ $SETUP_WORKING -ne 0 ]]; then
-    export WORK_ORGNAIZATION=$(tr '[:upper:]' '[:lower:]' <<<$WORK_ORGNAIZATION)
-else
-    export WORK_ORGNAIZATION=personal
-fi
+export SETUP_HOSTNAME=${SETUP_HOSTNAME:-$([[ "$SETUP_PROFILE" != "personal" ]] && echo "$SETUP_PROFILE-")$USER-$(awk '{ print $1 }' <<<"$DISTRO_NAME")}
+export SETUP_PROFILE=$(tr '[:upper:]' '[:lower:]' <<<"$SETUP_PROFILE")
 
 if [ $? -ne 0 ]
 then echo "Incorrect Password"; exit 1;
@@ -66,10 +61,9 @@ pipx install dotdrop iree-base-compiler[onnx] pyright trash-cli
 mkdir -p $HOME/Projects
 mkdir -p $HOME/.local/{bin,share,lib}
 mkdir -p $HOME/.local/share/{fonts,applications}
-yes |dotdrop install -c $DOTFILES_ROOT_PATH/dotfiles.yaml -p $WORK_ORGNAIZATION
-yes |sudo -A -- $HOME/.local/bin/dotdrop install -c $DOTFILES_ROOT_PATH/system.yaml -p $WORK_ORGNAIZATION
-bash $DOTFILES_ROOT_PATH/scripts/secret.sh -d --profile $WORK_ORGNAIZATION
-yes |dotdrop install -c $DOTFILES_ROOT_PATH/secret.yaml -p $WORK_ORGNAIZATION
+yes |dotdrop install -c $DOTFILES_ROOT_PATH/dotfiles.yaml -p $SETUP_PROFILE
+yes |sudo -A -- $HOME/.local/bin/dotdrop install -c $DOTFILES_ROOT_PATH/system.yaml -p $SETUP_PROFILE
+yes |dotdrop install -c $DOTFILES_ROOT_PATH/secret.yaml -p $SETUP_PROFILE
 
 # swap file && runtime dir
 sudo -A -- dd if=/dev/zero of=/swapfile bs=4MiB count=$(( 256*SETUP_SWAPSIZE )) status=progress

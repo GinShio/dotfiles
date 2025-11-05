@@ -1,3 +1,0 @@
-dynvariables:
-  amdvlk_config_dir: "source {{@@ _dotdrop_workdir @@}}/config.d/env && eval echo $AMDVLK_CONFIG_DIR"
-  amdvlk_debug_dir: "eval echo /run/user/$(id -u $USER)/amd"

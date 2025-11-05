@@ -16,9 +16,9 @@ drivers_tuple=(
     mesa,zink,"deqp",$ZINK_PATH:$RADV_PATH
     #swrast,zink,"deqp",$ZINK_PATH:$LVP_PATH
     mesa,gl,"deqp",$RADEONSI_PATH
-    #llpc,vkcl,"cts",$RUSTICL_PATH:$ZINK_PATH:$AMDVLK_PATH
-    #mesa,vkcl,"cts",$RUSTICL_PATH:$ZINK_PATH:$RADV_PATH
-    #swrast,vkcl,"cts",$RUSTICL_PATH:$ZINK_PATH:$LVP_PATH
+    #llpc,rusticl,"cts",$RUSTICL_PATH:$ZINK_PATH:$AMDVLK_PATH
+    #mesa,rusticl,"cts",$RUSTICL_PATH:$ZINK_PATH:$RADV_PATH
+    #swrast,rusticl,"cts",$RUSTICL_PATH:$ZINK_PATH:$LVP_PATH
 ) # drivers tuple declare end
 
 function check_driver() {

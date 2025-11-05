@@ -1,0 +1,19 @@
+variables:
+    root:
+        passphrase: "examplePassword"
+    information:
+        # profile array
+        profileA:
+            username: "example"
+            email: "i@example.org"
+            id: "example"
+            password: "examplePassword"
+            domain: "EXAMPLE.ORG"
+    v2core:
+        domain: "www.example.org"
+        wsPath: "/"
+        uuid: "db5b28e1-0100-4b9e-ba59-ac2ff8fb6aeb"
+    testing:
+        runner_dir: "/example/runner"
+        baseline_dir: "{{@@ testing.runner_dir @@}}/baseline"
+        result_dir: "/example"

@@ -10,28 +10,15 @@ function deploy_key() {
 }
 
 function update_key() {
-    declare -a key_items=(
-      "${WORK_ORGNAIZATION}-pri-ssh"
-      "${WORK_ORGNAIZATION}-pri-git"
-      "${WORK_ORGNAIZATION}-pub-git"
-      "personal-git"
-      "personal-ssh"
-    )
+    local key_name=$1
+    declare -n key_items="$2"
+    declare -n email_name="${key_name}_EMAIL"
+    local comment="$item-${email_name}"
 
     for item in ${key_items[@]}; do
-        if [[ "$item" =~ "$WORK_ORGNAIZATION" ]]
-        then comment="$item-${WORK_EMAIL}"
-        elif [[ "$item" =~ "personal" ]]
-        then comment="$item-${PERSONAL_EMAIL}"
-        else comment="$item"
-        fi
+        local comment="$item-${email_name}"
         ssh-keygen -C "$comment" -t ed25519 -f "$PWD/$item" -N ""
     done
-    chmod a-w *
-    tar -cf - * |zstd -z -19 --ultra --quiet -o $FILENAME.tar.zst
-    rsync --remove-source-files $FILENAME.tar.zst $DOTFILES_ROOT_PATH/keys
-    cd $DOTFILES_ROOT_PATH/keys
-    ln -sf $FILENAME.tar.zst ssh.tar.zst
 }
 
 args=`getopt -l "deploy,update,tmpdir:" -a -o "duT" -- $@`
@@ -46,21 +33,36 @@ while true ; do
     esac
 done
 
-if [[ 0 -ne $update ]]; then
-    echo ${PERSONAL_EMAIL:?Missing personal email.} >/dev/null
-    echo ${WORK_EMAIL:?Missing work email.} >/dev/null
-    echo ${WORK_ORGNAIZATION:?Missing work orgnaization.} >/dev/null
-    FILENAME=${FILENAME:-ssh-$(date "+%Y")}
-    WORK_ORGNAIZATION=$(tr '[:upper:]' '[:lower:]' <<<$WORK_ORGNAIZATION)
-fi
-
 if [ -z "$tmpdir" ]
 then tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d)
 fi
 cd $tmpdir
 
+FILENAME=${FILENAME:-ssh-$(date "+%Y")}
+
 if [[ 0 -ne $update ]]; then
-    update_key
+    keys=( $(compgen -v |grep '_EMAIL$') )
+    keys=("${keys[@]/PERSONAL_EMAIL}")
+    for keyname in ${keys[@]}; do
+        key_name=${keyname%_*}
+        key_lower_name=$(tr '[:upper:]' '[:lower:]' <<<"$key_name")
+        items=(
+          "${key_lower_name}-pri-ssh"
+          "${key_lower_name}-pri-git"
+          "${key_lower_name}-pub-git"
+        )
+        update_key $key_name items
+    done
+    items=(
+        "personal-git"
+        "personal-ssh"
+    )
+    update_key PERSONAL items
+    chmod a-w *
+    tar -cf - * |zstd -z -19 --ultra --quiet -o $FILENAME.tar.zst
+    rsync --remove-source-files $FILENAME.tar.zst $DOTFILES_ROOT_PATH/keys
+    cd $DOTFILES_ROOT_PATH/keys
+    ln -sf $FILENAME.tar.zst ssh.tar.zst
 elif [[ 0 -ne $deploy ]]; then
     deploy_key
 fi

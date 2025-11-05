@@ -3,11 +3,10 @@
 source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
 XDG_RUNTIME_DIR=/run/user/$(id -u $USER)
 RUNNER_DIR=$XDG_RUNTIME_DIR/runner
-if [ -z $TEST_RESULT_DIR ]
-then TEST_RESULT_DIR=$RUNNER_DIR/baseline
+if [ -z {{@@ testing.result_dir @@}} ]
+then TEST_RESULT_DIR={{@@ testing.baseline_dir @@}}
+else TEST_RESULT_DIR={{@@ testing.result_dir @@}}
 fi
-TEST_RESULT_DIR=$(eval echo $TEST_RESULT_DIR)
-AMDVLK_CONFIG_DIR=$(eval echo $AMDVLK_CONFIG_DIR)
 
 SUFFIX=_$(date "+%Y-%m-%d")
 AVAILABLE_CPUS_CNT=$(cnt=$(bc <<<"($(lscpu -e |wc -l) - 1) * 0.75 / 1"); echo $(($cnt > 0 ? $cnt : 1)))
@@ -16,14 +15,14 @@ function get_repo_sha1() {
     touch git-sha1.txt
     if [ "$vendor" = "llpc" ] && [ -e $HOME/Projects/Builder ]; then
         case $glapi in
-            vk|zink|vkcl)
+            vk|zink|rusticl)
                 driver_name=xgl;;
             gl)
                 exit 1;;
         esac
         { python3 $HOME/Projects/Builder/scripts/main.py -p$driver_name info 2>&1; } >>git-sha1.txt
     fi
-    if [ "$glapi" = "zink" ] || [ "$glapi" = "vkcl" ] || [ "$vendor" = "mesa" ] || [ "$vendor" = "swrast" ]
+    if [ "$glapi" = "zink" ] || [ "$glapi" = "rusticl" ] || [ "$vendor" = "mesa" ] || [ "$vendor" = "swrast" ]
     then echo " + mesa: $(git -C $HOME/Projects/mesa rev-parse --short=11 HEAD)" >>git-sha1.txt
     fi
     echo " + $testkit: $(git -C $HOME/Projects/khronos3d/$testkit rev-parse --short=11 HEAD)" >>git-sha1.txt
@@ -40,19 +39,19 @@ function test_kits_deqp() {
         vk)
             exe_name=deqp-vk
             case_lists=(
-                $RUNNER_DIR/deqp/mustpass/vk-default/{binding-model,descriptor-indexing}.txt
-                $RUNNER_DIR/deqp/mustpass/vk-default/{image/*,robustness,sparse-resources,ssbo,texture,ubo}.txt
-                $RUNNER_DIR/deqp/mustpass/vk-default/compute.txt
-                #$RUNNER_DIR/deqp/mustpass/vk-default/tessellation.txt
-                #$RUNNER_DIR/deqp/mustpass/vk-default/geometry.txt
-                #$RUNNER_DIR/deqp/mustpass/vk-default/{clipping,transform-feedback}.txt
-                $RUNNER_DIR/deqp/mustpass/vk-default/mesh-shader.txt
-                $RUNNER_DIR/deqp/mustpass/vk-default/{depth,fragment-*}.txt
-                $RUNNER_DIR/deqp/mustpass/vk-default/{ray-tracing-pipeline,ray-query}.txt
-                $RUNNER_DIR/deqp/mustpass/vk-default/{pipeline,shader-object}/*.txt
-                #$RUNNER_DIR/deqp/mustpass/vk-default/{conditional-rendering,dynamic-rendering,renderpass{,2}}.txt
-                $RUNNER_DIR/deqp/mustpass/vk-default/{reconvergence,subgroups}.txt
-                $RUNNER_DIR/deqp/mustpass/vk-default/dgc.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/{binding-model,descriptor-indexing}.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/{image/*,robustness,sparse-resources,ssbo,texture,ubo}.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/compute.txt
+                #{{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/tessellation.txt
+                #{{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/geometry.txt
+                #{{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/{clipping,transform-feedback}.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/mesh-shader.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/{depth,fragment-*}.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/{ray-tracing-pipeline,ray-query}.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/{pipeline,shader-object}/*.txt
+                #{{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/{conditional-rendering,dynamic-rendering,renderpass{,2}}.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/{reconvergence,subgroups}.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/vk-default/dgc.txt
             )
             ext_files=(dEQP-VK.info.device)
             runner_options=(
@@ -65,9 +64,9 @@ function test_kits_deqp() {
         gl|zink)
             exe_name=glcts
             case_lists=(
-                #$RUNNER_DIR/deqp/mustpass/{egl,gl,gles}/aosp_mustpass/main/*-main.txt
-                $RUNNER_DIR/deqp/mustpass/gl{,es}/khronos_mustpass/main/*-main.txt
-                $RUNNER_DIR/deqp/mustpass/gl/khronos_mustpass_single/main/*-single.txt
+                #{{@@ testing.runner_dir @@}}/deqp/mustpass/{egl,gl,gles}/aosp_mustpass/main/*-main.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/gl{,es}/khronos_mustpass/main/*-main.txt
+                {{@@ testing.runner_dir @@}}/deqp/mustpass/gl/khronos_mustpass_single/main/*-single.txt
             )
             ext_files=()
             runner_options=(
@@ -84,9 +83,9 @@ function test_kits_deqp() {
             exit -1
             ;;
     esac
-    $RUNNER_DIR/deqp-runner run \
+    {{@@ testing.runner_dir @@}}/deqp-runner run \
         ${runner_options[@]} \
-        --deqp $RUNNER_DIR/$testkit/$exe_name \
+        --deqp {{@@ testing.runner_dir @@}}/$testkit/$exe_name \
         --output $output_dir \
         --caselist ${case_lists[@]} \
         --env ${env_lists[@]} \
@@ -94,7 +93,7 @@ function test_kits_deqp() {
         $deqp_options ${ext_deqp_options[@]}
     cd $output_dir
     get_repo_sha1
-    ls -1 ${case_lists[@]} |sed "s~$RUNNER_DIR/$testkit/mustpass/~~g" >testlist.txt
+    ls -1 ${case_lists[@]} |sed "s~{{@@ testing.runner_dir @@}}/$testkit/mustpass/~~g" >testlist.txt
     awk -F, '$2 == "Flake"{print $1}' results.csv >flakes.txt
     tar -H pax -cf - {failures,results}.csv $(eval echo ${result_files[@]}) ${ext_files[@]} | \
         zstd -z -19 --ultra --quiet -o ${tarball_name}.tar.zst
@@ -109,9 +108,9 @@ function test_kits_piglit() {
         flakes.txt
         git-sha1.txt
     )
-    $RUNNER_DIR/piglit-runner run \
+    {{@@ testing.runner_dir @@}}/piglit-runner run \
         ${runner_options[@]} \
-        --piglit-folder $RUNNER_DIR/piglit \
+        --piglit-folder {{@@ testing.runner_dir @@}}/piglit \
         --output $output_dir \
         --env ${env_lists[@]} \
         --profile quick \
@@ -127,10 +126,10 @@ function test_kits_piglit() {
 function test_kits_vkd3d() {
     declare -x ${env_lists[@]}
     VKD3D_SHADER_CACHE_PATH=0 \
-    bash $RUNNER_DIR/vkd3d/tests/test-runner.sh \
+    bash {{@@ testing.runner_dir @@}}/vkd3d/tests/test-runner.sh \
         --output-dir $output_dir \
         --jobs $AVAILABLE_CPUS_CNT \
-        $RUNNER_DIR/vkd3d/bin/d3d12 >$output_dir-results.txt
+        {{@@ testing.runner_dir @@}}/vkd3d/bin/d3d12 >$output_dir-results.txt
     cd $output_dir
     get_repo_sha1
     mv $output_dir-results.txt results.txt
@@ -177,14 +176,14 @@ for elem in ${test_infos[@]}; do
                 MESA_LOADER_DRIVER_OVERRIDE=amdgpu
                 VK_LOADER_DRIVERS_DISABLE='*lvp*,*radeon*'
             )
-            sed -i -e 's~^EnablePipelineDump.*~EnablePipelineDump,0~' $AMDVLK_CONFIG_DIR/amdVulkanSettings.cfg
+            sed -i -e 's~^EnablePipelineDump.*~EnablePipelineDump,0~' {{@@ sysenv.amd_config_dir @@}}/amdVulkanSettings.cfg
             ;;
         *)
             exit -1
             ;;
     esac
     case $glapi in
-        vkcl)
+        rusticl)
             env_lists+=(
                 OCL_ICD_FILENAMES=$RUSTICL_PATH
                 RUSTICL_ENABLE=zink
@@ -206,7 +205,7 @@ for elem in ${test_infos[@]}; do
     GPU_DEVICE_ID=$(for var in ${env_lists[@]}; do eval export $var; done; vulkaninfo 2>/dev/null |awk '/deviceID[[:blank:]]*=/ {print $NF; exit}')
     for testkit in $(tr ':' '\t' <<<$testkits); do
         tarball_name=${testkit}-${glapi}_${GPU_DEVICE_ID}${SUFFIX}
-        output_dir=$RUNNER_DIR/baseline/${vendor}_${testkit}-${glapi}${SUFFIX}
+        output_dir={{@@ testing.baseline_dir @@}}/${vendor}_${testkit}-${glapi}${SUFFIX}
         test_kits_$testkit
         rsync --remove-source-files $output_dir/${tarball_name}.tar.zst $TEST_RESULT_DIR/$vendor
         sleep 10m

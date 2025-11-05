@@ -2,7 +2,7 @@ function copy-graphics-testcase
     argparse deqp piglit tool vkd3d -- $argv
     or return
     set -fx PROJECT_DIR $HOME/Projects
-    set -fx RUNNER_DIR $XDG_RUNTIME_DIR/runner
+    set -fx RUNNER_DIR {{@@ testing.runner_dir @@}}
 
     if set -ql _flag_deqp
         and test -e $PROJECT_DIR/khronos/deqp

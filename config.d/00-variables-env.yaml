@@ -1,0 +1,31 @@
+variables:
+    sysenv:
+        # XDG
+        xdg_config_home: "{{@@ env['HOME'] @@}}/.config"
+        xdg_cache_home: "{{@@ env['HOME'] @@}}/.cache"
+        xdg_data_home: "{{@@ env['HOME'] @@}}/.local/share"
+        xdg_state_home: "{{@@ env['HOME'] @@}}/.local/state"
+        # Amdvlk
+        amd_config_dir: "{{@@ sysenv.xdg_config_home @@}}/amdgpu-pro"
+        amd_debug_dir: "{{@@ env['XDG_RUNTIME_DIR'] @@}}/amd"
+        # Bash
+        histfile: "{{@@ sysenv.xdg_cache_home @@}}/history_bash"
+        # Ccache
+        ccache_dir: "{{@@ sysenv.xdg_cache_home @@}}/ccache"
+        ccache_configpath: "{{@@ sysenv.xdg_config_home @@}}/ccache/ccache.conf"
+        # Config of scripts for Russell workflow
+        builder_config_dir: "{{@@ sysenv.xdg_config_home @@}}/workflow/builder"
+        gputest_config_dir: "{{@@ sysenv.xdg_config_home @@}}/workflow/gputest"
+        # GNU PG
+        gnupghome: "{{@@ sysenv.xdg_config_home @@}}/gnupg"
+        # Less
+        lesshistfile: "{{@@ sysenv.xdg_cache_home @@}}/history_less"
+        # Python
+        pythonpycacheprefix: "{{@@ sysenv.xdg_cache_home @@}}/python"
+        pythonstartup: "{{@@ sysenv.xdg_config_home @@}}/python/startup.py"
+        pythonuserbase: "{{@@ sysenv.xdg_data_home @@}}/python"
+        python_history: "{{@@ sysenv.xdg_cache_home @@}}/history_python"
+        # Rust
+        cargo_home: "{{@@ sysenv.xdg_data_home @@}}/cargo"
+        # Sqlite
+        sqlite_history: "{{@@ sysenv.xdg_cache_home @@}}/history_sqlite"

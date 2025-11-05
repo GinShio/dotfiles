@@ -1,6 +1,6 @@
 actions:
   emacs-config: emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"~/.config/doom/config.org\"))"
-  histfile-install: grep -Phor '\bhistory_[\w-]*' {{@@ _dotfile_abs_dst @@}} |xargs -I@ bash -c 'touch ~/.cache/$(eval echo -E @)'
+  histfile-install: grep -Phor '\bhistory_[\w-]*' {{@@ _dotfile_abs_dst @@}} |xargs -I@ bash -c 'touch {{@@ sysenv.xdg_cache_home @@}}/$(eval echo -E @)'
   ssh-key-install: >-
     bash {{@@ _dotdrop_workdir @@}}/scripts/ssh-key.sh --deploy --tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d);
     find {{@@ _dotfile_abs_dst @@}} -maxdepth 1 -type f -regextype posix-extended ! -regex '.*/{{@@ profile @@}}.*' -regex '.*-(git|ssh).*' -exec rm -rf {{}} \;
@@ -15,11 +15,10 @@ config:
   showdiff: false
   workdir: ~/dotfiles
   import_variables:
-    - config.d/variables.yaml
-    - config.d/variables_amdvlk.yaml
-    - config.d/variables_ccache.yaml
-    - config.d/variables_git.yaml
-    - config.d/variables_samba.yaml
+    - config.d/00-variables-env.yaml
+    - config.d/30-variables-pri.yaml
+    - config.d/70-variables-ccache.yaml
+    - config.d/70-variables-samba.yaml
   import_actions:
     - config.d/actions_samba.yaml
 dotfiles:
@@ -112,8 +111,14 @@ dotfiles:
   d_workflow-config:
     dst: ~/.config/workflow/
     src: workflow-config/
+    template: false
+  f_initenv:
+    dst: "{{@@ _dotdrop_workdir @@}}/config.d/env"
+    src: env
 profiles:
   personal:
+    dotfiles:
+      - f_initenv
     import:
       - profiles.d/dotfiles_common.yaml
       - profiles.d/dotfiles_dev.yaml

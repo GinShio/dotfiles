@@ -1,2 +1,2 @@
 actions:
-  samba-mkdir: cat ~/Public/.config.d/{{@@ profile @@}}.* 2>/dev/null |tr -s ' ' |cut -d' ' -f2 |sort |uniq |xargs -I@ bash -c 'mkdir -p $(eval echo @)'
+    samba-mkdir: cat {{@@ env['HOME'] @@}}/Public/.config.d/{{@@ profile @@}}.* 2>/dev/null |tr -s ' ' |cut -d' ' -f2 |sort |uniq |xargs -I@ bash -c 'mkdir -p $(eval echo @)'

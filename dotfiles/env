@@ -1,0 +1,11 @@
+# section root
+{%@@ for key, value in root.items() @@%}
+ROOT_{{@@ key | upper @@}}={{@@ value @@}}
+{%@@ endfor @@%}
+
+# section information
+{%@@ for pro, infomapping in information.items() @@%}
+{%@@ for key, value in infomapping.items() @@%}
+{{@@ pro | upper @@}}_{{@@ key | upper @@}}="{{@@ value @@}}"
+{%@@ endfor @@%}
+{%@@ endfor @@%}
