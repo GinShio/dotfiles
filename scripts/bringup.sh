@@ -84,15 +84,16 @@ fi
 
 # Service
 sudo -A -- systemctl daemon-reload
-sudo -A -- systemctl enable --now libvirtd
+sudo -A -- systemctl enable --now libvirtd.service virtlockd.service virtlogd.service
 sudo -A -- virsh net-autostart default
-sudo -A -- systemctl enable --now podman
+sudo -A -- systemctl enable --now lxc-net.service
 sudo -A -- systemctl enable --now sshd.service
 sudo -A -- systemctl enable --now systemd-tmpfiles-clean
 
 systemctl enable --user --now nightly-script.timer
 systemctl enable --user --now emacs.service
 systemctl enable --user develop-autostart.service
+systemctl --user enable --now podman.service
 
 # Fish
 cd $(mktemp -d)

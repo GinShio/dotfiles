@@ -7,4 +7,3 @@ remotes:
     addr: https://mirror.nju.edu.cn/lxc-images/
     protocol: simplestreams
     public: true
-aliases: {}

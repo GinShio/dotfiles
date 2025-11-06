@@ -19,7 +19,7 @@ sudo -E zypper dup -y --allow-vendor-change
 sudo -E zypper in -y -t pattern devel_basis
 sudo -E zypper in -y \
     7zip aspell bat bison chrpath cifs-utils cpuinfo{,-devel} curl dash dwarves emacs fd figlet fish flatpak{,-spawn} \
-    flex fzf graphviz hugo ImageMagick inkscape libxslt-tools moreutils Mozilla{Firefox,Thunderbird} mpv neowofetch \
+    flex fzf graphviz hugo ImageMagick inkscape libxslt-tools lz4 moreutils Mozilla{Firefox,Thunderbird} mpv neowofetch \
     obs-studio osdlyrics pandoc-cli patchelf phoronix-test-suite privoxy proxychains-ng qbittorrent re2c ripgrep \
     sqlite3 sshpass steam tmux tree-sitter unzip wget xmlto zip zstd
 sudo -E zypper in -y git git-doc git-delta git-lfs
@@ -95,7 +95,7 @@ sudo -E zypper in -y -t pattern kvm_tools
 sudo -E zypper in -y \
     libvirt libvirt-dbus libvirt-doc \
     qemu{,-extra,-doc,-lang} qemu-{arm,ppc,x86} qemu-linux-user qemu-vhost-user-gpu \
-    lxd lxc libvirt-daemon-lxc podman podman-docker buildah \
+    lxd lxc libvirt-daemon-lxc podman podman-docker crun crun-vm buildah \
     cross-{aarch64,arm,ppc64,ppc64le,riscv64,s390x}-{binutils,gcc14,linux-glibc-devel}
 # riscv64-suse-linux-gcc -march=rv64gc riscv.c
 # clang --target=riscv64-suse-linux --sysroot=/usr/riscv64-suse-linux/sys-root -mcpu=generic-rv64 -march=rv64g riscv.c

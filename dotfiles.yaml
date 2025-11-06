@@ -19,6 +19,7 @@ config:
     - config.d/30-variables-pri.yaml
     - config.d/70-variables-dev.yaml
     - config.d/70-variables-remote.yaml
+    - config.d/70-variables-virtualization.yaml
   import_actions:
     - config.d/actions_samba.yaml
 dotfiles:

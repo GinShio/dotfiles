@@ -1,0 +1,15 @@
+variables:
+    libvirt:
+        runtime_dir: "{{@@ env['XDG_RUNTIME_DIR'] @@}}/libvirt"
+        coredump_dir: "{{@@ libvirt.runtime_dir @@}}/dump"
+        hugepage_dir: "{{@@ libvirt.runtime_dir @@}}/ram"
+    lxc:
+        osrender_device: "/dev/dri/renderD128"
+
+dynvariables:
+    virt_input_whitelist: "ls -1 /dev/input/by-id/usb-*-event-kbd && ls -1 /dev/input/by-id/usb-*-event-mouse"
+    osrender_device_major: "stat -c '%t:%T' \"{{@@ lxc.osrender_device @@}}\" | awk -F: '{ maj=strtonum(\"0x\"$1); printf maj; }'"
+    lxc_unprivileged_user_start: "awk -F: -v u={{@@ env['USER'] @@}} '$1==u{printf $2}' /etc/subuid"
+    lxc_unprivileged_user_count: "awk -F: -v u={{@@ env['USER'] @@}} '$1==u{printf $3}' /etc/subuid"
+    lxc_unprivileged_group_start: "awk -F: -v u={{@@ env['USER'] @@}} '$1==u{printf $2}' /etc/subgid"
+    lxc_unprivileged_group_count: "awk -F: -v u={{@@ env['USER'] @@}} '$1==u{printf $3}' /etc/subgid"
