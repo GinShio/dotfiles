@@ -112,7 +112,6 @@ dotfiles:
   d_workflow-config:
     dst: ~/.config/workflow/
     src: workflow-config/
-    template: false
   f_initenv:
     dst: "{{@@ _dotdrop_workdir @@}}/config.d/env"
     src: env
