@@ -17,8 +17,8 @@ config:
   import_variables:
     - config.d/00-variables-env.yaml
     - config.d/30-variables-pri.yaml
-    - config.d/70-variables-ccache.yaml
-    - config.d/70-variables-samba.yaml
+    - config.d/70-variables-dev.yaml
+    - config.d/70-variables-remote.yaml
   import_actions:
     - config.d/actions_samba.yaml
 dotfiles:
