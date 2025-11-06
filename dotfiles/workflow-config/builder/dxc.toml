@@ -1,7 +1,7 @@
 [project]
 org = "khronos"
 name = "dxc"
-source_dir = "{{env.HOME}}/Projects/{{project.org}}/{{project.name}}"
+source_dir = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
 build_dir = "_build/{{user.branch}}"
 install_dir = "_build/{{user.branch}}"
 build_system = "cmake"

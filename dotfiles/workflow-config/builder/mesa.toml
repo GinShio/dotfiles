@@ -1,7 +1,7 @@
 [project]
 org = "fd.o"
 name = "mesa"
-source_dir = "{{env.HOME}}/Projects/{{project.org}}/{{project.name}}"
+source_dir = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
 build_dir = "_build/{{user.branch}}-{{user.build_type}}"
 install_dir = "{{project.build_dir}}"
 build_system = "meson"

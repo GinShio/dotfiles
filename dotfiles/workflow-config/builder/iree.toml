@@ -1,6 +1,6 @@
 [project]
 name = "iree"
-source_dir = "{{env.HOME}}/Projects/compiler/{{project.name}}"
+source_dir = "{{@@ projects.root_dir @@}}/compiler/{{project.name}}"
 build_dir = "_build/{{user.branch}}-{{user.build_type}}"
 install_dir = "{{project.build_dir}}"
 build_system = "cmake"
