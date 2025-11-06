@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
 source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
-XDG_RUNTIME_DIR=/run/user/$(id -u $USER)
-RUNNER_DIR=$XDG_RUNTIME_DIR/runner
 if [ -z {{@@ testing.result_dir @@}} ]
 then TEST_RESULT_DIR={{@@ testing.baseline_dir @@}}
 else TEST_RESULT_DIR={{@@ testing.result_dir @@}}
