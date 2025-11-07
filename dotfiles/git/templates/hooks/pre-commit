@@ -5,5 +5,5 @@ source $(git rev-parse --git-common-dir)/hooks/common.sh
 HOOKDIR="$GIT_COMMON_DIR/hooks/$HOOK_NAME.d"
 if [[ -d "$HOOKDIR" ]]; then
   set -o pipefail
-  find -L "$HOOKDIR" -maxdepth 1 -type f -print0 |xargs -0 -I @ bash -c "$HOOKDIR/@"
+  find -L "$HOOKDIR" -maxdepth 1 -type f -print0 |xargs -0 -I @ bash -c 'eval @'
 fi
