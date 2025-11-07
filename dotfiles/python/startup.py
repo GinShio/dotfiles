@@ -4,7 +4,7 @@ import atexit
 import os
 import readline
 
-xdg_cache_home = os.getenv('XDG_CACHE_HOME', os.path.join(os.path.expanduser("~"), ".cache"))
+xdg_cache_home = os.getenv('XDG_CACHE_HOME')
 histfile = os.path.join(xdg_cache_home, "history_python")
 
 try:
