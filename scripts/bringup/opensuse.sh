@@ -43,7 +43,7 @@ sudo -E zypper in -y libonnx onnx-devel
 sudo -E zypper in -y \
     python3-astunparse python3-distutils-extra python3-filelock python3-fsspec python3-Jinja2 python3-lit python3-lxml \
     python3-lz4 python3-Mako python3-numpy{,-devel} python3-onnx python3-packaging python3-psutil \
-    python3-pybind11{,-devel} python3-pyelftools python3-pytest python3-PyYAML python3-requests python3-sympy \
+    python3-pybind11{,-devel} python3-pyelftools python3-pytest python3-PyYAML python3-requests python3-Sphinx python3-sympy \
     python3-ruamel.yaml python3-setuptools python3-typing_extensions python3-u-msgpack-python
 
 # Programmings environment
