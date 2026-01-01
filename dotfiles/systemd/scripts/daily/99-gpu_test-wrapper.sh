@@ -1,44 +1,37 @@
 #!/usr/bin/env bash
 
-source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
 now_timestamps=${1:-${NIGHTLY_TIMESTAMP:-$(date +%s)}}
 
 # Testing every 3 days
 [[ 0 -eq $(( 10#$(date +%j) % 3 )) ]] || exit 0
-[[ "yes" = $(get_power_AC) ]] || exit 0
+
+get_power_AC() {
+    local online=$(upower -d |awk '/power_AC/ {print $NF}' |xargs -I@ upower -i @ |awk '/online:/ {print $NF}')
+    [[ -z "$online" || "yes" = "$online" ]] && return 0 || return 1
+}
+$(get_power_AC) || exit 0
+
+python3 {{@@ scripts.root_dir @@}}/gputest.py cleanup
 
 drivers_tuple=(
-    # vendor,glapi,kits,driver
-    llpc,vk,"deqp",$AMDVLK_PATH
-    mesa,vk,"deqp",$RADV_PATH
-    #swrast,vk,"deqp",$LVP_PATH
-    llpc,zink,"deqp",$ZINK_PATH:$AMDVLK_PATH
-    mesa,zink,"deqp",$ZINK_PATH:$RADV_PATH
-    #swrast,zink,"deqp",$ZINK_PATH:$LVP_PATH
-    mesa,gl,"deqp",$RADEONSI_PATH
-    #llpc,rusticl,"cts",$RUSTICL_PATH:$ZINK_PATH:$AMDVLK_PATH
-    #mesa,rusticl,"cts",$RUSTICL_PATH:$ZINK_PATH:$RADV_PATH
-    #swrast,rusticl,"cts",$RUSTICL_PATH:$ZINK_PATH:$LVP_PATH
+    radv,vk
+    amdvlk,vk
 ) # drivers tuple declare end
 
-function check_driver() {
-    local drivers_str=$1
-    IFS=':'; local drivers=($drivers_str); IFS="$old_ifs"
-    local delimiters=$(tr -dc ':'<<<"$drivers_str")
-    local cnt=${#delimiters}
-    for (( idx=0; idx<=cnt; idx++ )); do
-        local driver=${drivers[idx]}
-        ([[ ! -z "$driver" ]] && [[ -e "$driver" ]] && [[ $now_timestamps -lt $(stat -c "%Y" "$driver") ]]) || return 1
+check_driver() {
+    IFS=$'\n'; local driver_info=($(python3 {{@@ scripts.root_dir @@}}/gputest.py list driver $driver)); IFS="$old_ifs"
+    for info in ${driver_info[@]}; do
+        while IFS=: read -r item value; do
+            if [[ "$item" = "Library" ]] && [[ -e "$value" ]] && [[ $now_timestamps -lt $(stat -c "%Y" "$value") ]]; then
+                return 0
+            fi
+        done <<<"$(tr -d '[:space:]' <<<"$info")"
     done
-    return 0
+    return 1
 }
 
-declare -a test_infos=()
 for elem in ${drivers_tuple[@]}; do
-    IFS=',' read vendor glapi testkits drivers <<< "${elem}"
-    check_driver "$drivers" || continue
-    test_infos+=("$vendor,$glapi,$testkits")
+    IFS=',' read driver suite <<< "${elem}"
+    check_driver || continue
+    tmux send-keys -t runner "python3 {{@@ scripts.root_dir @@}}/gputest.py run $driver-$suite" ENTER
 done
-
-cmd="bash {{@@ _dotfile_abs_dst @@}}/scripts/daily/gpu_test.sh '${test_infos[@]}'"
-tmux send-keys -t runner "$cmd" ENTER

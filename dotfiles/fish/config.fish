@@ -1,6 +1,5 @@
 #!/usr/bin/env fish
 
-source {{@@ _dotfile_abs_dst @@}}/functions/__ginshio_copy-graphisc-testcases.fish
 source {{@@ _dotfile_abs_dst @@}}/functions/__ginshio_source-posix.fish
 
 if status is-interactive
