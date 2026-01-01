@@ -1,0 +1,11 @@
+[hooks]
+get_flakes = '''awk -F, '$2 == "Flake"{print $1}' results.csv >flakes.txt'''
+
+# Test execution hooks (run in the test output directory)
+# Note: The command itself handles the output redirection
+get_git_info = "python3 {{@@ scripts.root_dir @@}}/builder.py list {{layout_name}} {{suite_type}} {{backend_name}} --path --submodules >> git-sha1.txt"
+
+# Toolbox hooks (run after installation)
+# {{dest}} is substituted with the installation directory
+patchelf_piglit = '''find {{dest}}/bin -type f -executable -exec patchelf --set-rpath '$ORIGIN/../lib' {} \;'''
+gen_vk_default = '''fd --regex '.*\.txt' -- {{dest}}/mustpass/vk-default | sed -e 's~^{{dest}}/mustpass/~~' > {{dest}}/mustpass/vk-default.txt'''

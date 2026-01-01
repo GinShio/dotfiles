@@ -13,6 +13,9 @@ variables:
         domain: "www.example.org"
         wsPath: "/"
         uuid: "db5b28e1-0100-4b9e-ba59-ac2ff8fb6aeb"
+    scripts:
+        root_dir: "{{@@ env['HOME'] @@}}/Projects/scripts"
+        max_jobs: 10
     testing:
         runner_dir: "/example/runner"
         baseline_dir: "{{@@ testing.runner_dir @@}}/baseline"
