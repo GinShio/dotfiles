@@ -1,6 +1,7 @@
 variables:
     projects:
         root_dir: "{{@@ env['HOME'] @@}}/Projects"
+        script_dir: "{{@@ projects.root_dir @@}}/builder"
     ccache:
         runtime_dir: "{{@@ env['XDG_RUNTIME_DIR'] @@}}/ccache"
         remote_dir: "{{@@ ccache.runtime_dir @@}}/remote"
@@ -11,3 +12,4 @@ variables:
 
 dynvariables:
     ccache_max_size: "df -h / |tail -n1 |awk '{print $2*0.2 substr($2,length($2),1) \"i\"}'"
+    gputest_max_jobs: "lscpu | grep -E \"Core\\(s\\) per socket|Socket\\(s\\)\" | awk '{sum+=$NF} END{print sum}'"

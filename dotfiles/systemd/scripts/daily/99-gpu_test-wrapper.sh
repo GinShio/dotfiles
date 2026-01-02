@@ -11,7 +11,7 @@ get_power_AC() {
 }
 $(get_power_AC) || exit 0
 
-python3 {{@@ scripts.root_dir @@}}/gputest.py cleanup
+python3 {{@@ projects.script_dir @@}}/gputest.py cleanup
 
 drivers_tuple=(
     radv,vk
@@ -19,7 +19,7 @@ drivers_tuple=(
 ) # drivers tuple declare end
 
 check_driver() {
-    IFS=$'\n'; local driver_info=($(python3 {{@@ scripts.root_dir @@}}/gputest.py list driver $driver)); IFS="$old_ifs"
+    IFS=$'\n'; local driver_info=($(python3 {{@@ projects.script_dir @@}}/gputest.py list driver $driver)); IFS="$old_ifs"
     for info in ${driver_info[@]}; do
         while IFS=: read -r item value; do
             if [[ "$item" = "Library" ]] && [[ -e "$value" ]] && [[ $now_timestamps -lt $(stat -c "%Y" "$value") ]]; then
@@ -33,5 +33,5 @@ check_driver() {
 for elem in ${drivers_tuple[@]}; do
     IFS=',' read driver suite <<< "${elem}"
     check_driver || continue
-    tmux send-keys -t runner "python3 {{@@ scripts.root_dir @@}}/gputest.py run $driver-$suite" ENTER
+    tmux send-keys -t runner "python3 {{@@ projects.script_dir @@}}/gputest.py run $driver-$suite" ENTER
 done

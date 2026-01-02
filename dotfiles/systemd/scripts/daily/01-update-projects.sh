@@ -3,7 +3,7 @@
 source {{@@ _dotdrop_workdir @@}}/scripts/common/common.sh
 source {{@@ _dotdrop_workdir @@}}/scripts/common/proxy.sh
 trap "source {{@@ _dotdrop_workdir @@}}/scripts/common/unproxy.sh" EXIT
-exisit_projects=( $(python3 {{@@ scripts.root_dir @@}}/builder.py list --no-submodule |sed '/^Warning:/d' |tail -n +3 |awk '{if ($4 != "<missing>") print $2}') )
+exisit_projects=( $(python3 {{@@ projects.script_dir @@}}/builder.py list --no-submodule |sed '/^Warning:/d' |tail -n +3 |awk '{if ($4 != "<missing>") print $2}') )
 
 build_projects() {
     local -n extra_args="$1"
@@ -12,10 +12,10 @@ build_projects() {
         if ! [[ "${exisit_projects[*]}" =~ "$project" ]]; then
             continue
         fi
-        python3 {{@@ scripts.root_dir @@}}/builder.py update $project
+        python3 {{@@ projects.script_dir @@}}/builder.py update $project
         if [ $? -eq 0 ]; then
-            eval "python3 {{@@ scripts.root_dir @@}}/builder.py build $project --build-type Release ${extra_args[@]}"
-            eval "python3 {{@@ scripts.root_dir @@}}/builder.py build $project --build-type Debug"
+            eval "python3 {{@@ projects.script_dir @@}}/builder.py build $project --build-type Release ${extra_args[@]}"
+            eval "python3 {{@@ projects.script_dir @@}}/builder.py build $project --build-type Debug"
         fi
     done
 }
