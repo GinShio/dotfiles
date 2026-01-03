@@ -6,7 +6,7 @@ After=network.target
 [Service]
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/usr/bin/bash {{@@ _dotfile_abs_dst @@}}/scripts/develop-autostart.sh
+ExecStart=/usr/bin/bash {{@@ projects.script_dir @@}}/services/develop-autostart.sh
 Restart=no
 
 [Install]

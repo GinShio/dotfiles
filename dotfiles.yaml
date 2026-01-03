@@ -112,13 +112,8 @@ dotfiles:
   d_workflow-config:
     dst: ~/.config/workflow/
     src: workflow-config/
-  f_initenv:
-    dst: "{{@@ _dotdrop_workdir @@}}/config.d/env"
-    src: env
 profiles:
   personal:
-    dotfiles:
-      - f_initenv
     import:
       - profiles.d/dotfiles_common.yaml
       - profiles.d/dotfiles_dev.yaml

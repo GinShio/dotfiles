@@ -14,20 +14,14 @@ function source-posix
             case '*'
                 set -l name (string split -f1 = "$i")
                 set -l name_len (string length "$name")
+                set name (string replace -r '^export\b[[:space:]]*' '' "$name")
                 set -l src_value (string sub -s (math $name_len + 2) "$i")
-                set -l value
-                if test (string sub -s 1 -l 1 $src_value) = '('
-                    set value (string split ' ' (eval echo (string sub -s 2 -l (math (string length $src_value) - 2) $src_value)))
-                else if test (string sub -s 1 -l 1 $src_value) = '\''; or test (string sub -s 1 -l 1 $src_value) = '"'
-                    set value (eval echo (string sub -s 2 -l (math (string length $src_value) - 2) $src_value))
-                else
-                    set value (string split ' ' (eval echo $src_value))
-                end
+                set -l value (string split ' ' (eval echo $src_value))
                 if set -gq $name; and not set -gq __ginshio_source_var_old_$name
                     set -gx __ginshio_source_var_old_$name $$name
                     set -ge $name
                 end
-                set -gx $name $value
+                set -gx "$name" "$value"
         end
     end
 end
@@ -43,7 +37,7 @@ function desource-posix
             case ''
                 #echo "empty line skipped"
             case '*'
-                set -f name (string split -f1 = "$i")
+                set -f name (string split -f1 = "$i" |string replace -r '^export\b[[:space:]]*' '')
                 if not contains -- $name $unique_array
                     set -ge $name
                 end
