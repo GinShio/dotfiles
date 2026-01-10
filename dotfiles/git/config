@@ -3,7 +3,6 @@
         path = config.d/global_color.conf
         path = config.d/global_core.conf
         path = config.d/global_diff.conf
-        path = config.d/global_dispatch.conf
         path = config.d/global_fetch.conf
         path = config.d/global_filter.conf
         path = config.d/global_hooks.conf
@@ -16,4 +15,4 @@
         path = config.d/global_push.conf
         path = config.d/global_rebase.conf
         path = config.d/global_user.conf
-        path = config.d/profile_dispatch.conf
+        path = config.d/{{@@ profile @@}}_dispatch.conf
