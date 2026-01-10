@@ -14,5 +14,6 @@
         path = config.d/global_pull.conf
         path = config.d/global_push.conf
         path = config.d/global_rebase.conf
+        path = config.d/global_transcrypt.conf
         path = config.d/global_user.conf
         path = config.d/{{@@ profile @@}}_dispatch.conf
