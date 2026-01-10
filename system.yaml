@@ -37,7 +37,7 @@ dotfiles:
     dst: /etc/systemd/logind.conf.d/
     src: systemd-logind/
 profiles:
-  ginshio:
+  personal:
     dotfiles:
       - ALL
   khronos3d:
