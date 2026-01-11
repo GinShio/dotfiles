@@ -23,6 +23,9 @@ config:
   import_actions:
     - config.d/actions_samba.yaml
 dotfiles:
+  d_cargo:
+    dst: ~/.config/cargo/
+    src: cargo/
   d_containers:
     dst: ~/.config/containers/
     src: containers/

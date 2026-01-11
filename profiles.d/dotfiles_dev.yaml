@@ -1,4 +1,5 @@
 dotfiles:
+  - d_cargo
   - d_ccache
   - d_emacs
   - d_gdb
