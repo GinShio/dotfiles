@@ -76,6 +76,9 @@ dotfiles:
     src: samba/
     actions:
       - samba-mkdir
+  d_sccache:
+    dst: ~/.config/sccache/
+    src: sccache/
   f_screen:
     dst: ~/.screenrc
     src: screenrc

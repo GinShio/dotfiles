@@ -4,3 +4,4 @@ dotfiles:
   - d_gdb
   - d_git
   - d_python
+  - d_sccache
