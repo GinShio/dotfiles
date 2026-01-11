@@ -13,7 +13,7 @@ config:
   keepdot: false
   longkey: false
   showdiff: false
-  workdir: ~/dotfiles
+  workdir: ~/cyber/dotfiles
   import_variables:
     - config.d/00-variables-env.yaml
     - config.d/30-variables-pri.yaml

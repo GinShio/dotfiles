@@ -7,7 +7,7 @@ config:
   keepdot: false
   longkey: false
   showdiff: false
-  workdir: ~/dotfiles
+  workdir: ~/cyber/dotfiles
 dotfiles:
   f_bluetooth:
     dst: /etc/bluetooth/main.conf

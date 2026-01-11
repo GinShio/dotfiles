@@ -1,7 +1,7 @@
 variables:
     projects:
         root_dir: "{{@@ env['HOME'] @@}}/Projects"
-        script_dir: "{{@@ projects.root_dir @@}}/builder"
+        script_dir: "{{@@ env['HOME'] @@}}/cyber/scripts"
     ccache:
         runtime_dir: "{{@@ env['XDG_RUNTIME_DIR'] @@}}/ccache"
         remote_dir: "{{@@ ccache.runtime_dir @@}}/remote"
