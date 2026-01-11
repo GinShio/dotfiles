@@ -30,5 +30,7 @@ variables:
         python_history: "{{@@ sysenv.xdg_cache_home @@}}/history_python"
         # Rust
         cargo_home: "{{@@ sysenv.xdg_data_home @@}}/cargo"
+        # Zig
+        zig_global_cache_dir: "{{@@ sysenv.xdg_cache_home @@}}/zig"
         # Sqlite
         sqlite_history: "{{@@ sysenv.xdg_cache_home @@}}/history_sqlite"
