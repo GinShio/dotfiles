@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-export HOOK_NAME=post-merge
-source $(git rev-parse --git-common-dir)/hooks/common.sh
-
-find-program git-lfs
-git lfs post-merge "$@"

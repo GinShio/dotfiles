@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-export HOOK_NAME=post-commit
-source $(git rev-parse --git-common-dir)/hooks/common.sh
-
-find-program git-lfs
-git lfs post-commit "$@"
