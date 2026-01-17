@@ -3,7 +3,7 @@ Description=Run the script of nightly
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/bash {{@@ projects.script_dir @@}}/services/daily.sh
+ExecStart=/usr/bin/bash {{@@ projects.script_dir @@}}/services/nightly.sh
 Restart=no
 
 [Install]
