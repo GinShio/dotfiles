@@ -12,15 +12,9 @@ dotfiles:
   f_bluetooth:
     dst: /etc/bluetooth/main.conf
     src: bluetooth/main.conf
-  d_dracut:
-    dst: /etc/dracut.conf.d/
-    src: dracut/
   d_grub:
     dst: /etc/default/grub.d/
     src: grub
-  d_modprobe:
-    dst: /etc/modprobe.d/
-    src: modprobe/
   f_ssh:
     dst: /etc/ssh/sshd_config
     src: ssh/sshd_config
