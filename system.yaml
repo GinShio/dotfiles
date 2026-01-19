@@ -8,6 +8,8 @@ config:
   longkey: false
   showdiff: false
   workdir: ~/cyber/dotfiles
+  import_variables:
+    - config.d/70-variables-dev.yaml
 dotfiles:
   f_bluetooth:
     dst: /etc/bluetooth/main.conf
