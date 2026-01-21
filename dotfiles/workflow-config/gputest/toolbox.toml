@@ -12,7 +12,8 @@ post_install = ["gen_vk_default"]
 paths = [
     { src = "_build/main/external/vulkancts/modules/vulkan/Release", includes = ["deqp-vk"] },
     { src = "external/vulkancts/data", includes = ["vulkan"] },
-    { src = "external/vulkancts/mustpass/main", dest = "mustpass", includes = ["vk-default"], excludes = ["api.txt", "image/swapchain-mutable.txt", "info.txt", "query-pool.txt", "video.txt", "wsi.txt"] }
+    { src = "external/vulkancts/mustpass/main", dest = "mustpass", includes = ["vk-default"], excludes = ["api.txt", "image/swapchain-mutable.txt", "info.txt", "query-pool.txt", "video.txt", "wsi.txt"] },
+    { src = "external/vulkancts/mustpass/main/waivers.xml", dest = "waivers/vk.xml" }
 ]
 
 [toolbox.glcts]
@@ -23,7 +24,8 @@ paths = [
     { src = "_build/main/external/openglcts/modules", includes = ["gles2/data", "gles2/shaders", "gles3/data", "gles3/shaders", "gles31/data", "gles31/shaders"] },
     { src = "external/graphicsfuzz/data", includes = ["gles3/graphicsfuzz"] },
     { src = "external/openglcts/data", includes = ["gl_cts"], excludes = ["mustpass"] },
-    { src = "external/openglcts/data/gl_cts/data/mustpass", dest = "mustpass", includes = ["gl/khronos_mustpass/main/*.txt", "gl/khronos_mustpass_single/main/*.txt", "egl/*_mustpass/main/*.txt", "gles/*_mustpass/main/*.txt", "waivers"], excludes = ["src", "*-gtf-main.txt"] }
+    { src = "external/openglcts/data/gl_cts/data/mustpass", dest = "mustpass", includes = ["gl/khronos_mustpass/main/*.txt", "gl/khronos_mustpass_single/main/*.txt", "egl/*_mustpass/main/*.txt", "gles/*_mustpass/main/*.txt"], excludes = ["src", "*-gtf-main.txt", "waivers"] },
+    { src = "external/openglcts/data/gl_cts/data/mustpass/waivers/waivers.xml", dest = "waivers/gl.xml" }
 ]
 
 [toolbox.piglit]

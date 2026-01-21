@@ -9,6 +9,7 @@ deqp_args = [
     "--deqp-log-shader-sources=disable",
     "--deqp-log-decompiled-spirv=disable",
     "--deqp-shadercache=disable",
+    "--deqp-waiver-file=waivers/vk.xml",
 ]
 caselists = [
     "mustpass/vk-default/binding-model.txt",
@@ -53,6 +54,7 @@ deqp_args = [
     "--deqp-surface-height=256",
     "--deqp-surface-width=256",
     "--deqp-visibility=hidden",
+    "--deqp-waiver-file=waivers/gl.xml",
 ]
 caselists = [
     "mustpass/gl/khronos_mustpass/main/*-main.txt",
