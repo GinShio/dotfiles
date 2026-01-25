@@ -1,5 +1,5 @@
 actions:
-  emacs-config: emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"~/.config/doom/config.org\"))"
+  emacs-config: emacs --batch --eval "(progn (require 'org) (setq org-confirm-babel-evaluate nil) (org-babel-tangle-file \"{{@@ sysenv.xdg_config_home @@}}/doom/config.org\"))"
   histfile-install: grep -Phor '\bhistory_[\w-]*' {{@@ _dotfile_abs_dst @@}} |xargs -I@ bash -c 'touch {{@@ sysenv.xdg_cache_home @@}}/$(eval echo -E @)'
   ssh-key-install: >-
     bash {{@@ _dotdrop_workdir @@}}/scripts/ssh-key.sh --deploy --tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d);
