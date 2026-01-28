@@ -1,6 +1,7 @@
 [include]
         path = config.d/global_alias.conf
         path = config.d/global_blame.conf
+        path = config.d/global_branch.conf
         path = config.d/global_color.conf
         path = config.d/global_core.conf
         path = config.d/global_diff.conf
@@ -17,3 +18,4 @@
         path = config.d/global_pull.conf
         path = config.d/global_push.conf
         path = config.d/global_rebase.conf
+        path = config.d/global_rerere.conf
