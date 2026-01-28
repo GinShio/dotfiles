@@ -1,3 +1,26 @@
+variables:
+    ssh:
+        github:
+            remote: "github"
+            url: "github.com"
+            hostname: "ssh.github.com"
+            port: 443
+        gitlab:
+            remote: "gitlab"
+            url: "gitlab.com"
+            hostname: "altssh.gitlab.com"
+            port: 443
+        codeberg:
+            remote: "codeberg"
+            url: "codeberg.org"
+            hostname: "codeberg.org"
+            port: 22
+        bitbucket:
+            remote: "bitbucket"
+            url: "bitbucket.org"
+            hostname: "altssh.bitbucket.org"
+            port: 443
+
 dynvariables:
     samba_common_args: "eval echo uid=$(id -nu $USER),gid=$(id -ng $USER),file_mode=0640,dir_mode=0750,cache=strict,iocharset=utf8,forcegid,mapposix,nounix"
     samba_credentials: "eval echo credentials=$HOME/Public/.config"
