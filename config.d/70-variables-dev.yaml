@@ -2,6 +2,62 @@ variables:
     projects:
         root_dir: "{{@@ env['HOME'] @@}}/Projects"
         script_dir: "{{@@ env['HOME'] @@}}/cyber/scripts"
+        source_info:
+            alive2:
+                org: "compiler"
+                name: "alive2"
+            deqp:
+                org: "khronos"
+                name: "deqp"
+            dxc:
+                org: "khronos"
+                name: "dxc"
+            glslang:
+                org: "khronos"
+                name: "glslang"
+            iree:
+                org: "compiler"
+                name: "iree"
+            llvm:
+                org: "compiler"
+                name: "llvm"
+            mesa:
+                org: "fd.o"
+                name: "mesa"
+            runner:
+                org: "fd.o"
+                name: "runner"
+            piglit:
+                org: "fd.o"
+                name: "piglit"
+            slang:
+                org: "khronos"
+                name: "slang"
+            spirv-headers:
+                org: "khronos"
+                name: "spirv-headers"
+            spirv-tools:
+                org: "khronos"
+                name: "spirv-tools"
+            vulkan-samples:
+                org: "khronos"
+                name: "vulkan-samples"
+            vvl:
+                org: "khronos"
+                name: "vvl"
+        khronos3d_source_info:
+            amdd3d:
+                org: "amd"
+                name: "amdd3d"
+            amdogl:
+                org: "amd"
+                name: "amdogl"
+            amdvlk:
+                org: "amd"
+                name: "amdvlk"
+            bootstrap:
+                org: "amd"
+                name: "bootstrap"
     ccache:
         runtime_dir: "{{@@ env['XDG_RUNTIME_DIR'] @@}}/ccache"
         remote_dir: "{{@@ ccache.runtime_dir @@}}/remote"

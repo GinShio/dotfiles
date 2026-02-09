@@ -1,6 +1,6 @@
 [project]
-org = "fd.o"
-name = "mesa"
+org = "{{@@ projects.source_info['mesa'].org @@}}"
+name = "{{@@ projects.source_info['mesa'].name @@}}"
 source_dir = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
 build_dir = "_build/{{user.branch}}-{{user.build_type}}"
 install_dir = "{{project.build_dir}}"

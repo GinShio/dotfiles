@@ -1,6 +1,7 @@
 [project]
-name = "alive2"
-source_dir = "{{@@ projects.root_dir @@}}/compiler/{{project.name}}"
+org = "{{@@ projects.source_info['alive2'].org @@}}"
+name = "{{@@ projects.source_info['alive2'].name @@}}"
+source_dir = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
 build_dir = "_build/{{user.branch}}"
 install_dir = "{{project.build_dir}}"
 build_system = "cmake"
@@ -8,8 +9,8 @@ generator = "Ninja Multi-Config"
 toolchain = "clang"
 
 [project.environment]
-ALIVE2_HOME = "{{project.source_dir}}/.."
-LLVM2_HOME = "{{project.environment.ALIVE2_HOME}}/llvm"
+ALIVE2_HOME = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['alive2'].org @@}}"
+LLVM2_HOME = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['llvm'].org @@}}/{{@@ projects.source_info['llvm'].name @@}}"
 LLVM2_BUILD = "{{project.environment.LLVM2_HOME}}/_build/main-Debug"
 
 [git]

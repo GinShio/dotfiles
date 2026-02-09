@@ -1,6 +1,6 @@
 [project]
-org = "fd.o"
-name = "piglit"
+org = "{{@@ projects.source_info['piglit'].org @@}}"
+name = "{{@@ projects.source_info['piglit'].name @@}}"
 source_dir = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
 build_dir = "_build/{{user.branch}}"
 install_dir = "_build/{{user.branch}}"

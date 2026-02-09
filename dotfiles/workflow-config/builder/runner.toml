@@ -1,6 +1,6 @@
 [project]
-org = "fd.o"
-name = "runner"
+org = "{{@@ projects.source_info['runner'].org @@}}"
+name = "{{@@ projects.source_info['runner'].name @@}}"
 source_dir = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
 build_dir = "_build/{{user.branch}}"
 build_system = "cargo"

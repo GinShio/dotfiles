@@ -1,13 +1,13 @@
 [toolbox.runner]
-src = "{{project_root}}/fd.o/runner"
+src = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['runner'].org @@}}/{{@@ projects.source_info['runner'].name @@}}"
 dest = "{{runner_root}}"
 paths = [
     { src = "_build/main/release/", includes = ["deqp-runner", "piglit-runner"] },
 ]
 
 [toolbox.deqp-vk]
-src = "{{project_root}}/khronos/deqp"
-dest = "{{runner_root}}/deqp"
+src = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['deqp'].org @@}}/{{@@ projects.source_info['deqp'].name @@}}"
+dest = "{{runner_root}}/{{@@ projects.source_info['deqp'].name @@}}"
 post_install = ["gen_vk_default"]
 paths = [
     { src = "_build/main/external/vulkancts/modules/vulkan/Release", includes = ["deqp-vk"] },
@@ -17,8 +17,8 @@ paths = [
 ]
 
 [toolbox.glcts]
-src = "{{project_root}}/khronos/deqp"
-dest = "{{runner_root}}/deqp"
+src = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['deqp'].org @@}}/{{@@ projects.source_info['deqp'].name @@}}"
+dest = "{{runner_root}}/{{@@ projects.source_info['deqp'].name @@}}"
 paths = [
     { src = "_build/main/external/openglcts/modules/Release", includes = ["glcts"] },
     { src = "_build/main/external/openglcts/modules", includes = ["gles2/data", "gles2/shaders", "gles3/data", "gles3/shaders", "gles31/data", "gles31/shaders"] },
@@ -29,8 +29,8 @@ paths = [
 ]
 
 [toolbox.piglit]
-src = "{{project_root}}/fd.o/piglit"
-dest = "{{runner_root}}/piglit"
+src = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['piglit'].org @@}}/{{@@ projects.source_info['piglit'].name @@}}"
+dest = "{{runner_root}}/{{@@ projects.source_info['piglit'].name @@}}"
 post_install = ["patchelf_piglit"]
 paths = [
     { src = "_build/main", includes = ["bin"], excludes = ["bin/replayer.py"] },
@@ -42,7 +42,7 @@ paths = [
 ]
 
 [toolbox.vkd3d]
-src = "{{project_root}}/vkd3d"
+src = "{{@@ projects.root_dir @@}}/vkd3d"
 dest = "{{runner_root}}/vkd3d"
 paths = [
     { src = "_build/_rel/tests", dest = "bin", excludes = ["*.a"] },

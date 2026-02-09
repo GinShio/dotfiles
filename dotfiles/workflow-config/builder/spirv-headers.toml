@@ -1,6 +1,6 @@
 [project]
-org = "khronos"
-name = "spirv-headers"
+org = "{{@@ projects.source_info['spirv-headers'].org @@}}"
+name = "{{@@ projects.source_info['spirv-headers'].name @@}}"
 source_dir = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
 
 [git]
