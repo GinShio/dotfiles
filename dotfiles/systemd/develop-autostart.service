@@ -6,7 +6,7 @@ After=network.target
 [Service]
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/bin/sh {{@@ projects.script_dir @@}}/services/runner.sh autostart desktop
+ExecStart=/bin/sh {{@@ projects.script_dir @@}}/services/runner.sh autostart
 Restart=no
 
 [Install]
