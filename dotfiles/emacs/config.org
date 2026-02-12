@@ -63,7 +63,8 @@ source /etc/os-release
        gc-cons-threshold 1073741824
        read-process-output-max 1048576
        which-func-unknown ""
-       auth-sources `(,(expand-file-name "git/.authinfo" (getenv "XDG_CONFIG_HOME")))
+       auth-sources `(,(expand-file-name "git/.authinfo" (getenv "XDG_CONFIG_HOME"))
+                      ,(expand-file-name "git/.authinfo-khronos3d" (getenv "XDG_CONFIG_HOME")))
        )
 
 (remove-hook! text-mode #'visual-line-mode)
@@ -2442,17 +2443,6 @@ compared to the default implementation."
 (advice-add 'org-html-example-block   :around #'org-html-block-collapsable)
 (advice-add 'org-html-fixed-width     :around #'org-html-block-collapsable)
 (advice-add 'org-html-property-drawer :around #'org-html-block-collapsable)
-#+end_src
-
-**** HTML 化的字体锁
-
-Org 使用 [[https://github.com/hniksic/emacs-htmlize][htmlize.el]] 导出带有语法高亮的缓冲区。
-在大多数情况下这些格式非常棒。不需要加载提供字体锁定的次要模式，因此不会影响结果。
-通过在 ~htmlize-before-hook~ 中启用这些模式，我们可以纠正这种行为。
-
-#+begin_src emacs-lisp
-(require 'htmlize)
-(add-hook! htmlize-before #'highlight-numbers--turn-on)
 #+end_src
 
 **** 处理表溢出

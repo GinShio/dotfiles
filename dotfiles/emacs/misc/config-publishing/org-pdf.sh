@@ -21,7 +21,6 @@
 (advice-add 'pdf-info-features :around #'ignore)
 
 ;; For some faces
-(require 'highlight-numbers)
 (require 'highlight-quoted)
 (require 'rainbow-delimiters)
 
