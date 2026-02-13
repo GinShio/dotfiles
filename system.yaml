@@ -32,6 +32,9 @@ dotfiles:
   d_systemd-logind:
     dst: /etc/systemd/logind.conf.d/
     src: systemd-logind/
+  d_systemd-user:
+    dst: /etc/systemd/user@.service.d/
+    src: systemd-user/
 profiles:
   personal:
     dotfiles:
