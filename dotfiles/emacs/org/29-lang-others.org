@@ -291,6 +291,9 @@ tcc 也是 C++
 (package! llvm-mode
   :recipe `(:local-repo ,doom-user-dir
             :files ("modules/llvm/llvm-mode.el")))
+(package! mlir-mode
+  :recipe `(:local-repo ,doom-user-dir
+            :files ("modules/mlir/mlir-mode.el")))
 (package! tablegen-mode
   :recipe `(:local-repo ,doom-user-dir
             :files ("modules/llvm/tablegen-mode.el")))
@@ -299,6 +302,7 @@ tcc 也是 C++
 别忘了让 emacs 可以认识 LLVM 的文件。
 #+begin_src emacs-lisp
 (add-to-list 'auto-mode-alist '("\\.ll\\'" . llvm-mode))
+(add-to-list 'auto-mode-alist '("\\.mlir\\'" . mlir-mode))
 (add-to-list 'auto-mode-alist '("\\.lgc\\'" . llvm-mode))  ; https://github.com/GPUOpen-Drivers/llpc/tree/dev/lgc
 (add-to-list 'auto-mode-alist '("\\.td\\'" . tablegen-mode))
 #+end_src
