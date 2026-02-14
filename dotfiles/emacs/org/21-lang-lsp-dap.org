@@ -53,6 +53,16 @@ Eglot 是 Emacs 29+ 內建的 LSP 客戶端，相比 lsp-mode 更加輕量且與
             (setq-local eldoc-documentation-strategy #'eldoc-documentation-compose)))
 ;; 減少 JSON-RPC 日誌噪音
 (advice-add 'jsonrpc--log-event :override #'ignore)
+
+;; 修復 eglot hover 在渲染 markdown 代碼塊時的臨時 buffer 問題
+;; 禁用會導致 "Selecting deleted buffer" 錯誤的 hooks
+(defun +eglot-fix-markdown-fontify-a (orig-fn &rest args)
+  "在渲染 markdown 代碼塊的臨時 buffer 中禁用有問題的 hooks。"
+  (let ((c-mode-common-hook nil)
+        (prog-mode-hook nil))
+    (apply orig-fn args)))
+
+(advice-add 'markdown-fontify-code-block-natively :around #'+eglot-fix-markdown-fontify-a)
 #+end_src
 
 *** Eglot Booster (可選的性能加速)
@@ -79,8 +89,7 @@ Eglot 是 Emacs 29+ 內建的 LSP 客戶端，相比 lsp-mode 更加輕量且與
                   "--clang-tidy"
                   "--header-insertion=iwyu"
                   "--completion-style=detailed"
-                  "--pch-storage=memory"
-                  "--function-arg-placeholders")))
+                  "--pch-storage=memory")))
 #+end_src
 
 **** Rust (rust-analyzer)
@@ -150,7 +159,7 @@ Inlay hints 在代碼行內顯示類型標註、參數名等。信息量大但�
 用 =dape= 來取代過時的 =gud-gdb= 和不穩定的 =dap-mode=​ 。 =dape= 直接使用
 DAP 協議，不依賴 lsp-mode，且與 Emacs 內建設施集成良好。
 
-#+begin_src emacs-lisp :tangle "packages.el"
+#+begin_src emacs-lisp :noweb-ref none :tangle packages.el
 (package! dape :recipe (:host github :repo "svaante/dape"))
 #+end_src
 
@@ -247,10 +256,21 @@ Tree-sitter 內建的結構化導航默認已可用 (透過 ~treesit-beginning-o
 (after! treesit
   ;; 讓 treesit 的 defun 導航更精確
   (setq treesit-defun-tactic 'top-level)
-  ;; 擴展 defun 的快捷鍵到所有 tree-sitter 模式
-  (map! :map treesit-parser-list
-        :nv "C-M-a" #'treesit-beginning-of-defun
-        :nv "C-M-e" #'treesit-end-of-defun))
+  
+  ;; 為所有 tree-sitter 模式添加結構化導航快捷鍵
+  (defun +treesit-setup-navigation-keys ()
+    "為當前 buffer 設置 tree-sitter 結構化導航快捷鍵。"
+    (when (treesit-parser-list)
+      (local-set-key (kbd "C-M-a") #'treesit-beginning-of-defun)
+      (local-set-key (kbd "C-M-e") #'treesit-end-of-defun)))
+  
+  ;; 在所有使用 tree-sitter 的模式中啟用
+  (dolist (mode '(c-ts-mode-hook c++-ts-mode-hook
+                  rust-ts-mode-hook python-ts-mode-hook
+                  zig-ts-mode-hook js-ts-mode-hook
+                  typescript-ts-mode-hook json-ts-mode-hook
+                  yaml-ts-mode-hook toml-ts-mode-hook))
+    (add-hook mode #'+treesit-setup-navigation-keys)))
 #+end_src
 
 *** 結構化編輯 (Combobulate)
@@ -267,13 +287,14 @@ Tree-sitter 內建的結構化導航默認已可用 (透過 ~treesit-beginning-o
 如果用了一段時間覺得不需要，把下面的代碼塊設為 ~:tangle no~ 即可關閉。
 #+end_quote
 
-#+begin_src emacs-lisp :tangle "packages.el" :noweb-ref nil
+#+begin_src emacs-lisp :noweb-ref none :tangle packages.el
 (package! combobulate :recipe (:host github :repo "mickeynp/combobulate"))
 #+end_src
 
 #+begin_src emacs-lisp :tangle yes :noweb-ref nil
 (use-package! combobulate
-  :defer t
+  :after treesit
+  :demand t  ; 立即加載，不延遲
   :hook ((python-ts-mode . combobulate-mode)
          (c-ts-mode . combobulate-mode)
          (c++-ts-mode . combobulate-mode)
@@ -283,6 +304,20 @@ Tree-sitter 內建的結構化導航默認已可用 (透過 ~treesit-beginning-o
          (json-ts-mode . combobulate-mode)
          (yaml-ts-mode . combobulate-mode)
          (toml-ts-mode . combobulate-mode))
+  :init
+  ;; 確保 combobulate 在 tree-sitter 模式啟動時被加載
+  (defun +combobulate-setup-h ()
+    "確保 combobulate 已加載並啟用。"
+    (when (and (treesit-parser-list)
+               (fboundp 'combobulate-mode))
+      (combobulate-mode 1)))
+  
+  (dolist (hook '(c-ts-mode-hook c++-ts-mode-hook
+                  python-ts-mode-hook rust-ts-mode-hook
+                  js-ts-mode-hook typescript-ts-mode-hook
+                  json-ts-mode-hook yaml-ts-mode-hook
+                  toml-ts-mode-hook))
+    (add-hook hook #'+combobulate-setup-h))
   :config
   ;; 基本操作:
   ;; C-c o n / C-c o p  — 同級節點跳轉
@@ -294,3 +329,93 @@ Tree-sitter 內建的結構化導航默認已可用 (透過 ~treesit-beginning-o
   ;; M-a / M-e          — 按語法導航
   (setq combobulate-flash-node nil)) ;; 不閃爍高亮當前節點
 #+end_src
+
+** LSP + Tree-sitter 協同優化
+   :PROPERTIES:
+   :header-args:emacs-lisp: :tangle yes :noweb-ref nil
+   :END:
+
+確保 LSP (語義分析) 和 tree-sitter (語法分析) 協同工作，提供極致開發體驗。
+
+*** 優先使用 tree-sitter 模式
+
+Emacs 30+ 支持 tree-sitter 原生模式 (如 ~c-ts-mode~)。我們確保在支持的情況下
+優先使用 tree-sitter 模式，以獲得更好的語法高亮和結構化編輯能力：
+
+#+begin_src emacs-lisp
+(after! treesit
+  ;; 自動使用 tree-sitter 模式 (如果對應語法庫已安裝)
+  (setq major-mode-remap-alist
+        '((c-mode          . c-ts-mode)
+          (c++-mode        . c++-ts-mode)
+          (python-mode     . python-ts-mode)
+          (rust-mode       . rust-ts-mode)
+          (javascript-mode . js-ts-mode)
+          (typescript-mode . typescript-ts-mode)
+          (json-mode       . json-ts-mode)
+          (yaml-mode       . yaml-ts-mode)
+          (toml-mode       . toml-ts-mode))))
+#+end_src
+
+*** 性能監控 (可選)
+
+如果想監控 LSP 和 tree-sitter 的性能，可以臨時啟用：
+
+#+begin_src emacs-lisp :tangle no
+;; 查看 eglot 與 LSP server 的通信
+;; (setq eglot-events-buffer-size 2000000)  ; 啟用事件日志
+;; M-x eglot-events-buffer  ; 查看 LSP 通信
+
+;; 查看 tree-sitter 解析性能
+;; (setq treesit-font-lock-level 4)  ; 最高語法高亮級別
+#+end_src
+
+*** 快捷鍵總結
+
+整合後的常用快捷鍵：
+
+**** LSP (eglot)
+- ~SPC c a~ — 代碼操作 (code actions)
+- ~SPC c d~ — 查看定義
+- ~SPC c D~ — 查看聲明
+- ~SPC c r~ — 查找引用
+- ~SPC c R~ — 重命名符號
+- ~SPC c I~ — 切換 inlay hints
+- ~SPC c x~ — 當前 buffer 診斷
+- ~SPC c X~ — 整個項目診斷
+
+**** Tree-sitter + Combobulate
+- ~C-M-a / C-M-e~ — 跳轉到函數開始/結束
+- ~C-c o n / p~ — 跳轉到同級節點
+- ~C-c o u / d~ — 跳轉到上/下層節點
+- ~C-c o U / D~ — 拖拽節點上/下移
+- ~C-c o h~ — 逐層擴展選擇 (很實用！)
+- ~C-c o e~ — 包裹代碼在結構中
+- ~C-c o t~ — 使用 avy 跳轉到可見節點
+
+**** DAP (dape)
+- ~SPC d d~ — 開始調試
+- ~SPC d b~ — 切換斷點
+- ~SPC d n / i / o~ — 下一步 / 步入 / 步出
+- ~SPC d c~ — 繼續執行
+- ~SPC d e~ — 計算表達式
+
+*** 最佳實踐建議
+
+1. **項目配置**：在項目根目錄創建 ~compile_commands.json~ (C/C++) 或對應的
+   項目配置文件，讓 LSP 能正確理解項目結構
+
+2. **性能調優**：
+   - 大型項目：減少 ~-j~ 參數值 (clangd 並行度)
+   - 內存受限：使用 ~--pch-storage=disk~ 代替 ~memory~
+   - 減少不必要的診斷：調整 LSP server 配置
+
+3. **漸進式采用**：
+   - 先熟悉基本的 LSP 功能 (跳轉、補全、診斷)
+   - 再學習 tree-sitter 結構化編輯 (逐層選擇、拖拽)
+   - 最後掌握 DAP 調試工作流
+
+4. **語言特定優化**：
+   - C/C++：確保有 ~compile_commands.json~
+   - Rust：使用 ~rust-analyzer~ 的 clippy 檢查
+   - Python：配置 ~pyright~ 或 ~pylsp~ 的 type checking 級別
