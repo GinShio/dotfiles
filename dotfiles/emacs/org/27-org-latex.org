@@ -530,8 +530,10 @@ digraph {
          ("\\\\(\\|\\\\\\[\\|\\\\begin{\\(?:math\\|displaymath\\|equation\\|align\\|flalign\\|multiline\\|gather\\)[a-z]*\\*?}" . maths)
          ("^[ \t]*|" . table)
          ("cref:\\|\\cref{" . cleveref)
+         ((and (boundp 'org-latex-reference-command)
+               (string-match-p "cref" org-latex-reference-command)) . cleveref)
          ("[;\\\\]?\\b[A-Z][A-Z]+s?[^A-Za-z]" . acronym)
-         ("\\+[^ ].*[^ ]\\+\\|_[^ ].*[^ ]_\\|\\\\uu?line\\|\\\\uwave\\|\\\\sout\\|\\\\xout\\|\\\\dashuline\\|\\dotuline\\|\\markoverwith" . underline)
+         ("\\+[^ ].*[^ ]\\+\\|_[^ ].*[^ ]_\\|\\\\uu?line\\|\\\\uwave\\|\\\\sout\\|\\\\xout\\|\\\\dashuline\\|\\\\dotuline\\|\\\\markoverwith" . underline)
          (":float wrap" . float-wrap)
          (":float sideways" . rotate)
          (org-latex-use-microtype . microtype)
@@ -620,7 +622,11 @@ LaTeX  中的另一个考虑因素是加载顺序，这在某些情况下很重�
 
 #+name: latex-feature-acronym
 #+begin_src LaTeX
-\newcommand{\acr}[1]{\protect\textls*[110]{\scshape #1}}
+\makeatletter
+\@ifpackageloaded{microtype}{%
+  \newcommand{\acr}[1]{\protect\textls*[110]{\scshape #1}}}{%
+  \newcommand{\acr}[1]{{\scshape #1}}}
+\makeatother
 \newcommand{\acrs}{\protect\scalebox{.91}[.84]{\hspace{0.15ex}s}}
 #+end_src
 
@@ -692,7 +698,7 @@ LaTeX  中的另一个考虑因素是加载顺序，这在某些情况下很重�
          (rotate        :snippet org-latex-rotate-preamble :order 2)
          (caption       :snippet org-latex-caption-preamble :order 2.1)
          (microtype     :snippet org-latex-microtype-preamble :order 0.1)
-         (acronym       :snippet org-latex-acronym-preamble :order 0.4)
+         (acronym       :snippet org-latex-acronym-preamble :requires image :order 0.4)
          (box-drawing   :snippet org-latex-box-drawing-preamble :order 0.05)
          (italic-quotes :snippet org-latex-italic-quotes-preamble :order 0.5)
          (par-sep       :snippet org-latex-par-sep-preamble :order 0.5)
@@ -826,16 +832,10 @@ This is done according to `org-latex-feature-implementations'"
 (defadvice! org-latex-save-info (info &optional t_ s_)
   :before #'org-latex-make-preamble
   (setq org-export-latex--preamble-info info))
-
-(defadvice! org-splice-latex-header-and-generated-preamble-a (orig-fn tpl def-pkg pkg snippets-p &optional extra)
-  "Dynamically insert preamble content based on `org-latex-conditional-preambles'."
-  :around #'org-splice-latex-header
-  (let ((header (funcall orig-fn tpl def-pkg pkg snippets-p extra)))
-    (if snippets-p header
-      (concat header
-              (org-latex-generate-features-preamble (org-latex-detect-features nil org-export-latex--preamble-info))
-              "\n"))))
 #+end_src
+
+原始的 ~org-splice-latex-header~ 建议已移至 §导出模板系统 中，在那里它被扩展
+为同时注入模板的额外序言。
 
 我对 ~org-export-latex--preamble-info~ 的使用有点老套。 当我尝试将其上游化时，这应
 该会变得更加清晰，因为我可以通过直接修改 ~org-latex-make-preamble~ 来传递信息。
@@ -863,6 +863,8 @@ This is done according to `org-latex-feature-implementations'"
 % Improvements on amsmath and utilities for mathematical typesetting
 \usepackage{mathtools}
 \usepackage{upgreek,extarrows}
+% Differential operator
+\newcommand{\dd}{\mathop{}\!\mathrm{d}}
 #+end_src
 
 ***** 自定义分隔符
@@ -1064,6 +1066,158 @@ This condition is applied when cover page option is set to auto.")
 #+end_src
 
 或许之后可以再加一些不同的封面。
+
+**** 导出模板系统
+
+为了灵活管理不同类型 LaTeX 文档的导出设置，我们引入一个导出模板系统。通过在 Org
+文件中使用 =#+options: template:NAME= 来选择预定义的模板，模板可以捆绑文档类、
+强制特征、额外序言和编译器设置。
+
+#+begin_src emacs-lisp :noweb-ref ox-latex-conf :noweb no-export :tangle no
+(defvar org-latex-export-templates nil
+  "Alist of named LaTeX export templates.
+Each entry is (NAME . PLIST) where PLIST can contain:
+  :class            - `org-latex-classes' key to use
+  :compiler         - \"pdflatex\", \"xelatex\", or \"lualatex\"
+  :forced-features  - list of features to always enable
+  :extra-preamble   - additional preamble string to inject
+  :cover-page       - cover page setting: t, nil, or \\='auto
+  :packages         - extra packages alist like `org-latex-packages-alist'")
+
+(setq! org-latex-export-templates
+       '(("academic"
+          :class "article"
+          :compiler "lualatex"
+          :forced-features (cleveref caption microtype)
+          :extra-preamble "\\usepackage{setspace}\n\\onehalfspacing\n"
+          :cover-page nil)
+         ("thesis"
+          :class "book"
+          :compiler "lualatex"
+          :forced-features (cleveref caption microtype)
+          :extra-preamble "\\usepackage{setspace}\n\\onehalfspacing\n"
+          :cover-page t)
+         ("notes"
+          :class "article"
+          :compiler "lualatex"
+          :forced-features (caption)
+          :cover-page nil)
+         ("report"
+          :class "report"
+          :compiler "lualatex"
+          :forced-features (cleveref caption)
+          :cover-page auto)
+         ("minimal"
+          :class "blank"
+          :compiler "pdflatex"
+          :forced-features ()
+          :cover-page nil)))
+
+(eval '(cl-pushnew '(:latex-template nil "template" nil)
+                   (org-export-backend-options (org-export-get-backend 'latex))))
+
+(defun org-latex-get-template (&optional info)
+  "Get the LaTeX template plist for the current document.
+Template is specified via #+options: template:NAME."
+  (when-let* ((template-name
+               (or (and info (plist-get info :latex-template))
+                   (car (delq nil
+                              (mapcar
+                               (lambda (opt-line)
+                                 (plist-get (org-export--parse-option-keyword opt-line 'latex)
+                                            :latex-template))
+                               (cdar (org-collect-keywords '("OPTIONS"))))))))
+              (template (cdr (assoc template-name org-latex-export-templates))))
+    template))
+
+(defun org-latex-template-forced-features ()
+  "Return forced features from the active LaTeX template, or nil."
+  (when-let ((template (org-latex-get-template)))
+    (plist-get template :forced-features)))
+#+end_src
+
+将模板的强制特性注入到特征检测中，并将额外序言注入到最终输出中。
+
+#+begin_src emacs-lisp
+(defadvice! org-latex-detect-features-with-template-a (fn &optional buffer info)
+  "Prepend forced features from the active LaTeX template."
+  :around #'org-latex-detect-features
+  (let ((detected (funcall fn buffer info))
+        (forced (org-latex-template-forced-features)))
+    (if forced
+        (delete-dups (append forced detected))
+      detected)))
+#+end_src
+
+将模板的额外序言注入到现有的 ~org-splice-latex-header~ 建议中，并在导出前应用
+模板对文档类和编译器的覆盖。
+
+#+begin_src emacs-lisp
+(defadvice! org-latex-apply-template-settings-a (info &optional t_ s_)
+  "Apply LaTeX template class, compiler and cover-page overrides before preamble generation."
+  :before #'org-latex-make-preamble
+  (when-let ((template (org-latex-get-template info)))
+    ;; Override class only when the document does not explicitly set #+LATEX_CLASS
+    (when-let ((class (plist-get template :class)))
+      (let ((explicit (cdar (org-collect-keywords '("LATEX_CLASS")))))
+        (unless explicit
+          (plist-put info :latex-class class))))
+    ;; Override compiler
+    (when-let ((compiler (plist-get template :compiler)))
+      (let ((explicit (cdar (org-collect-keywords '("LATEX_COMPILER")))))
+        (unless explicit
+          (plist-put info :latex-compiler compiler))))
+    ;; Override cover-page
+    (when (plist-member template :cover-page)
+      (let ((explicit (cl-find-if
+                       (lambda (opt-line)
+                         (plist-get (org-export--parse-option-keyword opt-line 'latex) :latex-cover-page))
+                       (cdar (org-collect-keywords '("OPTIONS"))))))
+        (unless explicit
+          (setq org-latex-cover-page (plist-get template :cover-page)))))))
+#+end_src
+
+修改现有的 ~org-splice-latex-header~ 建议以追加模板的额外序言。
+
+#+begin_src emacs-lisp
+;; NOTE: The original `org-splice-latex-header-and-generated-preamble-a' is
+;; defined in §序言生成.  Here we replace it with a version that also injects
+;; the template's :extra-preamble.
+(defadvice! org-splice-latex-header-and-generated-preamble-a (orig-fn tpl def-pkg pkg snippets-p &optional extra)
+  "Dynamically insert preamble content and template extra-preamble."
+  :around #'org-splice-latex-header
+  (let ((header (funcall orig-fn tpl def-pkg pkg snippets-p extra)))
+    (if snippets-p header
+      (let ((template (org-latex-get-template org-export-latex--preamble-info)))
+        (concat header
+                (org-latex-generate-features-preamble (org-latex-detect-features nil org-export-latex--preamble-info))
+                (when template (or (plist-get template :extra-preamble) ""))
+                "\n")))))
+#+end_src
+
+使用方法非常简单，在 Org 文件头部添加：
+#+begin_example
+,#+options: template:academic
+#+end_example
+
+也可以显式覆盖模板中的某些设置：
+#+begin_example
+,#+options: template:thesis coverpage:no
+,#+latex_class: article
+,#+latex_compiler: xelatex
+#+end_example
+
+自定义模板只需要向 ~org-latex-export-templates~ 中添加新项即可：
+#+begin_src emacs-lisp :tangle no
+;; 例: 添加一个 IEEE 会议论文模板
+(add-to-list 'org-latex-export-templates
+             '("ieee"
+               :class "blank"
+               :compiler "pdflatex"
+               :forced-features (caption cleveref)
+               :extra-preamble "\\documentclass[conference]{IEEEtran}\n"
+               :cover-page nil))
+#+end_src
 
 **** 更好看的代码块
 
