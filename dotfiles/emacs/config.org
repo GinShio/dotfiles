@@ -27,4 +27,5 @@
 #+include: org/27-org-html.org
 #+include: org/27-org-latex.org
 #+include: org/29-lang-others.org
-#+include: org/90-references.org
+#+include: org/90-workarounds.org
+#+include: org/99-references.org
