@@ -22,6 +22,7 @@
 #+include: org/00-basic.org
 #+include: org/10-packages.org
 #+include: org/20-lang-common.org
+#+include: org/21-lang-lsp-dap.org
 #+include: org/25-org-mode.org
 #+include: org/27-org-html.org
 #+include: org/27-org-latex.org

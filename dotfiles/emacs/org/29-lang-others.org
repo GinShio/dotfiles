@@ -278,23 +278,7 @@ tcc 也是 C++
   :modes '(c-mode c++-mode))
 #+end_src
 
-设置 gud-gdb 显示当前行
-#+begin_src emacs-lisp
-(after! gud-gdb
-  ;;; Keep the current line in sync with the point and in the center of the
-  ;;; buffer. Otherwise the current line may disappear from the buffer as you step
-  ;;; into the code. I don't know why this is not the default.
-  (advice-add gud-display-line (after gud-display-line-centered activate)
-    "Center the current line in the source code window"
-    (when (and gud-overlay-arrow-position gdb-source-window)
-      (with-selected-window gdb-source-window
-        ; (marker-buffer gud-overlay-arrow-position)
-        (save-restriction
-          ;; Compiler-happy equivalent to (goto-line (ad-get-arg 1))
-          (goto-char (point-min))
-          (forward-line (1- (ad-get-arg 1)))
-          (recenter))))))
-#+end_src
+使用 =dape= 進行現代化調試，配置見 [[file:21-lang-lsp-dap.org][LSP/DAP 配置]]​。
 
 ** LLVM
 

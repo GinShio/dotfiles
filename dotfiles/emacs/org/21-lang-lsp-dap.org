@@ -1,0 +1,296 @@
+** LSP / DAP 現代化編程設施
+:properties:
+:CUSTOM_ID: lang-lsp-dap
+:header-args:emacs-lisp: :tangle no :noweb-ref lsp-dap-conf
+:end:
+
+現代編輯器最重要的特性之一就是對 LSP (Language Server Protocol) 和 DAP (Debug
+Adapter Protocol) 的良好支持。通過統一配置，我們可以確保所有語言獲得一致的體驗。
+
+#+begin_src emacs-lisp :noweb no-export :tangle yes :noweb-ref nil
+(after! eglot
+  <<lsp-dap-conf>>
+  )
+#+end_src
+
+*** Eglot 核心配置
+
+Eglot 是 Emacs 29+ 內建的 LSP 客戶端，相比 lsp-mode 更加輕量且與 Emacs 集成更
+好。我們需要平衡好性能和功能：關閉真正不需要的功能，但保留有價值的功能。
+
+#+begin_src emacs-lisp
+(setq! eglot-autoshutdown t
+       eglot-code-action-indications nil
+       eglot-events-buffer-size 0
+       eglot-extend-to-xref nil
+       eglot-stay-out-of '(yasnippet)
+       ;; 性能相關:  https://github.com/joaotavora/eglot/discussions/993
+       eldoc-idle-delay 0.5
+       flymake-no-changes-timeout 0.5
+       eglot-ignored-server-capabilities '(:colorProvider
+                                           :documentFormattingProvider
+                                           :documentLinkProvider
+                                           :documentOnTypeFormattingProvider
+                                           :documentRangeFormattingProvider
+                                           ;; foldingRange: LSP 提供的代碼折疊範圍
+                                           ;; (函數體、class、if/for block 等)。
+                                           ;; Doom 的 fold 模組已經用 hideshow/outline
+                                           ;; 實現了折疊，兩者會衝突，故忽略。
+                                           :foldingRangeProvider
+                                           ;; inlayHints: 在代碼行內插入類型標註、
+                                           ;; 參數名等提示。信息量大但視覺噪音也大，
+                                           ;; 不喜歡可以忽略；需要時用 M-x eglot-inlay-hints-mode 臨時開啓。
+                                           :inlayHintProvider))
+#+end_src
+
+*** Eldoc 集成
+
+讓 eldoc 合併來自不同源 (eglot, flymake 等) 的文檔：
+
+#+begin_src emacs-lisp
+(add-hook 'eglot-managed-mode-hook
+          (lambda ()
+            (setq-local eldoc-documentation-strategy #'eldoc-documentation-compose)))
+;; 減少 JSON-RPC 日誌噪音
+(advice-add 'jsonrpc--log-event :override #'ignore)
+#+end_src
+
+*** Eglot Booster (可選的性能加速)
+
+如果你安裝了 =emacs-lsp-booster= (一個 Rust 編寫的 JSON-RPC 加速器)，可以取消
+以下註釋來獲得顯著的 LSP 性能提升：
+
+#+begin_src emacs-lisp :tangle no
+;; (package! eglot-booster :recipe (:host github :repo "jdtsmith/eglot-booster"))
+;; (use-package! eglot-booster
+;;   :after eglot
+;;   :config (eglot-booster-mode))
+#+end_src
+
+*** 語言服務器配置
+
+**** C/C++ (clangd)
+
+#+begin_src emacs-lisp
+(add-to-list 'eglot-server-programs
+             `((c-mode c++-mode c-ts-mode c++-ts-mode)
+               . ("clangd"
+                  ,(format "-j=%d" (max 2 (/ (num-processors) 2)))
+                  "--clang-tidy"
+                  "--header-insertion=iwyu"
+                  "--completion-style=detailed"
+                  "--pch-storage=memory"
+                  "--function-arg-placeholders")))
+#+end_src
+
+**** Rust (rust-analyzer)
+
+#+begin_src emacs-lisp
+(add-to-list 'eglot-server-programs
+             '((rust-mode rust-ts-mode) .
+               ("rust-analyzer" :initializationOptions
+                (:check (:command "clippy")
+                 :cargo (:buildScripts (:enable t)
+                         :features "all")
+                 :procMacro (:enable t)))))
+#+end_src
+
+**** Python (pyright)
+
+#+begin_src emacs-lisp
+(add-to-list 'eglot-server-programs
+             '((python-mode python-ts-mode) .
+               ("pyright-langserver" "--stdio"
+                :initializationOptions
+                (:python (:analysis (:autoSearchPaths t
+                                     :useLibraryCodeForTypes t
+                                     :diagnosticMode "openFilesOnly"))))))
+#+end_src
+
+**** Zig (zls)
+
+#+begin_src emacs-lisp
+(add-to-list 'eglot-server-programs
+             '((zig-mode zig-ts-mode) . ("zls")))
+#+end_src
+
+*** 自動啓動 eglot
+
+在支持的語言模式下自動啓動 eglot：
+
+#+begin_src emacs-lisp
+(dolist (hook '(c-mode-hook c++-mode-hook
+               c-ts-mode-hook c++-ts-mode-hook
+               rust-mode-hook rust-ts-mode-hook
+               python-mode-hook python-ts-mode-hook
+               zig-mode-hook zig-ts-mode-hook))
+  (add-hook hook #'eglot-ensure))
+#+end_src
+
+*** Inlay Hints (默認關閉)
+
+Inlay hints 在代碼行內顯示類型標註、參數名等。信息量大但視覺噪音也大。
+默認通過 ~eglot-ignored-server-capabilities~ 全局關閉。如果對某些語言想臨時
+開啓，可以用快捷鍵切換：
+
+#+begin_src emacs-lisp :tangle yes :noweb-ref nil
+(map! :leader
+      :prefix ("c" . "code")
+      :desc "Toggle inlay hints" "I" #'eglot-inlay-hints-mode)
+#+end_src
+
+#+begin_quote
+如果之後想對某個語言默認開啓 inlay hints，可以從
+~eglot-ignored-server-capabilities~ 中移除 ~:inlayHintProvider~​，
+然後在不需要的語言 hook 中調用 ~(eglot-inlay-hints-mode -1)~ 。
+#+end_quote
+
+*** DAP (Debug Adapter Protocol)
+
+用 =dape= 來取代過時的 =gud-gdb= 和不穩定的 =dap-mode=​ 。 =dape= 直接使用
+DAP 協議，不依賴 lsp-mode，且與 Emacs 內建設施集成良好。
+
+#+begin_src emacs-lisp :tangle "packages.el"
+(package! dape :recipe (:host github :repo "svaante/dape"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes :noweb-ref nil
+(use-package! dape
+  :defer t
+  :init
+  ;; 保存所有 buffer 在開始調試前
+  (add-hook 'dape-on-start-hooks (lambda () (save-some-buffers t t)))
+  :config
+  (setq dape-buffer-window-arrangement 'right
+        dape-info-hide-mode-line nil
+        dape-inlay-hints t)
+  ;; 調試結束後關閉自動打開的 buffer
+  (add-hook 'dape-on-stopped-hooks 'dape-info)
+  (add-hook 'dape-on-stopped-hooks 'dape-repl)
+  ;; 快捷鍵
+  (map! :leader
+        :prefix ("d" . "debug")
+        :desc "dape"              "d" #'dape
+        :desc "dape next"         "n" #'dape-next
+        :desc "dape step in"      "i" #'dape-step-in
+        :desc "dape step out"     "o" #'dape-step-out
+        :desc "dape continue"     "c" #'dape-continue
+        :desc "dape restart"      "r" #'dape-restart
+        :desc "dape pause"        "p" #'dape-pause
+        :desc "dape breakpoint toggle" "b" #'dape-breakpoint-toggle
+        :desc "dape breakpoint remove all" "B" #'dape-breakpoint-remove-all
+        :desc "dape eval"         "e" #'dape-evaluate-expression
+        :desc "dape watch"        "w" #'dape-watch-dwim
+        :desc "dape info"         "?" #'dape-info
+        :desc "dape repl"         "R" #'dape-repl
+        :desc "dape disconnect"   "q" #'dape-disconnect-quit))
+#+end_src
+
+**** 預設調試配置
+
+=dape= 內建了常見 debug adapter 的配置 (codelldb, debugpy, dlv 等)，只需確保
+安裝了對應的 debug adapter 即可。以下是各語言推薦的 debug adapter：
+
+- *C/C++*: =codelldb= (推薦) 或 =cppdbg= (MS 提供)
+  #+begin_src shell :tangle no
+  # 安裝 codelldb (VS Code 擴展中提取，或從 GitHub Release 下載)
+  # https://github.com/vadimcn/codelldb/releases
+  #+end_src
+- *Python*: =debugpy=
+  #+begin_src shell :tangle no
+  pip install debugpy
+  #+end_src
+- *Rust*: =codelldb= (同 C/C++)
+
+*** 格式化
+
+不要讓 LSP 污染格式化！使用專門的格式化工具 (如 clang-format, black, rustfmt)。
+
+#+begin_src emacs-lisp :tangle yes :noweb-ref nil
+(setq +format-with-lsp nil)
+#+end_src
+
+*** Flymake 增強
+
+Flymake 是 Emacs 內建的語法檢查框架，eglot 直接使用它。讓它更好用：
+
+#+begin_src emacs-lisp :tangle yes :noweb-ref nil
+(after! flymake
+  (map! :leader
+        :prefix ("c" . "code")
+        :desc "Flymake diagnostics" "x" #'flymake-show-buffer-diagnostics
+        :desc "Flymake project diagnostics" "X" #'flymake-show-project-diagnostics))
+#+end_src
+
+*** Xref 增強
+
+#+begin_src emacs-lisp :tangle yes :noweb-ref nil
+(after! xref
+  (setq xref-show-definitions-function #'xref-show-definitions-completing-read
+        xref-show-xrefs-function #'xref-show-definitions-completing-read))
+#+end_src
+
+** Tree-sitter 增強
+   :PROPERTIES:
+   :header-args:emacs-lisp: :tangle no :noweb-ref tree-sitter-conf
+   :END:
+
+Doom 的 =:tools tree-sitter= 模塊提供了基礎的 tree-sitter 支持（語法高亮、
+major-mode 重映射等）。這裏在此基礎上增強 *結構化導航* 和 *結構化編輯* 能力。
+
+*** 結構化導航
+
+Tree-sitter 內建的結構化導航默認已可用 (透過 ~treesit-beginning-of-defun~ 等)。
+我們補充更直觀的語法節點導航快捷鍵：
+
+#+begin_src emacs-lisp :tangle yes :noweb-ref nil
+(after! treesit
+  ;; 讓 treesit 的 defun 導航更精確
+  (setq treesit-defun-tactic 'top-level)
+  ;; 擴展 defun 的快捷鍵到所有 tree-sitter 模式
+  (map! :map treesit-parser-list
+        :nv "C-M-a" #'treesit-beginning-of-defun
+        :nv "C-M-e" #'treesit-end-of-defun))
+#+end_src
+
+*** 結構化編輯 (Combobulate)
+
+[[https://github.com/mickeynp/combobulate][Combobulate]] 是基於 tree-sitter 的結構化編輯工具。
+核心功能：
+
+- *語法感知導航*: 按 AST 節點跳轉，比按字符/行高效
+- *逐層展選*: 從光標位置逐層擴展選擇到父節點
+- *節點拖拽*: 上下移動整個語法節點 (如函數、參數)
+- *Envelope*: 快速將選中代碼包裹在 if/for/try 等結構中
+
+#+begin_quote
+如果用了一段時間覺得不需要，把下面的代碼塊設為 ~:tangle no~ 即可關閉。
+#+end_quote
+
+#+begin_src emacs-lisp :tangle "packages.el" :noweb-ref nil
+(package! combobulate :recipe (:host github :repo "mickeynp/combobulate"))
+#+end_src
+
+#+begin_src emacs-lisp :tangle yes :noweb-ref nil
+(use-package! combobulate
+  :defer t
+  :hook ((python-ts-mode . combobulate-mode)
+         (c-ts-mode . combobulate-mode)
+         (c++-ts-mode . combobulate-mode)
+         (rust-ts-mode . combobulate-mode)
+         (js-ts-mode . combobulate-mode)
+         (typescript-ts-mode . combobulate-mode)
+         (json-ts-mode . combobulate-mode)
+         (yaml-ts-mode . combobulate-mode)
+         (toml-ts-mode . combobulate-mode))
+  :config
+  ;; 基本操作:
+  ;; C-c o n / C-c o p  — 同級節點跳轉
+  ;; C-c o u / C-c o d  — 上/下層節點
+  ;; C-c o U / C-c o D  — 拖拽節點上/下移
+  ;; C-c o t            — 用 avy 在可見語法節點間跳轉
+  ;; C-c o h            — 逐層擴展選擇
+  ;; C-c o e            — envelope（包裹代碼在結構中）
+  ;; M-a / M-e          — 按語法導航
+  (setq combobulate-flash-node nil)) ;; 不閃爍高亮當前節點
+#+end_src

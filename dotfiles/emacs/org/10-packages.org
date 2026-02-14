@@ -281,58 +281,6 @@ emmm... 之前为什么要用 smerge 来着。应该是不想离开 emacs 环境
   (setf (plist-get (alist-get 'perl consult-async-split-styles-alist) :initial) ";"))
 #+end_src
 
-*** LSP
-
-#+begin_comment
-来自 =:tools lsp= 模块
-#+end_comment
-
-这不是老色批！自从 lsp 普及开始，无论配置什么编辑器都不再复杂了。看了一圈
-[[https://emacs-lsp.github.io/lsp-mode/tutorials/][lsp-mode tutorial]] 甚至觉得不需要配置什么，估计 doom 也有相应的配置。问题就是，熟
-悉配置、操作的问题。
-
-#+begin_src emacs-lisp
-(use-package! eglot
-  :init
-  (setq! eglot-code-action-indications nil
-         eglot-autoshutdown t
-         ; Performance issue: https://github.com/joaotavora/eglot/discussions/993
-         eldoc-idle-delay 0.75
-         company-idle-delay 0.75
-         flymake-no-changes-timeout 0.5
-         ; Copy from https://andreyor.st/posts/2023-09-09-migrating-from-lsp-mode-to-eglot/
-         eglot-ignored-server-capabilities '(:colorProvider
-                                             :documentFormattingProvider
-                                             :documentLinkProvider
-                                             :documentOnTypeFormattingProvider
-                                             :documentRangeFormattingProvider
-                                             :foldingRangeProvider
-                                             :inlayHintProvider)
-         eglot-stay-out-of '(yasnippet)
-         eglot-events-buffer-size 0
-         eglot-extend-to-xref nil)
-  :config
-  (add-hook 'eglot-managed-mode-hook (lambda () (setq-local eldoc-documentation-strategy
-                                                            #'eldoc-documentation-compose)))
-  (advice-add 'jsonrpc--log-event :override #'ignore)
-  (add-to-list 'eglot-server-programs
-               '((cc-mode c++-mode c-mode) . ("clangd" "-j=2" "--clang-tidy" "--header-insertion=iwyu")))
-  :hook
-  ((cc-mode c++-mode c-mode) . eglot-ensure))
-#+end_src
-
-*** Tree sitter
-
-#+begin_comment
-来自 =:tools tree-sitter= 模块
-#+end_comment
-
-结构化编辑似乎成为了主流，不过 combobulate 支持的太少了。暂不考虑。
-
-#+begin_src emacs-lisp :tangle no
-(package! combobulate :recipe (:host github :repo "mickeynp/combobulate"))
-#+end_src
-
 *** 格式化
 
 #+begin_comment
@@ -341,18 +289,13 @@ emmm... 之前为什么要用 smerge 来着。应该是不想离开 emacs 环境
 
 格式化代码是一个很重要的事情，但是，我希望还是不要再保存的时候格式化了！这会让代
 码变得奇怪，尤其是合作的项目上。当然你可以手动用 ~+format/buffer~ 在需要的时候格式
-化代码。但我不知道为什么这没什么用。
+化代码。格式化相關配置已遷移到 [[file:21-lang-lsp-dap.org][LSP/DAP 配置]]​。
 
 #+begin_src emacs-lisp :tangle no
 (appendq! +format-on-save-disabled-modes
           '(c-mode
             c++-mode
             python-mode))
-#+end_src
-
-另外，不要让 lsp 污染 format！
-#+begin_src emacs-lisp
-(setq +format-with-lsp nil)
 #+end_src
 
 *** TRAMP

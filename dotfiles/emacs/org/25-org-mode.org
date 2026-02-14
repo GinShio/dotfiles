@@ -141,42 +141,30 @@ I also like the src_elisp{:comments} header-argument, so let’s make that a def
 当然这配置很简单，只不过功能很强大，关于 =org-cite= 和 =citar= 要学的还有很多。
 可以看看 [[https://blog.tecosaur.com/tmio/2021-07-31-citations.html][这篇]]。
 
-**** lsp 支持的源码块
+**** eglot 支持的源码块
 
-默认情况下，lsp 并不支持应用在 src 块中。
+默認情況下，LSP 並不支持應用在 src 塊中。以下配置讓 eglot 在 org-babel 的
+=C-c '= 編輯窗口中自動啓動。
 
 #+begin_src emacs-lisp
-;; Enable LSP in org babel
+;; Enable eglot in org babel edit buffers
 ;; need to add `:file test.xx' in the header
-;; https://github.com/emacs-lsp/lsp-mode/issues/377
-(cl-defmacro lsp-org-babel-enable (lang)
-  "Support LANG in org source code block."
-  (setq centaur-lsp 'lsp-mode)
-  (cl-check-type lang string)
-  (let* ((edit-pre (intern (format "org-babel-edit-prep:%s" lang)))
-         (intern-pre (intern (format "lsp--%s" (symbol-name edit-pre)))))
-    `(progn
-       (defun ,intern-pre (info)
-         (let ((file-name (->> info caddr (alist-get :file))))
-           (unless file-name
-             (setq file-name (make-temp-file "babel-lsp-")))
-           (setq buffer-file-name file-name)
-           (lsp-deferred)))
-       (put ',intern-pre 'function-documentation
-            (format "Enable lsp-mode in the buffer of org source block (%s)."
-                    (upcase ,lang)))
-       (if (fboundp ',edit-pre)
-           (advice-add ',edit-pre :after ',intern-pre)
-         (progn
-           (defun ,edit-pre (info)
-             (,intern-pre info))
-           (put ',edit-pre 'function-documentation
-                (format "Prepare local buffer environment for org source block (%s)."
-                        (upcase ,lang))))))))
-(defvar org-babel-lang-list
-  '("python"))
-(dolist (lang org-babel-lang-list)
-  (eval `(lsp-org-babel-enable ,lang)))
+(defun +org-babel-edit-prep:with-eglot (info)
+  "Setup eglot in org-babel edit buffer.
+需要在 header 中指定 :file 参数 (如 `:file test.py`)。"
+  (when-let* ((file-name (or (alist-get :file (caddr info))
+                             (make-temp-file "babel-eglot-"))))
+    (setq buffer-file-name file-name)
+    (when (fboundp 'eglot-ensure)
+      (eglot-ensure))))
+
+(defvar +org-babel-eglot-lang-list '("python" "C" "cpp" "rust")
+  "Languages that should have eglot support in org-babel edit buffers.")
+
+(dolist (lang +org-babel-eglot-lang-list)
+  (let ((fn-name (intern (format "org-babel-edit-prep:%s" lang))))
+    (unless (fboundp fn-name)
+      (defalias fn-name #'+org-babel-edit-prep:with-eglot))))
 #+end_src
 
 *** Agenda
