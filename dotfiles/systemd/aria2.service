@@ -1,0 +1,15 @@
+[Unit]
+Description=Aria2 High Speed Download Utility
+After=network.target
+
+[Service]
+Type=simple
+# Start aria2c without -D (daemon) flag, let systemd manage the process
+ExecStart=/usr/bin/aria2c --conf-path={{@@ sysenv.xdg_config_home @@}}/aria2/aria2.conf
+# Reload configuration gracefully
+ExecReload=/usr/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

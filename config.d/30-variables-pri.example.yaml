@@ -17,3 +17,5 @@ variables:
         runner_dir: "/example/runner"
         baseline_dir: "{{@@ testing.runner_dir @@}}/baseline"
         result_dir: "/example"
+    aria2:
+        rpc_token: "exampleToken"

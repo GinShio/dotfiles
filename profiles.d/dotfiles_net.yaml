@@ -1,3 +1,4 @@
 dotfiles:
+  - d_aria2
   - d_proxychains
   - d_v2core
