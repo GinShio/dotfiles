@@ -80,6 +80,9 @@ dotfiles:
   d_python:
     dst: ~/.config/python/
     src: python/
+  d_qbittorrent:
+    dst: ~/.config/qBittorrent/
+    src: qbittorrent/
   d_samba:
     dst: ~/Public/
     src: samba/

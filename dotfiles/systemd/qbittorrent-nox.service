@@ -1,0 +1,16 @@
+[Unit]
+Description=qBittorrent-nox Command Line Client
+Documentation=man:qbittorrent-nox(1)
+After=network.target
+
+[Service]
+Type=simple
+# Start qbittorrent-nox
+ExecStart=/usr/bin/qbittorrent-nox
+# Gracefully stop the process
+ExecStop=/usr/bin/kill -w -s TERM $MAINPID
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

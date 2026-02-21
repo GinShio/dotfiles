@@ -19,3 +19,5 @@ variables:
         result_dir: "/example"
     aria2:
         rpc_token: "exampleToken"
+    qbittorrent:
+        rpc_token: "exampleToken"
