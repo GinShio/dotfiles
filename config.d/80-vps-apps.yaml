@@ -1,0 +1,10 @@
+variables:
+  vps:
+    domain: "ginshio.org"
+    apps:
+      rss:
+        name: "miniflux"
+        home_dir: "/var/lib/miniflux"
+        domain: "rss.ginshio.org"
+        bind: "127.0.0.1"
+        port: 15001

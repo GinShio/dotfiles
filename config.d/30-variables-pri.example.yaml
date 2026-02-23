@@ -21,3 +21,7 @@ variables:
         rpc_token: "exampleToken"
     qbittorrent:
         rpc_token: "exampleToken"
+
+    vps_apps:
+        app:
+            password: "examplePassword"

@@ -10,6 +10,14 @@ config:
   workdir: ~/cyber/dotfiles
   import_variables:
     - config.d/70-variables-dev.yaml
+    - config.d/80-vps-apps.yaml
+actions:
+  miniflux-perms: |
+    id -u miniflux >/dev/null 2>&1 && \
+    chown miniflux:miniflux /var/lib/miniflux/miniflux.conf /var/lib/miniflux/miniflux_admin_password && \
+    chmod 600 /var/lib/miniflux/miniflux.conf /var/lib/miniflux/miniflux_admin_password || true
+  nginx-link: ln -sf /etc/nginx/sites-mine/* /etc/nginx/sites-enabled/ || true
+  nginx-reload: systemctl reload nginx || true
 dotfiles:
   f_bluetooth:
     dst: /etc/bluetooth/main.conf
@@ -17,6 +25,17 @@ dotfiles:
   d_grub:
     dst: /etc/default/grub.d/
     src: grub
+  d_miniflux:
+    dst: "{{@@ vps.apps.rss.home_dir @@ }}"
+    src: miniflux/
+    actions:
+      - miniflux-perms
+  d_nginx:
+    dst: /etc/nginx/sites-mine/
+    src: nginx/
+    actions:
+      - nginx-link
+      - nginx-reload
   f_ssh:
     dst: /etc/ssh/sshd_config
     src: ssh/sshd_config
@@ -42,3 +61,7 @@ profiles:
   khronos3d:
     dotfiles:
       - ALL
+  vps:
+    dotfiles:
+      - d_miniflux
+      - d_nginx
