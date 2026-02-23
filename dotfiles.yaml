@@ -24,6 +24,9 @@ config:
   import_actions:
     - config.d/actions_samba.yaml
 dotfiles:
+  d_applications:
+    dst: ~/.local/share/applications/
+    src: applications/
   d_aria2:
     dst: ~/.config/aria2/
     src: aria2/
