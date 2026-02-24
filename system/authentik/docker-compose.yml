@@ -1,0 +1,52 @@
+---
+services:
+  server:
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2025.12.4}
+    restart: unless-stopped
+    command: server
+    environment:
+      AUTHENTIK_REDIS__HOST: host.docker.internal
+      AUTHENTIK_REDIS__PORT: 6379
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASS}
+      AUTHENTIK_REDIS__DB: 1
+      AUTHENTIK_POSTGRESQL__HOST: host.docker.internal
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+    volumes:
+      - ./media:/media
+      - ./custom-templates:/templates
+    env_file:
+      - .env
+    ports:
+      - "{{@@ vps.apps.sso.bind @@}}:{{@@ vps.apps.sso.port @@}}:9000"
+    extra_hosts:
+      - "host.docker.internal:10.0.2.2"
+  worker:
+    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2025.12.4}
+    restart: unless-stopped
+    command: worker
+    environment:
+      AUTHENTIK_REDIS__HOST: host.docker.internal
+      AUTHENTIK_REDIS__PORT: 6379
+      AUTHENTIK_REDIS__PASSWORD: ${REDIS_PASS}
+      AUTHENTIK_REDIS__DB: 1
+      AUTHENTIK_POSTGRESQL__HOST: host.docker.internal
+      AUTHENTIK_POSTGRESQL__USER: ${POSTGRES_USER:-authentik}
+      AUTHENTIK_POSTGRESQL__NAME: ${POSTGRES_DB:-authentik}
+      AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
+    # `user: root` and the docker socket volume are optional.
+    # See more for the docker socket integration here:
+    # https://goauthentik.io/docs/outposts/integrations/docker
+    # Removing `user: root` also prevents the worker from fixing the permissions
+    # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
+    # (1000:1000 by default)
+    user: root
+    volumes:
+      - ./media:/media
+      - ./certs:/certs
+      - ./custom-templates:/templates
+    env_file:
+      - .env
+    extra_hosts:
+      - "host.docker.internal:10.0.2.2"

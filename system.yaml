@@ -12,6 +12,10 @@ config:
     - config.d/70-variables-dev.yaml
     - config.d/80-vps-apps.yaml
 actions:
+  authentik-perms: |
+    id -u authentik >/dev/null 2>&1 && \
+    chown -R authentik:authentik {{@@ vps.apps.sso.home_dir @@}} && \
+    chmod 600 {{@@ vps.apps.sso.home_dir @@}}/.env || true
   miniflux-perms: |
     id -u miniflux >/dev/null 2>&1 && \
     chown miniflux:miniflux /var/lib/miniflux/miniflux.conf /var/lib/miniflux/miniflux_admin_password && \
@@ -19,6 +23,11 @@ actions:
   nginx-link: ln -sf /etc/nginx/sites-mine/* /etc/nginx/sites-enabled/ || true
   nginx-reload: systemctl reload nginx || true
 dotfiles:
+  d_authentik:
+    dst: "{{@@ vps.apps.sso.home_dir @@ }}"
+    src: authentik/
+    actions:
+      - authentik-perms
   f_bluetooth:
     dst: /etc/bluetooth/main.conf
     src: bluetooth/main.conf
@@ -63,5 +72,6 @@ profiles:
       - ALL
   vps:
     dotfiles:
+      - d_authentik
       - d_miniflux
       - d_nginx

@@ -2,9 +2,20 @@ variables:
   vps:
     domain: "ginshio.org"
     apps:
+      sso:
+        name: "authentik"
+        home_dir: "/var/lib/authentik"
+        domain: "sso.ginshio.org"
+        bind: "127.0.0.1"
+        port: 15000
       rss:
         name: "miniflux"
         home_dir: "/var/lib/miniflux"
         domain: "rss.ginshio.org"
         bind: "127.0.0.1"
         port: 15001
+
+dynvariables:
+    vps_app_sso_secret_key: "openssl rand -base64 48"
+    vps_app_rss_oidc_client_id: "openssl rand -hex 16"
+    vps_app_rss_oidc_client_secret: "openssl rand -hex 32"
