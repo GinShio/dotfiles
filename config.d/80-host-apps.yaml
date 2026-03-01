@@ -1,0 +1,38 @@
+variables:
+    apps:
+        aria2:
+            port: 16000
+        qbittorrent:
+            port: 16001
+        peerbanhelper:
+            port: 16002
+
+dynvariables:
+    host_app_aria2_secret_key: >-
+        f="{{@@ env['HOME'] @@}}/.local/state/dotfiles/aria2_secret_key";
+        mkdir -p "$(dirname "$f")";
+        [ -f "$f" ] && cat "$f" || openssl rand -hex 12 | tee "$f"
+    host_app_qbittorrent_secret_key: >-
+        f="{{@@ env['HOME'] @@}}/.local/state/dotfiles/qbittorrent_secret_key";
+        mkdir -p "$(dirname "$f")";
+        [ -f "$f" ] && cat "$f" || openssl rand -hex 12 | tee "$f"
+    host_app_qbittorrent_secret_key_encode: |-
+        f="{{@@ env['HOME'] @@}}/.local/state/dotfiles/qbittorrent_secret_key_encode"
+        mkdir -p "$(dirname "$f")"
+        [ -f "$f" ] && cat "$f" && exit 0
+        pwd=$(cat {{@@ env['HOME'] @@}}/.local/state/dotfiles/qbittorrent_secret_key)
+        python3 -c "
+        # Author: Beau Hastings (https://github.com/hastinbe)
+        # Date: 2024-01-09
+        # License: GPLv2
+        # URL: https://gist.github.com/hastinbe/8b8d247f17481cfc262a98d661bc0fd5
+        import base64, hashlib, os;
+        pwd = '$pwd'.encode();
+        salt = os.urandom(16);
+        dk = hashlib.pbkdf2_hmac('sha512', pwd, salt, 100000);
+        print(f'@ByteArray({base64.b64encode(salt).decode()}:{base64.b64encode(dk).decode()})')
+        " | tee "$f"
+    host_app_peerbanhelper_secret_key: >-
+        f="{{@@ env['HOME'] @@}}/.local/state/dotfiles/peerbanhelper_secret_key";
+        mkdir -p "$(dirname "$f")";
+        [ -f "$f" ] && cat "$f" || openssl rand -hex 12 | tee "$f"

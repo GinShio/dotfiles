@@ -4,7 +4,6 @@ actions:
   ssh-key-install: >-
     bash {{@@ _dotdrop_workdir @@}}/scripts/ssh-key.sh --deploy --tmpdir=$(mktemp -d /tmp/dotfiles-XXXXXXXXX.d);
     find {{@@ _dotfile_abs_dst @@}} -maxdepth 1 -type f -regextype posix-extended ! -regex '.*/{{@@ profile @@}}.*' -regex '.*-(git|ssh).*' -exec rm -rf {{}} \;
-  aria2-install: touch {{@@ sysenv.xdg_config_home @@}}/aria2/aria2.session
 config:
   backup: true
   banner: true
@@ -21,8 +20,9 @@ config:
     - config.d/70-variables-dev.yaml
     - config.d/70-variables-remote.yaml
     - config.d/70-variables-virtualization.yaml
+    - config.d/80-host-apps.yaml
   import_actions:
-    - config.d/actions_samba.yaml
+    - config.d/actions_net.yaml
 dotfiles:
   d_applications:
     dst: ~/.local/share/applications/
@@ -77,6 +77,9 @@ dotfiles:
   d_mpv:
     dst: ~/.config/mpv/
     src: mpv/
+  d_peerbanhelper:
+    dst: ~/.local/share/PeerBanHelper/config/
+    src: peerbanhelper/
   d_proxychains:
     dst: ~/.proxychains/
     src: proxychains/

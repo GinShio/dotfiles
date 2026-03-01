@@ -1,5 +1,6 @@
 dotfiles:
   - d_aria2
+  - d_peerbanhelper
   - d_proxychains
   - d_qbittorrent
   - d_v2core
