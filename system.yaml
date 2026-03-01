@@ -24,7 +24,7 @@ actions:
   nginx-reload: systemctl reload nginx || true
 dotfiles:
   d_authentik:
-    dst: "{{@@ vps.apps.sso.home_dir @@ }}"
+    dst: "{{@@ vps.apps.sso.home_dir @@}}"
     src: authentik/
     actions:
       - authentik-perms
@@ -35,7 +35,7 @@ dotfiles:
     dst: /etc/default/grub.d/
     src: grub
   d_miniflux:
-    dst: "{{@@ vps.apps.rss.home_dir @@ }}"
+    dst: "{{@@ vps.apps.rss.home_dir @@}}"
     src: miniflux/
     actions:
       - miniflux-perms
@@ -66,10 +66,24 @@ dotfiles:
 profiles:
   personal:
     dotfiles:
-      - ALL
+      - f_bluetooth
+      - d_grub
+      - f_ssh
+      - d_sudoers
+      - d_sysctl
+      - d_systemd
+      - d_systemd-logind
+      - d_systemd-user
   khronos3d:
     dotfiles:
-      - ALL
+      - f_bluetooth
+      - d_grub
+      - f_ssh
+      - d_sudoers
+      - d_sysctl
+      - d_systemd
+      - d_systemd-logind
+      - d_systemd-user
   vps:
     dotfiles:
       - d_authentik
