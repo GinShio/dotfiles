@@ -105,9 +105,12 @@ dotfiles:
     src: ssh/
     actions:
       - ssh-key-install
-  d_systemd:
+  d_systemd_develop:
     dst: ~/.config/systemd/user/
-    src: systemd/
+    src: systemd/develop/
+  d_systemd_service:
+    dst: ~/.config/systemd/user/
+    src: systemd/service/
   d_systemd-environment:
     dst: ~/.config/environment.d/
     src: systemd-environment/
@@ -136,23 +139,10 @@ dotfiles:
 profiles:
   personal:
     import:
-      - profiles.d/dotfiles_common.yaml
-      - profiles.d/dotfiles_dev.yaml
-      - profiles.d/dotfiles_net.yaml
-      - profiles.d/dotfiles_plasma.yaml
-      - profiles.d/dotfiles_remote.yaml
-      - profiles.d/dotfiles_systemd.yaml
-      - profiles.d/dotfiles_virtualization.yaml
-      - profiles.d/dotfiles_workflow.yaml
-      - profiles.d/dotfiles_xdg.yaml
+      - roles/dotfiles/develop.yaml
   khronos3d:
     import:
-      - profiles.d/dotfiles_common.yaml
-      - profiles.d/dotfiles_dev.yaml
-      - profiles.d/dotfiles_net.yaml
-      - profiles.d/dotfiles_plasma.yaml
-      - profiles.d/dotfiles_remote.yaml
-      - profiles.d/dotfiles_systemd.yaml
-      - profiles.d/dotfiles_virtualization.yaml
-      - profiles.d/dotfiles_workflow.yaml
-      - profiles.d/dotfiles_xdg.yaml
+      - roles/dotfiles/develop.yaml
+  vps:
+    import:
+      - roles/dotfiles/service.yaml

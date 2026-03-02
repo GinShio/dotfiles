@@ -54,9 +54,12 @@ dotfiles:
   d_sysctl:
     dst: /etc/sysctl.d/
     src: sysctl
-  d_systemd:
+  d_systemd_develop:
     dst: /etc/systemd/system/
-    src: systemd/
+    src: systemd/develop/
+  d_systemd_service:
+    dst: /etc/systemd/system/
+    src: systemd/service/
   d_systemd-logind:
     dst: /etc/systemd/logind.conf.d/
     src: systemd-logind/
@@ -65,27 +68,11 @@ dotfiles:
     src: systemd-user/
 profiles:
   personal:
-    dotfiles:
-      - f_bluetooth
-      - d_grub
-      - f_ssh
-      - d_sudoers
-      - d_sysctl
-      - d_systemd
-      - d_systemd-logind
-      - d_systemd-user
+    import:
+      - roles/system/develop.yaml
   khronos3d:
-    dotfiles:
-      - f_bluetooth
-      - d_grub
-      - f_ssh
-      - d_sudoers
-      - d_sysctl
-      - d_systemd
-      - d_systemd-logind
-      - d_systemd-user
+    import:
+      - roles/system/develop.yaml
   vps:
-    dotfiles:
-      - d_authentik
-      - d_miniflux
-      - d_nginx
+    import:
+      - roles/system/service.yaml

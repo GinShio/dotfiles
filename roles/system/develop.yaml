@@ -1,0 +1,9 @@
+dotfiles:
+  - f_bluetooth
+  - d_grub
+  - f_ssh
+  - d_sudoers
+  - d_sysctl
+  - d_systemd_develop
+  - d_systemd-logind
+  - d_systemd-user

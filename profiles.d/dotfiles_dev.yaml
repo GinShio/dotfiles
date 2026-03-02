@@ -1,8 +1,0 @@
-dotfiles:
-  - d_cargo
-  - d_ccache
-  - d_emacs
-  - d_gdb
-  - d_git
-  - d_python
-  - d_sccache
