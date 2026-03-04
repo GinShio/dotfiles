@@ -8,10 +8,15 @@ variables:
             port: 16002
 
 dynvariables:
+    host_app_fish_bin: "command -v fish 2>/dev/null || echo /bin/fish"
+    host_app_v2ray_bin: "command -v v2ray 2>/dev/null || echo /usr/bin/v2ray"
+    host_app_kill_bin: "command -v kill 2>/dev/null || echo /usr/bin/kill"
+    host_app_aria2_bin: "command -v aria2c 2>/dev/null || echo /usr/bin/aria2c"
     host_app_aria2_secret_key: >-
         f="{{@@ env['HOME'] @@}}/.local/state/dotfiles/aria2_secret_key";
         mkdir -p "$(dirname "$f")";
         [ -f "$f" ] && cat "$f" || openssl rand -hex 12 | tee "$f"
+    host_app_qbittorrent_bin: "command -v qbittorrent-nox 2>/dev/null || echo /usr/bin/qbittorrent-nox"
     host_app_qbittorrent_secret_key: >-
         f="{{@@ env['HOME'] @@}}/.local/state/dotfiles/qbittorrent_secret_key";
         mkdir -p "$(dirname "$f")";

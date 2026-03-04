@@ -6,9 +6,9 @@ After=network.target
 [Service]
 Type=simple
 # Start qbittorrent-nox
-ExecStart=/usr/bin/qbittorrent-nox
+ExecStart={{@@ host_app_qbittorrent_bin @@}}
 # Gracefully stop the process
-ExecStop=/usr/bin/kill -w -s TERM $MAINPID
+ExecStop={{@@ host_app_kill_bin @@}} -w -s TERM $MAINPID
 Restart=on-failure
 RestartSec=5
 
