@@ -6,6 +6,8 @@ variables:
             port: 16001
         peerbanhelper:
             port: 16002
+        beancount:
+            port: 16003
 
 dynvariables:
     host_app_fish_bin: "command -v fish 2>/dev/null || echo /bin/fish"

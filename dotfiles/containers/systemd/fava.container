@@ -1,0 +1,17 @@
+[Unit]
+Description=Beancount Container
+
+[Container]
+ContainerName=beancount
+Exec=--port {{@@ apps.beancount.port @@}} /data/main.beancount
+Image=docker.io/thekevjames/fava:latest
+Volume={{@@ env['HOME'] @@}}/cyber/blog/ledger:/data
+PublishPort={{@@ apps.beancount.port @@}}:{{@@ apps.beancount.port @@}}
+Network=host
+Environment=PUID=0
+Environment=PGID=0
+Environment=TZ=UTC
+AutoUpdate=registry
+
+[Install]
+WantedBy=multi-user.target default.target
