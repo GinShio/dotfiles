@@ -22,6 +22,7 @@ actions:
     chmod 600 /var/lib/miniflux/miniflux.conf /var/lib/miniflux/miniflux_admin_password || true
   nginx-link: ln -sf /etc/nginx/sites-mine/* /etc/nginx/sites-enabled/ || true
   nginx-reload: systemctl reload nginx || true
+  systemd-reload: systemctl daemon-reload || true
 dotfiles:
   d_authentik:
     dst: "{{@@ vps.apps.sso.home_dir @@}}"
@@ -60,6 +61,8 @@ dotfiles:
   d_systemd_service:
     dst: /etc/systemd/system/
     src: systemd/service/
+    actions:
+      - systemd-reload
   d_systemd-logind:
     dst: /etc/systemd/logind.conf.d/
     src: systemd-logind/

@@ -16,6 +16,27 @@ variables:
         port: 15001
 
 dynvariables:
-    vps_app_sso_secret_key: "openssl rand -base64 48"
-    vps_app_rss_oidc_client_id: "openssl rand -hex 16"
-    vps_app_rss_oidc_client_secret: "openssl rand -hex 32"
+    vps_app_sso_password: >-
+        f="/var/lib/dotfiles/vps_app_sso_password";
+        mkdir -p "$(dirname "$f")";
+        [ -f "$f" ] && cat "$f" || openssl rand -hex 24 | tee "$f"
+    vps_app_sso_secret_key: >-
+        f="/var/lib/dotfiles/vps_app_sso_secret_key";
+        mkdir -p "$(dirname "$f")";
+        [ -f "$f" ] && cat "$f" || openssl rand -base64 48 | tr -d '\n' | tee "$f"
+    vps_app_rss_password: >-
+        f="/var/lib/dotfiles/vps_app_rss_password";
+        mkdir -p "$(dirname "$f")";
+        [ -f "$f" ] && cat "$f" || openssl rand -hex 24 | tee "$f"
+    vps_app_rss_admin_password: >-
+        f="/var/lib/dotfiles/vps_app_rss_admin_password";
+        mkdir -p "$(dirname "$f")";
+        [ -f "$f" ] && cat "$f" || openssl rand -hex 24 | tee "$f"
+    vps_app_rss_oidc_client_id: >-
+        f="/var/lib/dotfiles/vps_app_rss_oidc_client_id";
+        mkdir -p "$(dirname "$f")";
+        [ -f "$f" ] && cat "$f" || openssl rand -hex 16 | tee "$f"
+    vps_app_rss_oidc_client_secret: >-
+        f="/var/lib/dotfiles/vps_app_rss_oidc_client_secret";
+        mkdir -p "$(dirname "$f")";
+        [ -f "$f" ] && cat "$f" || openssl rand -hex 32 | tee "$f"

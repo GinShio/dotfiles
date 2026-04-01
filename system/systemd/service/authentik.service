@@ -1,0 +1,23 @@
+[Unit]
+Description=Authentik SSO
+Documentation=https://docs.goauthentik.io
+Wants=network-online.target
+After=network-online.target postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=authentik
+Group=authentik
+WorkingDirectory={{@@ vps.apps.sso.home_dir @@}}
+# %U expands to the numeric UID of User= in system units
+Environment="XDG_RUNTIME_DIR=/run/user/%U"
+Environment="DOCKER_HOST=unix:///run/user/%U/podman/podman.sock"
+ExecStart=/usr/bin/podman-compose up --no-build
+ExecStop=/usr/bin/podman-compose down
+Restart=on-failure
+RestartSec=10s
+TimeoutStartSec=120s
+TimeoutStopSec=60s
+
+[Install]
+WantedBy=multi-user.target
