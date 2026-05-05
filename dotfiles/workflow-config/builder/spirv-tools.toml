@@ -14,7 +14,7 @@ auto_stash = true
 
 [presets.common.definitions]
 SPIRV_COLOR_TERMINAL = true
-SPIRV_BUILD_FUZZER = false
+SPIRV_BUILD_FUZZER = true
 SPIRV-Headers_SOURCE_DIR = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['spirv-headers'].org @@}}/{{@@ projects.source_info['spirv-headers'].name @@}}"
 
 [presets."configs.debug"]

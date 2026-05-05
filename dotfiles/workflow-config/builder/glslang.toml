@@ -16,7 +16,7 @@ auto_stash = true
 [presets.common.definitions]
 ENABLE_HLSL = false
 BUILD_TESTING = true
-ENABLE_OPT = false
+ENABLE_OPT = true
 INSTALL_GTEST = false
 
 [presets."configs.debug"]
