@@ -40,3 +40,6 @@ extends = ["common"]
 [presets.experimental.definitions]
 LLVM_EXPERIMENTAL_TARGETS_TO_BUILD = 'DirectX;SPIRV'
 CLANG_ENABLE_HLSL = true
+
+[presets.alive2.definitions]
+LLVM_ENABLE_RTTI = true
