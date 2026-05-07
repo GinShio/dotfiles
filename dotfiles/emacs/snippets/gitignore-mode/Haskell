@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Haskell #########################
-# repo: github/gitignore; pin: db943c49e4; file: Haskell.gitignore
+# repo: github/gitignore; pin: db943c49e43; file: Haskell.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 dist
 dist-*

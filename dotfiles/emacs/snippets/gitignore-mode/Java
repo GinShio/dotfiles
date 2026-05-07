@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Java #########################
-# repo: github/gitignore; pin: e111f1c746; file: Java.gitignore
+# repo: github/gitignore; pin: e111f1c746c; file: Java.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Compiled class file
 *.class

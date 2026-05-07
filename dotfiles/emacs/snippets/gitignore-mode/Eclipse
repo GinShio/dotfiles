@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Eclipse #########################
-# repo: github/gitignore; pin: 584ee18cc1; file: Global/Eclipse.gitignore
+# repo: github/gitignore; pin: 951e077a3b7; file: Global/Eclipse.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 .metadata
 bin/
@@ -56,7 +56,7 @@ local.properties
 
 # Annotation Processing
 .apt_generated/
-.apt_generated_test/
+.apt_generated_tests/
 
 # Scala IDE specific (Scala & Java development for Eclipse)
 .cache-main

@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Maven #########################
-# repo: github/gitignore; pin: 7f56496393; file: Maven.gitignore
+# repo: github/gitignore; pin: 3d21cef3591; file: Maven.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 target/
 pom.xml.tag
@@ -15,7 +15,7 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
-# https://github.com/takari/maven-wrapper#usage-without-binary-jar
+# https://maven.apache.org/tools/wrapper/#Usage_with_or_without_Binary_JAR
 .mvn/wrapper/maven-wrapper.jar
 
 # Eclipse m2e generated files

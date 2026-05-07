@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Elixir #########################
-# repo: github/gitignore; pin: 1cdba03c57; file: Elixir.gitignore
+# repo: github/gitignore; pin: 1cdba03c573; file: Elixir.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 /_build
 /cover

@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### C #########################
-# repo: github/gitignore; pin: f76d0890d4; file: C.gitignore
+# repo: github/gitignore; pin: 09b5744d120; file: C.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Prerequisites
 *.d
@@ -58,3 +58,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# debug information files
+*.dwo

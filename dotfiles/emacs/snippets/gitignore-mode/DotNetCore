@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### DotNet Core #########################
-# repo: github/gitignore; pin: ff6c8c7d4d; file: community/DotNet/core.gitignore
+# repo: github/gitignore; pin: ff6c8c7d4db; file: community/DotNet/core.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 *.swp
 *.*~

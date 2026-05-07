@@ -4,10 +4,22 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Backup #########################
-# repo: github/gitignore; pin: 5f9c70b4bf; file: Global/Backup.gitignore
+# repo: github/gitignore; pin: 3392aa92c21; file: Global/Backup.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
+# Generic backup files
 *.bak
+*.back
+*.backup
+
+# Norton Ghost backup files
 *.gho
+
+# Generic original files
 *.ori
 *.orig
+*.original
+
+# Generic temporary files
 *.tmp
+*.temp
+*.temporary

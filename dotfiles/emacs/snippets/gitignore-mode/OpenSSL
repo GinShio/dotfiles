@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### OpenSSL #########################
-# repo: github/gitignore; pin: 1a84870ad7; file: community/OpenSSL.gitignore
+# repo: github/gitignore; pin: 1a84870ad77; file: community/OpenSSL.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # OpenSSL-related files best not committed
 

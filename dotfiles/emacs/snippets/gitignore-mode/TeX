@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### TeX #########################
-# repo: github/gitignore; pin: f52d43edda6; file: TeX.gitignore
+# repo: github/gitignore; pin: de90107f1a3; file: TeX.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 ## Core latex/pdflatex auxiliary files:
 *.aux
@@ -67,6 +67,9 @@ acs-*.bib
 # amsthm
 *.thm
 
+# attachfile2
+*.atfi
+
 # beamer
 *.nav
 *.pre
@@ -75,9 +78,15 @@ acs-*.bib
 
 # changes
 *.soc
+*.loc
 
 # comment
 *.cut
+
+# context
+*.tuc
+*.tui
+*.tuo
 
 # cprotect
 *.cpt
@@ -118,8 +127,11 @@ acs-*.bib
 *.acn
 *.acr
 *.glg
+*.glg-abr
 *.glo
+*.glo-abr
 *.gls
+*.gls-abr
 *.glsdefs
 *.lzo
 *.lzs
@@ -162,6 +174,9 @@ acs-*.bib
 # *.tikz
 *-tikzDictionary
 
+# latexindent will create succesive backup files by default
+#*.bak*
+
 # listings
 *.lol
 
@@ -184,6 +199,7 @@ acs-*.bib
 
 # minted
 _minted*
+*.data.minted
 *.pyg
 
 # morewrites
@@ -210,6 +226,10 @@ _minted*
 
 # scrwfile
 *.wrt
+
+# spelling
+*.spell.bad
+*.spell.txt
 
 # svg
 svg-inkscape/
@@ -275,6 +295,9 @@ TSWLatexianTemp*
 # WinEdt
 *.bak
 *.sav
+
+# latexindent.pl
+*.bak[0-9]*
 
 # Texpad
 .texpadtmp

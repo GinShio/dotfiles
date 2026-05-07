@@ -4,12 +4,13 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### MicrosoftOffice #########################
-# repo: github/gitignore; pin: cbdbe97c96; file: Global/MicrosoftOffice.gitignore
+# repo: github/gitignore; pin: c86c275f029; file: Global/MicrosoftOffice.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 *.tmp
 
 # Word temporary
 ~$*.doc*
+~$*.dot*
 
 # Word Auto Backup File
 Backup of *.doc*

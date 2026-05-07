@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Erlang #########################
-# repo: github/gitignore; pin: 0d7600fc30; file: Erlang.gitignore
+# repo: github/gitignore; pin: 0d7600fc302; file: Erlang.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 .eunit
 *.o

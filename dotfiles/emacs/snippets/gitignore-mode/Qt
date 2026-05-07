@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Qt #########################
-# repo: github/gitignore; pin: 1a84870ad7; file: Qt.gitignore
+# repo: github/gitignore; pin: 70da24ee683; file: Qt.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # C++ objects and libs
 *.slo
@@ -37,8 +37,10 @@ ui_*.h
 *.jsc
 Makefile*
 *build-*
+build/
 *.qm
 *.prl
+*.qmlls.ini
 
 # Qt unit tests
 target_wrapper.*

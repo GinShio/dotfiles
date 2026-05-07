@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Emacs #########################
-# repo: github/gitignore; pin: 87ec1bd864; file: Global/Emacs.gitignore
+# repo: github/gitignore; pin: d34fe3a059d; file: Global/Emacs.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # -*- mode: gitignore; -*-
 *~
@@ -54,3 +54,6 @@ flycheck_*.el
 
 # network security
 /network-security.data
+
+# undo-tree
+*.~undo-tree~

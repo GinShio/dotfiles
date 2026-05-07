@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Lua #########################
-# repo: github/gitignore; pin: b85372b2d8; file: Lua.gitignore
+# repo: github/gitignore; pin: b85372b2d8b; file: Lua.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Compiled Lua sources
 luac.out

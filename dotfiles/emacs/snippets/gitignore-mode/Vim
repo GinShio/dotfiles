@@ -4,11 +4,12 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Vim #########################
-# repo: github/gitignore; pin: 41ec05833a; file: Global/Vim.gitignore
+# repo: github/gitignore; pin: 27fe2b766ef; file: Global/Vim.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Swap
 [._]*.s[a-v][a-z]
-!*.svg  # comment out if you don't need vector files
+# comment out the next line if you don't need vector files
+!*.svg
 [._]*.sw[a-p]
 [._]s[a-rt-v][a-z]
 [._]ss[a-gi-z]

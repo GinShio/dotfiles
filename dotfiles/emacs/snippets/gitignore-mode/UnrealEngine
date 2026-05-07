@@ -4,7 +4,7 @@
 # expand-env: ((yas-indent-line nil))
 # --
 ######################### Unreal #########################
-# repo: github/gitignore; pin: f0fc1da1b36; file: UnrealEngine.gitignore
+# repo: github/gitignore; pin: 51ae1adf9fb; file: UnrealEngine.gitignore
 # LICENSE: Creative Commons Zero v1.0 Universal
 # Visual Studio 2015 user specific files
 .vs/
@@ -48,6 +48,7 @@
 *.sdf
 *.VC.db
 *.VC.opendb
+.vsconfig
 
 # Precompiled Assets
 SourceArt/**/*.png
