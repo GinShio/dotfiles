@@ -1,3 +1,4 @@
+# -*- mode: systemd; coding: utf-8; indent-tabs-mode: nil; -*-
 [Unit]
 Description=Timer of nightly script
 

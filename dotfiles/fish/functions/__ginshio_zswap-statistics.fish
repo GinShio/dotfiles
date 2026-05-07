@@ -1,4 +1,5 @@
 #!/usr/bin/env fish
+# -*- mode: fish; sh-shell: fish; coding: utf-8; indent-tabs-mode: nil; -*-
 
 function zswap-statistics
     # Copy from https://unix.stackexchange.com/questions/406936/get-current-zswap-memory-usage-and-statistics.

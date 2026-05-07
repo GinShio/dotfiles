@@ -1,3 +1,4 @@
+# -*- mode: systemd; coding: utf-8; indent-tabs-mode: nil; -*-
 [Unit]
 Description=Aria2 High Speed Download Utility
 After=network.target

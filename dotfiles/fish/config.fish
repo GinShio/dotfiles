@@ -1,4 +1,5 @@
 #!/usr/bin/env fish
+# -*- mode: fish; sh-shell: fish; coding: utf-8; indent-tabs-mode: nil; -*-
 
 source {{@@ _dotfile_abs_dst @@}}/functions/__ginshio_source-posix.fish
 

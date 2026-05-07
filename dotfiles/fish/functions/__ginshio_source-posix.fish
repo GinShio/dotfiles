@@ -1,4 +1,5 @@
-#/usr/bin/env fish
+#!/usr/bin/env fish
+# -*- mode: fish; sh-shell: fish; coding: utf-8; indent-tabs-mode: nil; -*-
 
 # https://github.com/ErikBjare/dotfiles/blob/master/home/.config/fish/functions/source-posix.fish
 

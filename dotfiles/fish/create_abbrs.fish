@@ -1,4 +1,6 @@
 #!/usr/bin/env fish
+# -*- mode: fish; sh-shell: fish; coding: utf-8; indent-tabs-mode: nil; -*-
+
 # Fish shell abbreviations and aliases configuration
 
 # ============================================================================

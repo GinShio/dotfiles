@@ -1,15 +1,19 @@
-# Ignore build directory and C/C++ Compilation Database
+# -*- mode: gitignore; coding: utf-8; indent-tabs-mode: nil; -*-
+# Build directories
 _build/
-compile_commands.json
-.cache/
+
+# Vulkan
+*.spv
+*.qpa # Result of CTS
 
 # be found at https://github.com/github/gitignore/blob/main/Python.gitignore
-# Ignore Python - Byte-compiled / optimized / DLL files
+# Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
+*.py[codz]
 *$py.class
-# Ignore Python - Environments
+# Environments
 .env
+.envrc
 .venv
 env/
 venv/
@@ -17,6 +21,8 @@ ENV/
 env.bak/
 venv.bak/
 
+{%@@ include _dotdrop_dotpath + '/emacs/snippets/gitignore-mode/C' @@%}
+{%@@ include _dotdrop_dotpath + '/emacs/snippets/gitignore-mode/C++' @@%}
 {%@@ include _dotdrop_dotpath + '/emacs/snippets/gitignore-mode/Diff' @@%}
 {%@@ include _dotdrop_dotpath + '/emacs/snippets/gitignore-mode/Emacs' @@%}
 {%@@ include _dotdrop_dotpath + '/emacs/snippets/gitignore-mode/JetBrains' @@%}

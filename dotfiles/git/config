@@ -1,3 +1,4 @@
+# -*- mode: gitconfig; coding: utf-8; indent-tabs-mode: nil; -*-
 [include]
         path = config.d/global_alias.conf
         path = config.d/global_blame.conf

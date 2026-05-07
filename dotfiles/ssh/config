@@ -1,3 +1,4 @@
+# -*- mode: ssh-config; coding: utf-8; indent-tabs-mode: nil; -*-
 Include config.d/*.conf
 
 Host *

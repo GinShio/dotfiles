@@ -1,3 +1,5 @@
+#!/usr/bin/env fish
+# -*- mode: fish; sh-shell: fish; coding: utf-8; indent-tabs-mode: nil; -*-
 function __ginshio_wsl-setup-environment
     set -g hostip (ip route|awk '/^default/{print $3}')
     set -g loaclip (ip addr show eth0 | grep "inet\b" | awk '{print $2}' | cut -d/ -f1)

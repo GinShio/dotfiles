@@ -1,3 +1,5 @@
+#!/usr/bin/env fish
+# -*- mode: fish; sh-shell: fish; coding: utf-8; indent-tabs-mode: nil; -*-
 if command -v systemctl >/dev/null 2>&1
     for env_var in (systemctl --user show-environment)
         set -l kv (string split -m 1 = -- $env_var)
