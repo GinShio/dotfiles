@@ -9,11 +9,7 @@ generator = "Ninja Multi-Config"
 toolchain = "clang"
 
 [git]
-{%@@ if profile == "khronos3d" @@%}
-url = "https://gitlab.khronos.org/Tracker/vk-gl-cts.git"
-{%@@ else @@%}
 url = "https://github.com/KhronosGroup/VK-GL-CTS.git"
-{%@@ endif @@%}
 main_branch = "main"
 auto_stash = true
 
