@@ -10,7 +10,7 @@ dotfiles:
   - d_flatpak
   - d_gdb
   - d_git
-  - d_konsole
+  - d_kitty
   - d_libvirt
   - d_lxc
   - d_mpv

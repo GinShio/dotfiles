@@ -64,10 +64,9 @@ dotfiles:
   d_git:
     dst: ~/.config/git/
     src: git/
-  d_konsole:
-    dst: ~/
-    src: konsole/
-    chmod: 700
+  d_kitty:
+    dst: ~/.config/kitty/
+    src: kitty/
   d_libvirt:
     dst: ~/.config/libvirt/
     src: libvirt/
