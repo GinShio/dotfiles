@@ -521,6 +521,21 @@ Timothy 有一个相当有趣的做法，根据系统主题选择对应的主题
 (add-hook! doom-init-ui #'ginshio/doom-init-ui-misc)
 #+end_src
 
+對於終端設置真彩 (direct color) 且透明背景，我們需要設置修改背景讓 emacs 也變得
+透明。我們需要清除掉背景顏色以此借用 terminal 的透明。
+
+#+begin_src emacs-lisp :tangle yes :noweb no-export :comments no
+(defun ginshio/tty-transparent-bg-h()
+  "Use the terminal default background on TTY frames."
+  (let (frame (selected-frame))
+    (if (display-graphic-p frame)
+      (when (and (>= emacs-major-version 29) (boundp 'alpha-background))
+        (set-frame-parameter frame 'alpha-background 96))
+    (set-face-background 'default "unspecified-bg" frame))))
+(add-hook 'doom-load-theme-hook #'ginshio/tty-transparent-bg-h)
+(add-hook 'tty-setup-hook #'ginshio/tty-transparent-bg-h)
+#+end_src
+
 *** 辅助宏
 这些是 doom 添加的一些非常有用的宏
 - ~load!~ 可以相对于本文件进行外部 ~.el~ 文件的加载
