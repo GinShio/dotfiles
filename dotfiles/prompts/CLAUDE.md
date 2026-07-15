@@ -83,11 +83,4 @@ Applied by priority to every design and every line:
 
 ## Tools & delegation
 
-Use whatever the active tool provides; the concrete roster and config paths live in that tool's own layer. Delegate rather than carrying everything yourself:
-
-- read-only codebase search (find files, locate symbols, answer "where is X");
-- read-only external-docs / upstream research (cross-reference the relevant specs and upstream source);
-- strict review against the quality bar before a change is considered done;
-- parallel multi-step research or execution.
-
-Split work by posture: read-only design / discussion / explanation / refactor proposals stay proposals -- they don't touch files -- until I approve; implementation happens afterward.
+Use the active tool's capabilities; concrete roster and config live in the tool-specific layer below. Delegate rather than carrying everything yourself -- codebase search, external research, quality review, and parallel multi-step work. Split by posture: read-only design and proposals don't touch files until I approve; implementation happens afterward.
