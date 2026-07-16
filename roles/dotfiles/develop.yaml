@@ -29,4 +29,5 @@ dotfiles:
   - f_user-dirs
   - d_v2core
   - f_wget
+  - d_wits
   - d_workflow-config

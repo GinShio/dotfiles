@@ -1,22 +1,22 @@
 [project]
 org = "{{@@ projects.source_info['iree'].org @@}}"
-name = "{{@@ projects.source_info['iree'].name @@}}"
-source_dir = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
-build_dir = "_build/{{user.branch}}-{{user.build_type}}"
-install_dir = "{{project.build_dir}}"
 build_system = "cmake"
 generator = "Ninja"
 toolchain = "clang"
+build_dir = "{{work.dir}}/_build/{{branch.slug}}-{{build_type}}"
+install_dir = "{{work.dir}}/_build/{{branch.slug}}-{{build_type}}"
+default_presets = ["common"]
 
-[git]
-url = "https://github.com/iree-org/iree.git"
+[repos.main]
+path = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
 main_branch = "main"
-auto_stash = true
+[repos.main.remotes]
+origin = "https://github.com/iree-org/iree.git"
 
-[presets.common]
+[project.presets.common]
 extends = ["llvm/common"]
 
-[presets.common.definitions]
+[project.presets.common.definitions]
 IREE_BUILD_COMPILER = true
 IREE_BUILD_TESTS = true
 IREE_BUILD_SAMPLES = true
@@ -34,9 +34,3 @@ IREE_INPUT_STABLEHLO = true
 IREE_INPUT_TORCH = true
 IREE_INPUT_TOSA = true
 IREE_BUILD_BUNDLED_LLVM = true
-
-[presets."configs.debug"]
-extends = ["common"]
-
-[presets."configs.release"]
-extends = ["common"]

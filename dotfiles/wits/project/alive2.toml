@@ -1,0 +1,23 @@
+[project]
+org = "{{@@ projects.source_info['alive2'].org @@}}"
+build_system = "cmake"
+generator = "Ninja Multi-Config"
+toolchain = "clang"
+build_dir = "{{work.dir}}/_build/{{branch.slug}}"
+install_dir = "{{work.dir}}/_build/{{branch.slug}}"
+default_presets = ["common"]
+
+[project.environment]
+ALIVE2_HOME = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['alive2'].org @@}}"
+LLVM2_HOME = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['llvm'].org @@}}/{{@@ projects.source_info['llvm'].name @@}}"
+LLVM2_BUILD = "{{env.LLVM2_HOME}}/_build/main-debug"
+
+[repos.main]
+path = "/home/russell/Projects/{{project.org}}/{{project.name}}"
+main_branch = "master"
+[repos.main.remotes]
+origin = "https://github.com/AliveToolkit/alive2.git"
+
+[project.presets.common]
+extends = ["llvm/common"]
+definitions = { BUILD_TV = true, CMAKE_PREFIX_PATH = "{{env.LLVM2_BUILD}}" }

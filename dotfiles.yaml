@@ -132,6 +132,9 @@ dotfiles:
     src: wgetrc
     actions:
       - histfile-install
+  d_wits:
+    dst: ~/.config/wits/
+    src: wits/
   d_workflow-config:
     dst: ~/.config/workflow/
     src: workflow-config/

@@ -1,9 +1,0 @@
-[project]
-org = "{{@@ projects.source_info['spirv-headers'].org @@}}"
-name = "{{@@ projects.source_info['spirv-headers'].name @@}}"
-source_dir = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
-
-[git]
-url = "https://github.com/KhronosGroup/SPIRV-Headers.git"
-main_branch = "main"
-auto_stash = true

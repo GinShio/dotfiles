@@ -1,0 +1,21 @@
+[project]
+org = "{{@@ projects.source_info['spirv-tools'].org @@}}"
+build_system = "cmake"
+generator = "Ninja Multi-Config"
+toolchain = "clang"
+build_dir = "{{work.dir}}/_build/{{branch.slug}}"
+default_presets = ["common"]
+
+[repos.main]
+path = "{{@@ projects.root_dir @@}}/{{project.org}}/{{project.name}}"
+main_branch = "main"
+[repos.main.remotes]
+upstream = "https://github.com/KhronosGroup/SPIRV-Tools.git"
+origin = "https://github.com/GinShio/SPIRV-Tools.git"
+[repos.main.hooks]
+post_clone = "python3 utils/git-sync-deps --treeless"
+
+[project.presets.common.definitions]
+SPIRV_COLOR_TERMINAL = true
+SPIRV_BUILD_FUZZER = true
+SPIRV-Headers_SOURCE_DIR = "{{@@ projects.root_dir @@}}/{{@@ projects.source_info['spirv-headers'].org @@}}/{{@@ projects.source_info['spirv-headers'].name @@}}"
