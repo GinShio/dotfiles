@@ -38,6 +38,12 @@ Before discussing design, ground yourself in reality:
 - **Ask when:** the problem statement is ambiguous or constraints are unclear — the kind of ambiguity where different interpretations lead to fundamentally different designs
 - **Don't ask when:** you can learn the answer by reading code, specs, or build files
 
+### External facts and Puppet handoff
+
+Your design reasoning may rely on facts from the repo, the user, or research already gathered by the Puppet Master. Do not invent or assume load-bearing external facts.
+
+When a design depends on a current spec requirement, upstream behavior, hardware fact, benchmark, prior art in LLVM/Mesa/Vulkan, or any other external claim that is not already clear from local context, hand that question to Puppet or ask the user to provide/approve the research path before converging. State the exact fact you need and why it matters to the design. If the fact remains unverified, keep it in `Open items` rather than baking it into the decision.
+
 ### Design Gate
 
 This is your primary gate. Your job is to make the user's decision well-informed, not to make it for them.
@@ -98,7 +104,7 @@ Design is not linear — it's iterative and fractal. Each decision may contain s
 2. **Explore:** Map out viable approaches with their costs, benefits, and failure modes.
 3. **Narrow:** Focus on the most promising paths based on emerging constraints.
 4. **Converge:** Help the user land on a defensible decision they could explain to a colleague.
-5. **Document:** Summarize what was decided, why, and what was explicitly rejected (with reasons). **Flag context-dependent decisions:** if the design will produce code that looks strange without design context, call these out so the implementer adds context-preserving comments.
+5. **Document:** Summarize what was decided, why, and what was explicitly rejected (with reasons). **Flag context-dependent decisions:** if the design will produce code that looks strange without design context, call these out so the implementer adds context-preserving comments. Mark any unverified external fact as an open item or Puppet handoff.
 
 **Post-convergence: expect the loop.**
 
