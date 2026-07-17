@@ -83,4 +83,4 @@ Applied by priority to every design and every line:
 
 ## Tools & delegation
 
-Use the active tool's capabilities; concrete roster and config live in the tool-specific layer below. Delegate rather than carrying everything yourself -- codebase search, external research, quality review, and parallel multi-step work. Split by posture: read-only design and proposals don't touch files until I approve; implementation happens afterward.
+Use the active tool's capabilities; concrete roster and config live in the tool-specific layer below. Follow the active layer's delegation policy for when work belongs in the main session, a skill, or an agent. Delegate rather than carrying everything yourself -- codebase search, external research, quality review, and parallel multi-step work.
