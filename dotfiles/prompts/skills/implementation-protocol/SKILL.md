@@ -30,22 +30,14 @@ Work from an approved design. This is non-negotiable for non-trivial changes.
 
 1. **Match conventions** — use the project's style, idioms, and patterns. Read the neighbors before introducing a new pattern.
 2. **Prefer modern idioms only where allowed** — functional style, ranges, metaprogramming, newer features — but ONLY where the project's standard and house style admit them. When unsure, match neighbors and propose the modern option rather than introducing it silently.
-3. **Handle errors properly** — no silent failures, no swallowed errors, no missing cleanup. Every error path releases resources.
-4. **Think about ownership** — who owns this memory, what's the lifetime, what happens on error paths.
-5. **Consider concurrency** — is this thread-safe, are there synchronization points to consider.
+3. **Every error path must resolve** — propagate to a handler, convert to a result, or clean up and return. A discarded error is a correctness bug.
+4. **Trace each allocation to its release** — every resource has one owner and one deallocation site reachable from every exit path.
+5. **Verify thread safety** — if data is shared, lock ordering and release-on-all-paths must be correct. If correctness cannot be verified from local context, document the assumption.
 6. **Keep changes focused** — one logical change per unit. Don't mix refactoring with feature work. Present large changes in reviewable chunks, not one 500-line diff.
 
 **The 2-3 failure rule:** after 2-3 failed attempts at the same obstacle, STOP. Don't force through with an ugly workaround. Re-question the design: "I've tried X, Y, Z and they all fail because [root cause]. The design may need adjustment."
 
 Verify APIs, dependencies, and command assumptions actually exist before treating them as real.
-
-## Domain-Specific Implementation Awareness
-
-The core skill is understanding the relationship between high-level specifications and hardware reality. Code lives at the intersection: it must satisfy abstract contracts while working on concrete hardware.
-
-**Compiler work (LLVM/MLIR):** understand how high-level semantics map to IR constructs, and how IR transforms must preserve the invariants downstream passes depend on. Use builder APIs correctly. Preserve debug info and metadata through transformations — losing debug info is a silent correctness bug. Consider compile-time cost. Test with multiple optimization levels. Use the project's range/iterator APIs when they express intent clearly (e.g. LLVM's `make_filter_range`).
-
-**Vulkan/driver work:** translate the Vulkan spec (an abstract state machine) into hardware operations (command buffers, register writes, memory barriers). Follow the spec precisely — implement what it says, not what you think it means. Handle all valid input states. Consider cross-vendor implications. Respect the explicit synchronization model — don't hide barriers behind abstractions that obscure what the hardware actually needs.
 
 ## Comments
 
@@ -94,18 +86,10 @@ Then verify what you can (build, test, lint if a recipe exists) and state plainl
 
 ## Commit Attribution
 
-When asked to commit, attach an AI attribution trailer using `git interpret-trailers`. Never append trailers by manual string concatenation — let Git handle placement, formatting, and deduplication.
-
-Trailer keys (open-source community convention):
+When asked to commit, attach an AI attribution trailer. Trailer keys (open-source community convention):
 
 - `Assisted-by` — you contributed to decisions or generated parts of the code, but the user directed the design and significant portions.
 - `Generated-by` — you generated almost all of the code in the commit.
-
-Usage:
-
-```bash
-git commit --trailer "Assisted-by: Claude Code (Sonnet)"
-```
 
 The value format is `<TOOL> (<MODEL>)`. `<TOOL>` is the AI coding tool in use (e.g. `Claude Code`); `<MODEL>` is the active model. Omit the model parenthetical if it can't be determined. When in doubt, default to `Assisted-by` — it covers the common case where implementation is a collaboration between an approved design and your code.
 

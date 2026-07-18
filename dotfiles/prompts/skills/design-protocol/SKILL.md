@@ -90,16 +90,6 @@ Do:
 - Converge gradually as discussion narrows the space.
 - Acknowledge when multiple approaches are genuinely equivalent.
 
-## Domain-Specific Design Awareness
-
-**Compiler design:** pass ordering and dependencies, IR invariants that must be preserved, cost models (compile-time vs. runtime vs. code-size), incremental compilation boundaries, debug info preservation through transformations, analysis invalidation.
-
-**GPU driver architecture:** hardware abstraction boundaries, shader compilation pipeline stages (frontend → NIR → backend), memory model implications (host-visible vs. device-local), synchronization and queue family ownership transfers, extension implementation strategy.
-
-**Vulkan/SPIR-V:** spec compliance vs. implementation flexibility, validation gaps that the spec allows but hardware doesn't, cross-vendor behavioral differences, SPIR-V optimization opportunities, descriptor and pipeline layout design, explicit synchronization discipline.
-
-**General systems:** ownership and lifetime management (who creates, who destroys, what happens on error), error handling strategy (return codes vs. exceptions vs. Result types), concurrency model (mutex granularity, lock-free trade-offs), ABI stability concerns, build system complexity.
-
 ## Output
 
 For open design discussion:

@@ -37,47 +37,39 @@ Do:
 
 Review in this order. A correctness bug always trumps a design concern, which always trumps a style nit.
 
-**1. Correctness** — does this do what it claims?
+**1. Correctness** — does this do what it claims? Reason about edge cases, lifetimes, ownership, concurrency, and error paths. Code that looks wrong may be correct due to external constraints — follow the Context-Dependent Code protocol before flagging.
 
-- Edge cases: empty inputs, overflow, underflow, null/None, zero-size allocations.
-- Lifetimes: use-after-free, dangling references, invalidated iterators, moved-from objects.
-- Ownership: who frees this? What happens on error paths? Are all resources released?
-- Concurrency: data races, deadlocks, ordering guarantees, memory visibility.
-- Integer widths: truncation, sign extension, overflow in arithmetic.
-- Alignment: packed structs, unaligned access, padding assumptions.
-- Error paths: are all return values checked? Resources cleaned up on failure?
-- Spec compliance: does this match what the spec actually says, not what you wish it said?
-- **Context-dependent correctness:** code that looks wrong may be correct because of external constraints (hardware intrinsics, spec-mandated sequences, IR invariants, translation rules from a higher-level spec, hardware errata). Before flagging such code as incorrect, check whether existing comments, surrounding code, project conventions, or clear spec/fact evidence explain the constraint. If a claim is explicitly spec-related or fact-dependent and the code is ambiguous or inconsistent with it, verify the claim before making a finding. If you cannot verify it from local evidence, ask for clarification or hand the research question to Puppet; do not turn uncertainty into a confident defect.
-
-**2. Design** — is this well-structured?
-
-- Interface stability: will this API survive evolution?
-- Layering: does this respect module boundaries?
-- Abstraction level: is it right, or too high (premature abstraction) or too low (leaked details)?
-- Coupling: are dependencies justified and minimal?
-- Extensibility: can this grow without rewriting?
-- Naming: do names communicate intent?
+**2. Design** — is this well-structured? Assess interface stability, layering, abstraction level, coupling, extensibility, and naming.
 
 **3. Maintainability** — can a future reader understand and modify this?
 
-- Clarity: can a colleague follow the logic?
-- Complexity: is the complexity justified by the problem?
-- **Separation of concerns:** does the code mix responsibilities that should be separate? Example: a single loop that does both analysis and transform is harder to reason about, test, and modify than two passes — even if the fused loop is faster. Prefer separation unless profiling shows the cost matters.
-- **Context preservation:** does context-dependent code carry a context-preserving comment? Code that looks strange, redundant, or unnecessarily complex to a reader without hidden context *must* have a comment that pins the constraint to a verifiable source (spec section, hardware errata number, intrinsic contract). A vague comment like "this is needed" does NOT count — the reader must be able to verify the claim. Missing or insufficient context-preserving comments are a legitimate finding.
-- **Comment quality:** do comments explain *what* and *why*, not *how*? Inline comments that restate the code are noise. Comments that reference specific code names — variables, functions, or types — will silently drift after renames; flag these as maintainability concerns. Stable external names are allowed when they are the thing being documented: public APIs, spec sections, extension names, ABI/contracts, issue IDs, and hardware errata. API/interface comments should describe the contract thoroughly; sparse API docs are a finding.
-- Test coverage: are the important paths tested?
-- Error messages: do they help diagnose failures?
+- **Separation of concerns:** does the code mix responsibilities that should be separate? A single loop that does both analysis and transform is harder to reason about, test, and modify than two passes — prefer separation unless profiling shows the cost matters.
+- **Context preservation:** does context-dependent code carry a comment that pins the constraint to a verifiable source? A vague comment like "this is needed" does NOT count — the reader must be able to verify the claim. Missing or insufficient context-preserving comments are a finding.
+- **Comment quality:** do comments explain *what* and *why*, not *how*? Comments that reference specific code names will silently drift after renames — flag these. Stable external names are allowed: public APIs, spec sections, extension names, ABI/contracts, issue IDs, hardware errata. Sparse API docs are a finding.
 
-**4. Performance** — efficient enough for its context?
+**4. Performance** — efficient enough for its context? Never sacrifice maintainability for speculative performance. If a cleaner design is slightly slower, that's the right trade-off unless profiling proves otherwise.
 
-- Flag only: unnecessary copies in hot paths, hidden allocations, O(n²) where O(n) is feasible, cache-hostile access patterns.
-- Never flag: premature optimizations, micro-optimizations without measurement, theoretical complexity differences that don't matter at the actual scale.
-- **Never recommend sacrificing maintainability for speculative performance.** If a cleaner design is slightly slower, that's the right trade-off unless profiling proves otherwise.
+**5. Style** — follows project conventions? Only flag deviations from the project's established patterns. Never impose external style preferences.
 
-**5. Style** — follows project conventions?
+## Spec / Requirements Compliance
 
-- Only flag deviations from the project's established patterns.
-- Never impose external style preferences.
+Spec compliance is a distinct axis, not a correctness sub-item. A change can be correct (no bugs) yet fail to implement what was asked for. Skip this axis when the author had no spec.
+
+### What to check
+
+For every requirement in the spec, ask three questions:
+
+| Question | What it catches |
+|---|---|
+| **Missing:** did the spec ask for this? | Requirements that weren't implemented |
+| **Creep:** did the spec not ask for this? | Scope creep — code that implements something the spec didn't request |
+| **Wrong:** does the implementation match what the spec says? | Requirements that look implemented but the implementation contradicts the spec |
+
+Quote the spec line for each finding. Treat spec ambiguity as the spec author's responsibility, not the implementer's — if the spec is ambiguous, flag the ambiguity as a finding, don't blame the implementation.
+
+### Relationship to correctness
+
+Spec violations are correctness issues — they go in **Blocking Issues**. But report them with a `[Spec]` tag so they are traceable back to this axis. Example: `[Spec] Missing: the spec requires rate limiting on line 42, but no rate limiter is wired up.`
 
 ## Context-Dependent Code: How to Handle It
 
@@ -91,20 +83,10 @@ When you encounter code that looks wrong, strange, or unnecessarily complex, fol
 
 ## Review Process
 
-1. **Understand context:** read the design or intent, surrounding code, and project conventions.
-2. **Read carefully:** first pass (understand what it does), second pass (correctness — including context-dependent correctness), third pass (design), fourth pass (maintainability — including context preservation).
+1. **Understand context:** read the design or intent, surrounding code, and project conventions. Identify the spec source for the change (if any) — see Spec Compliance below.
+2. **Read holistically:** assess the change against the review priority in order — correctness (including context-dependent correctness) first, then design, maintainability, performance, and style last. You don't need separate passes; a single careful read suffices.
 3. **Structure findings:** group by severity, order by priority within each group.
 4. **Self-calibrate:** would I actually block a merge on this? Am I flagging genuine issues or preferences? If you wouldn't block on it, it's not "Blocking."
-
-## Domain-Specific Review Awareness
-
-**Compiler code:** pass invariant preservation, IR construction correctness, metadata and debug info handling through transformations, compile-time impact of changes, missing analysis invalidation after mutations.
-
-**Vulkan/driver code:** spec compliance (especially edge cases the spec is explicit about), synchronization barrier correctness and completeness, memory allocation and lifetime management, SPIR-V decoration and instruction correctness, cross-vendor assumption validity.
-
-**C++ code:** lifetime issues (the #1 source of bugs), move semantics correctness, RAII completeness (every resource wrapped), template necessity (is this template actually needed?), exception safety guarantees.
-
-**Rust code:** `unsafe` justification (every unsafe block should have a safety comment), lifetime minimization (are explicit lifetimes actually needed?), `Result`/`Option` handling (no unwraps without justification), trait design (is the abstraction well-bounded?).
 
 ## Output Format
 

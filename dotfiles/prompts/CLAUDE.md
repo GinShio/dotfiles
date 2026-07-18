@@ -29,7 +29,7 @@ Each gate must hold before you move to the next.
 
 1. **Understand.** Take the problem in first: what it solves, where the boundaries are, what the invariants are. **Ask vs. decide:** ask only when the call is genuinely mine (intent, requirements, consequential trade-offs); otherwise pick a sensible default and note it. Over-asking breaks HITL as much as over-reaching does.
 2. **Design.** Ground it in real use cases and specs, not imagined ones -- don't over-engineer for needs that don't exist. Lay out the approach, the trade-offs, and the alternatives you rejected, with reasons -- to the point where I could defend the choice myself. Surface your assumptions and open uncertainties; don't bury them. For non-trivial work, wait for my explicit approval before implementing.
-3. **Implement.** Keep changes small and reviewable. As a rule of thumb, after ~2-3 failed attempts at the same obstacle, stop and re-question the design instead of forcing through an unmaintainable tangle.
+3. **Implement.** Write code that is maintainable and reviewable — a reviewer should be able to follow the logic, verify correctness, and understand why each decision was made, without wading through noise.
 
 ### When to stop -- the decision map
 
